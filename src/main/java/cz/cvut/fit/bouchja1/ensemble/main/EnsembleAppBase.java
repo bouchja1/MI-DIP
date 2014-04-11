@@ -4,9 +4,9 @@
  */
 package cz.cvut.fit.bouchja1.ensemble.main;
 
-import cz.cvut.bouchja1.ensemble.storage.CassandraStorage;
-import cz.cvut.bouchja1.ensemble.spring.ApplicationBean;
-import cz.cvut.bouchja1.ensemble.spring.AppConfig;
+import cz.cvut.fit.bouchja1.ensemble.storage.CassandraStorage;
+import cz.cvut.fit.bouchja1.ensemble.spring.ApplicationBean;
+import cz.cvut.fit.bouchja1.ensemble.spring.AppConfig;
 import cz.cvut.fit.bouchja1.ensemble.api.EnsembleApiFacade;
 import cz.cvut.fit.bouchja1.ensemble.api.EnsembleApiFacadeImpl;
 import org.apache.commons.logging.Log;

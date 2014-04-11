@@ -2,9 +2,8 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.cvut.bouchja1.ensemble.spring;
+package cz.cvut.fit.bouchja1.ensemble.spring;
 
-import cz.cvut.bouchja1.ensemble.spring.ApplicationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;

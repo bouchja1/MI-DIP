@@ -1,6 +1,6 @@
-package cz.cvut.bouchja1.ensemble.spring;
+package cz.cvut.fit.bouchja1.ensemble.spring;
 
-import cz.cvut.bouchja1.ensemble.storage.CassandraStorage;
+import cz.cvut.fit.bouchja1.ensemble.storage.CassandraStorage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.cvut.bouchja1.ensemble.storage;
+package cz.cvut.fit.bouchja1.ensemble.storage;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Cluster;

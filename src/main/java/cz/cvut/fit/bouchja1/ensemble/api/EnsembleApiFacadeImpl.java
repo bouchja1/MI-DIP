@@ -4,7 +4,7 @@
  */
 package cz.cvut.fit.bouchja1.ensemble.api;
 
-import cz.cvut.bouchja1.ensemble.storage.IStorage;
+import cz.cvut.fit.bouchja1.ensemble.storage.IStorage;
 import cz.cvut.fit.bouchja1.ensemble.bandits.Bandit;
 import cz.cvut.fit.bouchja1.ensemble.bandits.BanditsMachine;
 import cz.cvut.fit.bouchja1.ensemble.bandits.BayesianStrategy;

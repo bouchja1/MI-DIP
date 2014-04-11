@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.cvut.bouchja1.ensemble.spring;
+package cz.cvut.fit.bouchja1.ensemble.spring;
 
-import cz.cvut.bouchja1.ensemble.storage.IStorage;
-import cz.cvut.bouchja1.ensemble.storage.StorageFactory;
+import cz.cvut.fit.bouchja1.ensemble.storage.IStorage;
+import cz.cvut.fit.bouchja1.ensemble.storage.StorageFactory;
 import cz.cvut.fit.bouchja1.ensemble.api.EnsembleApiFacade;
 import cz.cvut.fit.bouchja1.ensemble.bandits.BanditsMachine;
 import cz.cvut.fit.bouchja1.ensemble.bandits.BayesianStrategy;
