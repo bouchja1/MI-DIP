@@ -1,0 +1,19 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"	
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/tx
+http://www.springframework.org/schema/tx/spring-tx.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context.xsd">
+ 
+    <context:component-scan base-package="cz.cvut.fit.bouchja1.mi_dpr.rest.*" />
+
+    <bean id="zeroMqClientHelper" class="cz.cvut.fit.bouchja1.mi_dpr.rest.client.zeromq.ZeroMqClientHelper" />
+    <bean id="algorithmEndpoint" class="cz.cvut.fit.bouchja1.mi_dpr.rest.client.endpoint.AlgorithmEndpoint" />
+    <bean id="coresEndpoint" class="cz.cvut.fit.bouchja1.mi_dpr.rest.client.endpoint.CoresEndpoint" />
+    <bean id="ensembleEndpoint" class="cz.cvut.fit.bouchja1.mi_dpr.rest.client.endpoint.EnsembleEndpoint" />
+</beans>

@@ -12,19 +12,18 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.16</version>
             </plugin>
         </plugins>
     </build>
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
-        <spring.version>3.1.2.RELEASE</spring.version>
+        <spring.version>3.2.6.RELEASE</spring.version>       
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jetty.version>9.0.7.v20131107</jetty.version> <!-- Adapt this to a version found on http://repo.maven.apache.org/maven2/org/eclipse/jetty/jetty-maven-plugin/ -->
+        <logback.version>1.1.1</logback.version>
+        <jcloverslf4j.version>1.7.6</jcloverslf4j.version>	
     </properties>
     
     <repositories>
@@ -33,81 +32,141 @@
             <name>Java.net Repository for Maven</name>
             <url>http://download.java.net/maven/2/</url>
             <layout>default</layout>
-        </repository>
-    </repositories>   
+        </repository>      
+    </repositories>       
 
     <dependencies>
+        
+        <!-- Jersey-Spring http://mvnrepository.com/artifact/org.glassfish.jersey.ext/jersey-spring3/2.4.1 -->
+        <dependency>
+            <groupId>org.glassfish.jersey.ext</groupId>
+            <artifactId>jersey-spring3</artifactId>
+            <version>2.4.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-web</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-beans</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>2.4.1</version>
+        </dependency>        
         
         <dependency>
             <groupId>org.zeromq</groupId>
             <artifactId>jeromq</artifactId>
             <version>0.3.2</version>
         </dependency>        
-
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-            <version>1.9</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>jsr311-api</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-        
-        <!-- Spring -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>${spring.version}</version>
-        </dependency>        
-                
+     
+        <!-- Spring 3 dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <version>${spring.version}</version>
-        </dependency>     
-        
+        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${spring.version}</version>
-        </dependency>        
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>	
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
         
-		<!-- Jersey + Spring -->
-		<dependency>
-			<groupId>com.sun.jersey.contribs</groupId>
-			<artifactId>jersey-spring</artifactId>
-			<version>1.18</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.springframework</groupId>
-					<artifactId>spring</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.springframework</groupId>
-					<artifactId>spring-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.springframework</groupId>
-					<artifactId>spring-web</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.springframework</groupId>
-					<artifactId>spring-beans</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.springframework</groupId>
-					<artifactId>spring-context</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>                                                                                                                    
+        <!-- testing -->
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>2.4.1</version>	
+        </dependency>	
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>1.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.restassured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>2.1.0</version>
+            <exclusions>
+                <!-- Exclude Groovy because of classpath issue -->
+                <exclusion>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <!-- Needs to be the same version that REST Assured depends on -->
+            <version>2.2.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+            <artifactId>jersey-test-framework-provider-external</artifactId>
+            <version>2.5.1</version>
+        </dependency>
+
+        <!-- LogBack dependencies -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${jcloverslf4j.version}</version>
+        </dependency>	                                                                                                    
     </dependencies>
 
 </project>
