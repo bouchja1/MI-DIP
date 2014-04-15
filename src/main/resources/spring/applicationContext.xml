@@ -15,6 +15,28 @@ http://www.springframework.org/schema/context/spring-context.xsd">
    
     <bean id="zeroMqClientHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.zeromq.ZeroMqClientHelper" />
     
+    <bean id="algorithmSolrService" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.AlgorithmSolrService"/> 
+    
+    <bean id="coreSolrService" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.CoreSolrService"/> 
+
+    <bean id="algorithmEndpointHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.AlgorithmEndpointHelper">
+        <property name="algorithmSolrService" ref="algorithmSolrService"/>
+    </bean>      
+        
+    <bean id="coresEndpointHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.CoresEndpointHelper">
+        <property name="coreSolrService" ref="coreSolrService"/>
+    </bean>        
+    
+    <bean id="algorithmEndpoint" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.AlgorithmEndpoint" >   
+        <property name="algorithmEndpointHelper" ref="algorithmEndpointHelper"/>
+    </bean>          
+
+    <bean id="coresEndpoint" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.CoresEndpoint" >
+        <property name="coresEndpointHelper" ref="coresEndpointHelper"/>
+    </bean>    
+    
+    <bean id="ensembleEndpoint" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.EnsembleEndpoint"/>   
+    
     <bean id="solrService" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.SolrService">
         <property name="serverUrl" value="http://localhost:8089/solr/"/>
         <!-- java.util.Set -->
@@ -24,17 +46,5 @@ http://www.springframework.org/schema/context/spring-context.xsd">
                 <value>collaborative_filtering</value>
             </set>
         </property>        
-    </bean>    
-    
-    <bean id="coresEndpointHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.CoresEndpointHelper">
-        <property name="solrService" ref="solrService"/>
-    </bean>    
-    
-    <bean id="algorithmEndpoint" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.AlgorithmEndpoint" />   
-
-    <bean id="coresEndpoint" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.CoresEndpoint" >
-        <property name="coresEndpointHelper" ref="coresEndpointHelper"/>
-    </bean>
-    
-    <bean id="ensembleEndpoint" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.EnsembleEndpoint"/>   
+    </bean>       
 </beans>

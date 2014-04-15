@@ -4,7 +4,8 @@
  */
 package cz.cvut.fit.bouchja1.mi_dip.rest.client.helper;
 
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.UserArticle;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.UserArticleDocument;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.CoreSolrService;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.SolrService;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.validation.UserArticleValidator;
 import java.io.IOException;
@@ -26,16 +27,16 @@ import org.springframework.stereotype.Service;
 public class CoresEndpointHelper extends CommonEndpointHelper {
 
     //@Autowired
-    private SolrService solrService;
+    private CoreSolrService coreSolrService;
     private final Log logger = LogFactory.getLog(getClass());
 
-    public Response putUserArticle(String coreId, UserArticle userArticle) {
+    public Response putUserArticle(String coreId, UserArticleDocument userArticle) {
         Response resp = null;
-        if (solrService.isServerCoreFromPool(coreId)) {
+        if (coreSolrService.getSolrService().isServerCoreFromPool(coreId)) {
             String message = UserArticleValidator.validateUserArticle(userArticle);
             if ("success".equals(message)) {
                 try {
-                    solrService.putUserArticle(coreId, userArticle);
+                    coreSolrService.putUserArticle(coreId, userArticle);
                     resp = getOkResponse();
                 } catch (SolrServerException ex) {
                     logger.error(ex);
@@ -61,10 +62,10 @@ public class CoresEndpointHelper extends CommonEndpointHelper {
 
     public Response disableArticle(String coreId, String documentId) {
         Response resp = null;
-        if (solrService.isServerCoreFromPool(coreId)) {
+        if (coreSolrService.getSolrService().isServerCoreFromPool(coreId)) {
             if (documentId != null) {
                 try {
-                solrService.disableArticle(coreId, documentId);
+                coreSolrService.disableArticle(coreId, documentId);
                 resp = getOkResponse();
                 } catch (SolrServerException ex) {
                     logger.error(ex);
@@ -87,7 +88,9 @@ public class CoresEndpointHelper extends CommonEndpointHelper {
         return resp;
     }
 
-    public void setSolrService(SolrService solrService) {
-        this.solrService = solrService;
+    public void setCoreSolrService(CoreSolrService coreSolrService) {
+        this.coreSolrService = coreSolrService;
     }
+
+
 }

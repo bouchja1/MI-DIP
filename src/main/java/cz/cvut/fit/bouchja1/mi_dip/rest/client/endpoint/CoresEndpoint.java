@@ -4,7 +4,7 @@
  */
 package cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint;
 
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.UserArticle;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.UserArticleDocument;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.CoresEndpointHelper;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -30,14 +30,13 @@ public class CoresEndpoint {
     public static final String ENDPOINT_PATH = "/cores";
     public static final String USER_ARTICLE_PATH = "/{coreId}/document";
     
-    //@Autowired
     private CoresEndpointHelper coresEndpointHelper;  
     
     @Path(USER_ARTICLE_PATH)
     @Consumes({MediaType.APPLICATION_JSON})
-    @Produces({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @POST
-    public Response insertUpdateUserArticle(@PathParam("coreId") String coreId, UserArticle userArticle) {
+    public Response insertUpdateUserArticle(@PathParam("coreId") String coreId, UserArticleDocument userArticle) {
         return coresEndpointHelper.putUserArticle(coreId, userArticle);
     }    
     

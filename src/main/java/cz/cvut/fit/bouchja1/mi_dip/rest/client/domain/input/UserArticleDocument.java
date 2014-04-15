@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.cvut.fit.bouchja1.mi_dip.rest.client.domain;
+package cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author jan
  */
 @XmlRootElement
-public class UserArticle implements Serializable {       
+public class UserArticleDocument implements Serializable {       
     
     private static final long serialVersionUID = -8039686696076337053L;
     
@@ -30,10 +30,10 @@ public class UserArticle implements Serializable {
 curl -X POST -H "Content-Type: application/json" -d '{"articleId": "articleId","articleText": "sdsfsdsdf","group": "123","userId": "1","time": "2009-04-12T20:44:55","rating": "0.1"}' http://localhost:8089/ensembleRestApi/recommeng/cores/collection1/document  
      */
 
-    public UserArticle() {
+    public UserArticleDocument() {
     }
 
-    public UserArticle(String articleId, String articleText, String group, int userId, Date time, double rating) {
+    public UserArticleDocument(String articleId, String articleText, String group, int userId, Date time, double rating) {
         this.articleId = articleId;
         this.articleText = articleText;
         this.group = group;
