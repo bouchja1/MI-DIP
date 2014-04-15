@@ -6,9 +6,6 @@ package cz.cvut.fit.bouchja1.mi_dip.rest.client.domain;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Set;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -25,7 +22,7 @@ public class UserArticle implements Serializable {
     private String group;
     //private Set<Integer> users;      
     private int userId;    
-    private Date time;
+    private Date time;    
     private double rating;
     
     /*

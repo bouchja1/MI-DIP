@@ -12,15 +12,23 @@ import javax.ws.rs.core.Response.ResponseBuilder;
  *
  * @author jan
  */
-public interface EndpointHelper<T> {
+public interface EndpointHelper {
 
     public Response getOkResponse();
 
     public Response getOkResponse(Object o);
+    
+    public Response getBadRequestResponse(String message);
+    
+    public Response getNotFoundResponse(String message);
 
     public Response getCreatedResponse(URI uri);
 
     public Response getSeeOtherResponse(URI uri);
+    
+    public Response getServerError(String message);
 
     public Response build(ResponseBuilder builder);
+    
+    public Response build(ResponseBuilder builder, String message);
 }

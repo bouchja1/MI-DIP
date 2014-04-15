@@ -41,14 +41,17 @@ public class CoresEndpoint {
         return coresEndpointHelper.putUserArticle(coreId, userArticle);
     }    
     
+    /*
     @Path(USER_ARTICLE_PATH)
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes("application/x-www-form-urlencoded")
     @POST
     public Response insertUpdateUserArticle(@PathParam("coreId") String coreId, MultivaluedMap queryParams) {
         return coresEndpointHelper.putUserArticle(coreId, queryParams);
-    }      
+    } 
+    */
     
+    //curl -X DELETE 'http://localhost:8089/ensembleRestApi/recommeng/cores/userBased/document?documentId=sdsfsdsdf'
     @Path(USER_ARTICLE_PATH)
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @DELETE

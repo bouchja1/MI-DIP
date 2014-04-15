@@ -23,6 +23,11 @@ public abstract class CommonEndpointHelper implements EndpointHelper {
     public Response getOkResponse(Object o) {
         return build(Response.ok(o));
     }
+    
+    @Override
+    public Response getNotFoundResponse(String message) {
+        return build(Response.status(Response.Status.NOT_FOUND), message);
+    }    
 
     @Override
     public Response getCreatedResponse(URI uri) {
@@ -37,5 +42,20 @@ public abstract class CommonEndpointHelper implements EndpointHelper {
     @Override
     public Response build(ResponseBuilder builder) {
         return builder.build();
+    }
+    
+    @Override
+    public Response build(ResponseBuilder builder, String message) {
+        return builder.entity(message).build();
+    }    
+
+    @Override
+    public Response getBadRequestResponse(String message) {
+        return build(Response.status(Response.Status.BAD_REQUEST), message);
+    }
+
+    @Override
+    public Response getServerError(String message) {
+        return build(Response.status(Response.Status.INTERNAL_SERVER_ERROR), message);
     }
 }

@@ -20,8 +20,8 @@ http://www.springframework.org/schema/context/spring-context.xsd">
         <!-- java.util.Set -->
         <property name="validSolrCores">
             <set>
-                <value>collection1</value>
-                <value>collection2</value>
+                <value>userBased</value>
+                <value>collaborative_filtering</value>
             </set>
         </property>        
     </bean>    
