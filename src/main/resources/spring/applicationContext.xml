@@ -17,6 +17,13 @@ http://www.springframework.org/schema/context/spring-context.xsd">
     
     <bean id="solrService" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.SolrService">
         <property name="serverUrl" value="http://localhost:8089/solr/"/>
+        <!-- java.util.Set -->
+        <property name="validSolrCores">
+            <set>
+                <value>collection1</value>
+                <value>collection2</value>
+            </set>
+        </property>        
     </bean>    
     
     <bean id="coresEndpointHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.CoresEndpointHelper">
