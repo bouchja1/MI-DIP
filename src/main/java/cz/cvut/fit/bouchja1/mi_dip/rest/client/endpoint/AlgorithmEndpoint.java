@@ -26,15 +26,69 @@ public class AlgorithmEndpoint {
 
     public static final String ENDPOINT_PATH = "/algorithm";
     public static final String ALGORITHM_RANDOM_PATH = "/{coreId}/random";
+    public static final String ALGORITHM_LATEST_PATH = "/{coreId}/latest";
+    public static final String ALGORITHM_MLT_ID_PATH = "/{coreId}/morelikethisid";
+    public static final String ALGORITHM_MLT_TEXT_PATH = "/{coreId}/morelikethistext";
     
     private AlgorithmEndpointHelper algorithmEndpointHelper;
 
     @Path(ALGORITHM_RANDOM_PATH)
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @GET
-    public Response recommendRandom(@PathParam("coreId") String coreId, @QueryParam(value = "limit") int limit) {    
-        return algorithmEndpointHelper.getRecommendationByRandom(coreId, limit);
+    public Response recommendRandom(@PathParam("coreId") String coreId, @QueryParam(value = "groupId") int groupId, @QueryParam(value = "limit") int limit) {    
+        return algorithmEndpointHelper.getRecommendationByRandom(coreId, groupId, limit);
     }
+    
+    @Path(ALGORITHM_LATEST_PATH)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @GET
+    public Response recommendLatest(@PathParam("coreId") String coreId, @QueryParam(value = "groupId") int groupId, @QueryParam(value = "limit") int limit) {    
+        return algorithmEndpointHelper.getRecommendationByLatest(coreId, groupId, limit);
+    }    
+    
+    /*
+     * MLT ID
+     */
+    @Path(ALGORITHM_MLT_ID_PATH)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @GET
+    public Response recommendMltId(@PathParam("coreId") String coreId, @QueryParam(value = "documentId") String documentId, @QueryParam(value = "limit") int limit) {    
+        return algorithmEndpointHelper.getRecommendationByMltId(coreId, documentId, limit);
+    }      
+    
+    /*
+     * MLT TEXT
+     */    
+    @Path(ALGORITHM_MLT_TEXT_PATH)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @GET
+    public Response recommendMltText(@PathParam("coreId") String coreId, @QueryParam(value = "text") String text, @QueryParam(value = "limit") int limit) {    
+        return algorithmEndpointHelper.getRecommendationByMltText(coreId, text, limit);
+    }      
+    
+    /*
+     * MLT TOP RATED
+     */    
+    
+    /*
+     * MLT HYBRID
+     */    
+    
+    /*
+     * MLT CF ITEM SOLR
+     */    
+    
+    /*
+     * MLT CF USER MAHOUT
+     */        
+    
+    /*
+     * MLT CF ITEM MAHOUT
+     */       
+    
+    /*
+     * MLT CF USER RATING ITEM
+     */            
 
     public void setAlgorithmEndpointHelper(AlgorithmEndpointHelper algorithmEndpointHelper) {
         this.algorithmEndpointHelper = algorithmEndpointHelper;
