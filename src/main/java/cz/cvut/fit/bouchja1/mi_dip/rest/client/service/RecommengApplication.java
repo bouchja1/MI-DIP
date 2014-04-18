@@ -26,7 +26,7 @@ public class RecommengApplication extends ResourceConfig {
         register(RequestContextFilter.class);
         register(AlgorithmEndpoint.class);
         register(CoresEndpoint.class);
-        //register(EnsembleEndpoint.class);
+        register(EnsembleEndpoint.class);
         register(JacksonFeature.class);        
     }
 }

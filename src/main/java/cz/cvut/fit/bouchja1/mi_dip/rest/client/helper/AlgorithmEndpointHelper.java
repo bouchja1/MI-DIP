@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.output.OutputDocument;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.AlgorithmSolrService;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.util.Util;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -17,6 +18,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrDocument;
 
 /**
  *
@@ -82,8 +84,9 @@ public class AlgorithmEndpointHelper extends CommonEndpointHelper {
         if (algorithmSolrService.getSolrService().isServerCoreFromPool(coreId)) {
             try {
                 int limitToQuery = Util.getCountOfElementsToBeReturned(limit);
-                if (algorithmSolrService.getSolrService().isDocumentInIndex(coreId, documentId)) {
-                    docs = algorithmSolrService.getRecommendationByMltId(coreId, documentId, limitToQuery);
+                SolrDocument existingDocument = algorithmSolrService.getSolrService().isDocumentInIndex(coreId, documentId);
+                if (existingDocument != null) {
+                    docs = algorithmSolrService.getRecommendationByMltId(coreId, existingDocument, limitToQuery);
                     resp = Response.ok(
                             new GenericEntity<List<OutputDocument>>(Lists.newArrayList(docs)) {
                     }).build();
@@ -107,8 +110,18 @@ public class AlgorithmEndpointHelper extends CommonEndpointHelper {
         List<OutputDocument> docs = new ArrayList<OutputDocument>();
         if (algorithmSolrService.getSolrService().isServerCoreFromPool(coreId)) {
             int limitToQuery = Util.getCountOfElementsToBeReturned(limit);
-
-            docs = algorithmSolrService.getRecommendationByMltText(coreId, text, limitToQuery);
+            try {
+                docs = algorithmSolrService.getRecommendationByMltText(coreId, text, limitToQuery);
+                resp = Response.ok(
+                        new GenericEntity<List<OutputDocument>>(Lists.newArrayList(docs)) {
+                }).build();
+            } catch (SolrServerException ex) {
+                logger.error(ex);
+                resp = getServerError(ex.getMessage());
+            } catch (IOException ex) {
+                logger.error(ex);
+                resp = getServerError(ex.getMessage());
+            }
         } else {
             //vratit odpoved, ze takovy core-id tam neexistuje
             resp = getBadRequestResponse("You filled bad or non-existing {core-id}.");

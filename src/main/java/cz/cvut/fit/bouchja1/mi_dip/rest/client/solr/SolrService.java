@@ -9,6 +9,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -57,15 +58,15 @@ public class SolrService {
         this.validSolrCores = validSolrCores;
     }    
 
-    public boolean isDocumentInIndex(String coreId, String documentId) throws SolrServerException {
+    public SolrDocument isDocumentInIndex(String coreId, String documentId) throws SolrServerException {
         HttpSolrServer server = getServerFromPool(coreId);
         SolrQuery query = new SolrQuery();
         query.setQuery("articleId:"+documentId);
-        query.setRows(0);
+        query.setRows(1);
         QueryResponse response;
         response = server.query(query);
         if (response.getResults().getNumFound() > 0) {
-            return true;
-        } else return false;
+            return response.getResults().get(0);
+        } else return null;
     }
 }
