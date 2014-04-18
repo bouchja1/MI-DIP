@@ -52,7 +52,8 @@ public class RequestHandlerJson implements RequestHandler {
                     for (int i = 0; i < messageParameters.length; i++) {
                         String[] param = messageParameters[i].split("=");
                         operationParamMap.put(param[0], param[1]);
-                    }                    
+                    }    
+                    operation.parseParameters(operationParamMap);
                 }
                 break;
             case "GET":

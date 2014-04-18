@@ -23,6 +23,10 @@ public class OperationDetectBestBandit extends AbstractOperation {
 
     @Override
     public boolean validateOperation() {
+        if (banditCollectionId == null) {
+            errorMessage = "You need to pass all parameters (empty collection ID).";
+            return false;
+        }
         return true;
     }
 

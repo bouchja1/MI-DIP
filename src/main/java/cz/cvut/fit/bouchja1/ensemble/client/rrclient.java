@@ -145,6 +145,9 @@ public class rrclient {
         formatter.printHelp("Ensemble client", options);
     }
 
+    /*
+     * Creates new collection of algorithms and algorithms
+     */
     private static SmileRequest createBanditCollection() {
         SmileRequest req = new SmileRequest();
         req.setMethod("POST");
@@ -153,6 +156,9 @@ public class rrclient {
         return req;
     }
 
+    /*
+     * Detects the best algorithm from concrete collection
+     */
     private static SmileRequest detectBestBandit() {
         SmileRequest req = new SmileRequest();
         req.setMethod("GET");
@@ -160,19 +166,25 @@ public class rrclient {
         req.setPath("/ensemble/services/collection/1");
         return req;
     }
+    
+    /*
+     * This is "pull". Something like "Ok, I have chosen this algorithm from this collection
+     */
+    private static SmileRequest sendBanditPull() {
+        SmileRequest req = new SmileRequest();
+        req.setMethod("PUT");
+        req.setPath("/ensemble/services/collection/1/algorithm/1");
+        return req;
+    }    
 
+    /*
+     * Sends feedback to ensemble
+     */
     private static SmileRequest sendFeedback() {
         SmileRequest req = new SmileRequest();
         req.setMethod("PUT");
         req.setPath("/ensemble/services/collection/1/algorithm/1");
         req.setBody("feedback=1");
-        return req;
-    }
-
-    private static SmileRequest banditWhichWasChosen() {
-        SmileRequest req = new SmileRequest();
-        req.setMethod("PUT");
-        req.setPath("/ensemble/services/collection/1/algorithm/1");
         return req;
     }
 }
