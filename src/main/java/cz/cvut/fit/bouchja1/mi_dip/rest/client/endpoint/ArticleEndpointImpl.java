@@ -6,7 +6,7 @@ package cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint;
 
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.ArticleDocument;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.UserArticleDocument;
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.CoresEndpointHelper;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.ArticleEndpointHelper;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -17,6 +17,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,13 +25,13 @@ import org.springframework.stereotype.Component;
  * @author jan
  */
 @Component
-@Path(CoresEndpointImpl.ENDPOINT_PATH)
-public class CoresEndpointImpl implements CoresEndpoint {
+@Path(ArticleEndpointImpl.ENDPOINT_PATH)
+public class ArticleEndpointImpl implements ArticleEndpoint {
 
     public static final String ENDPOINT_PATH = "/cores";
     public static final String USER_ARTICLE_PATH = "/{coreId}/document";
     
-    private CoresEndpointHelper coresEndpointHelper;  
+    private ArticleEndpointHelper articleEndpointHelper;  
     
     @Path(USER_ARTICLE_PATH)
     @Consumes({MediaType.APPLICATION_JSON})
@@ -38,7 +39,7 @@ public class CoresEndpointImpl implements CoresEndpoint {
     @POST
     @Override
     public Response updateBehavioralToArticle(@PathParam("coreId") String coreId, UserArticleDocument userArticle) {
-        return coresEndpointHelper.updateBehavioralToArticle(coreId, userArticle);
+        return articleEndpointHelper.updateBehavioralToArticle(coreId, userArticle);
     }    
     
     //curl -X DELETE 'http://localhost:8089/ensembleRestApi/recommeng/cores/userBased/document?documentId=sdsfsdsdf'
@@ -47,22 +48,23 @@ public class CoresEndpointImpl implements CoresEndpoint {
     @DELETE
     @Override
     public Response disableArticleFromRecommendation(@PathParam("coreId") String coreId, @QueryParam("documentId") String documentId) {
-        return coresEndpointHelper.disableArticleFromRecommendation(coreId, documentId);
+        return articleEndpointHelper.disableArticleFromRecommendation(coreId, documentId);
     }    
-
-    public void setCoresEndpointHelper(CoresEndpointHelper coresEndpointHelper) {
-        this.coresEndpointHelper = coresEndpointHelper;
-    }
 
     @Override
     public Response postArticle(@PathParam("coreId") String coreId, ArticleDocument article) {
-        return coresEndpointHelper.postArticle(coreId, article);
+        return articleEndpointHelper.postArticle(coreId, article);
     }
 
     @Override
     public Response postArticles(@PathParam("coreId") String coreId, List<ArticleDocument> articles) {
-        return coresEndpointHelper.postArticles(coreId, articles);
+        return articleEndpointHelper.postArticles(coreId, articles);
     }
+
+    public void setArticleEndpointHelper(ArticleEndpointHelper articleEndpointHelper) {
+        this.articleEndpointHelper = articleEndpointHelper;
+    }
+    
     
     
 }

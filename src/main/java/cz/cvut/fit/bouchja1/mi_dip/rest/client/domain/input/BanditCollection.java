@@ -10,24 +10,24 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 
-@XmlRootElement(name = "banditCollection")
+@XmlRootElement
 public class BanditCollection implements Serializable {
     private static final long serialVersionUID = -4039686696075339053L;
     
-    private String banditCollectionId;
+    private String id;
     private Set<BanditId> banditIds;
 
     public BanditCollection() {
     }
 
     @XmlElement    
-    public String getBanditCollectionId() {
-        return banditCollectionId;
+    public String getId() {
+        return id;
     }
 
-    public void setBanditCollectionId(String banditCollectionId) {
-        this.banditCollectionId = banditCollectionId;
-    }
+    public void setId(String id) {
+        this.id = id;
+    }        
 
     @XmlElement
     public Set<BanditId> getBanditIds() {

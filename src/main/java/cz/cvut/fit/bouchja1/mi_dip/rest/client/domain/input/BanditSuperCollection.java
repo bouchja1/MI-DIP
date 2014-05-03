@@ -10,34 +10,34 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 
-@XmlRootElement(name = "banditSuperCollection")
+@XmlRootElement
 public class BanditSuperCollection implements Serializable {
     private static final long serialVersionUID = -4039686696075339053L;
     
-    private String banditSuperCollectionId;
-    private Set<BanditCollection> banditContextIds;
+    private String id;
+    private Set<BanditCollection> contextCollections;
 
     public BanditSuperCollection() {
     }
 
-    @XmlElement
-    public String getBanditSuperCollectionId() {
-        return banditSuperCollectionId;
+        @XmlElement
+    public String getId() {
+        return id;
     }
 
-    public void setBanditSuperCollectionId(String banditSuperCollectionId) {
-        this.banditSuperCollectionId = banditSuperCollectionId;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    @XmlElement
-    public Set<BanditCollection> getBanditContextIds() {
-        return banditContextIds;
+        @XmlElement
+    public Set<BanditCollection> getContextCollections() {
+        return contextCollections;
     }
 
-    public void setBanditContextIds(Set<BanditCollection> banditContextIds) {
-        this.banditContextIds = banditContextIds;
+    public void setContextCollections(Set<BanditCollection> contextCollections) {
+        this.contextCollections = contextCollections;
     }
 
-   
+    
     
 }

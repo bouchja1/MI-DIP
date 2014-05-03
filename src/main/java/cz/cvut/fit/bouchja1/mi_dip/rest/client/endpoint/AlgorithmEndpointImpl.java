@@ -25,16 +25,17 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Path(AlgorithmEndpointImpl.ENDPOINT_PATH)
-public class AlgorithmEndpointImpl {
+public class AlgorithmEndpointImpl implements AlgorithmEndpoint {
 
     public static final String ENDPOINT_PATH = "/algorithm";
     public static final String ALGORITHM_PATH = "/{coreId}/{algorithmId}";
-    @Autowired
+    
     private AlgorithmEndpointHelper algorithmEndpointHelper;
 
     @Path(ALGORITHM_PATH)
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @GET
+    @Override
     public Response recommend(@PathParam("coreId") String coreId,
             @PathParam("algorithmId") String algorithmId,
             @QueryParam(value = "groupId") int groupId,
@@ -76,5 +77,5 @@ public class AlgorithmEndpointImpl {
             algorithmParams.put("limit", String.valueOf(limit));
         } 
         return algorithmParams;
-    }
+    }  
 }

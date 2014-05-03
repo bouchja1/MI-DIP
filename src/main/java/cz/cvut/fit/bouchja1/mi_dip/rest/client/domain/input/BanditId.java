@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author jan
  */
-@XmlRootElement(name = "bandit")
+@XmlRootElement
 public class BanditId {
 
     private String id;

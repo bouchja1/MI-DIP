@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
  * @author jan
  */
 @Service
-public class CoresEndpointHelper extends CommonEndpointHelper {
+public class ArticleEndpointHelper extends CommonEndpointHelper {
 
     //@Autowired
     private SolrService solrService;

@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Path(EnsembleEndpointImpl.ENDPOINT_PATH)
-public class EnsembleEndpointImpl {
+public class EnsembleEndpointImpl implements EnsembleEndpoint {
     
     public static final String ENDPOINT_PATH = "/ensemble";
     public static final String SUPERCOLLECTION_PATH = "/supercollection";
@@ -47,6 +47,7 @@ public class EnsembleEndpointImpl {
     //@Consumes("application/x-www-form-urlencoded")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Override
     public Response createBanditCollection(BanditCollection banditCollection) {
         return ensembleZeroMqHelper.createBanditSet(banditCollection);
     }
@@ -55,6 +56,7 @@ public class EnsembleEndpointImpl {
     @POST    
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})    
+    @Override
     public Response createBanditSuperCollection(BanditSuperCollection banditSuperCollection) {
         return ensembleZeroMqHelper.createBanditSuperSet(banditSuperCollection);
     }    
@@ -62,6 +64,7 @@ public class EnsembleEndpointImpl {
     @Path(COLLECTION_PATH)
     @GET   
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Override
     public Response getBanditCollections() {
         return ensembleZeroMqHelper.getAllBanditCollections();
     }    
@@ -69,6 +72,7 @@ public class EnsembleEndpointImpl {
     @Path(SUPERCOLLECTION_PATH)
     @GET   
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Override
     public Response getBanditSuperCollections() {
         return ensembleZeroMqHelper.getAllBanditSuperCollections();
     }      
@@ -77,6 +81,7 @@ public class EnsembleEndpointImpl {
     @GET   
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     //MA TAM CENU TEN FILTER?
+    @Override
     public Response getBestBanditCollection(@PathParam(value="collectionId") String collectionId, @QueryParam(value = "filter") String filter) {
         return ensembleZeroMqHelper.filterBanditCollection(collectionId, filter);
     }
@@ -84,6 +89,7 @@ public class EnsembleEndpointImpl {
     @Path(SUPERCOLLECTION_PATH + SUPERCOLLECTION_ID)
     @GET   
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Override
     public Response getBestBanditSuperCollection(@PathParam(value="supercollectionId") String supercollectionId) {
         return ensembleZeroMqHelper.getBestBanditSuperCollection(supercollectionId);
     }        
@@ -92,6 +98,7 @@ public class EnsembleEndpointImpl {
     @PUT
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})  
+    @Override
     public Response sendEnsembleOperation(@PathParam(value="collectionId") String collectionId, @PathParam(value="banditId") String banditId, EnsembleOperation ensembleOperation) {
         return ensembleZeroMqHelper.sendEnsembleOperation(collectionId, banditId, ensembleOperation);
     }

@@ -17,19 +17,19 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 
     <bean id="algorithmEndpointHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.AlgorithmEndpointHelper">
         <property name="solrService" ref="solrService"/>
-    </bean>      
-        
-    <bean id="coresEndpointHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.CoresEndpointHelper">
-        <property name="solrService" ref="solrService"/>
-    </bean>        
+    </bean>                   
     
     <bean id="algorithmEndpoint" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.AlgorithmEndpointImpl" >   
         <property name="algorithmEndpointHelper" ref="algorithmEndpointHelper"/>
     </bean>          
 
-    <bean id="coresEndpoint" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.CoresEndpointImpl" >
-        <property name="coresEndpointHelper" ref="coresEndpointHelper"/>
-    </bean>    
+    <bean id="articleEndpointHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.ArticleEndpointHelper">
+        <property name="solrService" ref="solrService"/>
+    </bean>  
+    
+    <bean id="articleEndpoint" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.ArticleEndpointImpl" >
+        <property name="articleEndpointHelper" ref="articleEndpointHelper"/>
+    </bean>        
     
     <bean id="ensembleEndpoint" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.EnsembleEndpointImpl"/>   
     

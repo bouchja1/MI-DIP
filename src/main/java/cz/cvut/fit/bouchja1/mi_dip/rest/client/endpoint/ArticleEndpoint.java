@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response;
  *
  * @author jan
  */
-public interface CoresEndpoint {
+public interface ArticleEndpoint {
     public Response updateBehavioralToArticle(String coreId, UserArticleDocument userArticle);  
     public Response postArticle(String coreId, ArticleDocument article);
     public Response postArticles(String coreId, List<ArticleDocument> articles);
