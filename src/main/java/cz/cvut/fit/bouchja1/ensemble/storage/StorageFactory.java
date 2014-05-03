@@ -17,7 +17,7 @@ public class StorageFactory {
     public static IStorage getStorage(Environment env) {
         switch (env.getProperty("storage")) {
             case "cassandra" : 
-                return new CassandraStorage(env.getProperty("cassandra.host"), env.getProperty("cassandra.keyspace"));                
+                return new CassandraStorage(env);                
             default : 
                 return new JvmStorage();
         }

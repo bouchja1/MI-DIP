@@ -15,15 +15,16 @@ import java.util.Map;
 public class OperationDetectBestBandit extends AbstractOperation {
     
     private String banditCollectionId;    
+    private String filter;
 
     @Override
     public Reply executeOperation(EnsembleApiFacade api) {
-        return api.detectBestBandit(banditCollectionId);
+        return api.detectBestBandit(banditCollectionId, filter);
     }
 
     @Override
     public boolean validateOperation() {
-        if (banditCollectionId == null) {
+        if ((banditCollectionId == null) || (filter == null)) {
             errorMessage = "You need to pass all parameters (empty collection ID).";
             return false;
         }
@@ -33,6 +34,7 @@ public class OperationDetectBestBandit extends AbstractOperation {
     @Override
     public void parseParameters(Map<String, String> parameters) {
         this.banditCollectionId = parameters.get("collectionId");
+        this.filter = parameters.get("filter");
     }
     
 }

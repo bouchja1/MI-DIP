@@ -6,7 +6,9 @@ package cz.cvut.fit.bouchja1.ensemble.bandits;
 
 import cz.cvut.fit.bouchja1.ensemble.bandits.util.MathUtil;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.math3.distribution.BetaDistribution;
 /**
  * Implements a online, learning strategy to solve the Multi-Armed Bandit
@@ -41,7 +43,7 @@ public class BayesianStrategy {
         this.roundInverseDistributions = new ArrayList<>();
     }
 
-    public Bandit sampleBandits(String banditCollectionId) {
+    public Bandit sampleBandits() {
         //sample from the bandits's priors, and select the largest sample
         for (int j = 0; j < banditsMachine.getBanditList().size(); j++) {
             // the observed result X (a win or loss, encoded 1 and 0 respectfully) is Binomial,
@@ -63,22 +65,34 @@ public class BayesianStrategy {
             System.out.println("DISTRIBUCE bandity " + banditsMachine.getBanditAtIndex(j).getName() + ": " + inverseDistribution);
             roundInverseDistributions.add(inverseDistribution);
         }
-
-        /*
-         * Nebudu menit parametry vstupujici do beta rozdeleni, ale budu sledovat, kolikrat to
-         * treba vybiralo po sobe blbe (jak jsem se bavil s jardou) a na tomto zaklade
-         * pak u tech konkretnich penalizovat nejak to doporuceni.
-         */
-
+        
         int banditIndexChoice = MathUtil.argmax(roundInverseDistributions);
 
-        System.out.println("Vybiram banditu " + banditsMachine.getBanditAtIndex(banditIndexChoice).getName());
+        roundInverseDistributions.clear();
+        
+        return banditsMachine.getBanditAtIndex(banditIndexChoice);
+    }
+        
+    public List<Bandit> sampleBanditsAll(String banditCollectionId) {
+        for (int j = 0; j < banditsMachine.getBanditList().size(); j++) {            
+            BetaDistribution beta = new BetaDistribution(1 + banditsMachine.getBanditAtIndex(j).getSuccesses(), 1 + banditsMachine.getBanditAtIndex(j).getTrials() - banditsMachine.getBanditAtIndex(j).getSuccesses());
+
+            double inverseDistribution = beta.inverseCumulativeProbability(Math.random());
+
+            System.out.println("DISTRIBUCE bandity " + banditsMachine.getBanditAtIndex(j).getName() + ": " + inverseDistribution);
+            roundInverseDistributions.add(inverseDistribution);
+        }        
+
+        int[] banditIndexChoice = MathUtil.sortedArgmax(roundInverseDistributions);
 
         roundInverseDistributions.clear();
+       
+        List<Bandit> bandits = new ArrayList<>();
+        for (int i = 0; i < banditIndexChoice.length;i++) {
+            bandits.add(banditsMachine.getBanditAtIndex(banditIndexChoice[i]));
+        }
 
-        printRound();
-
-        return banditsMachine.getBanditAtIndex(banditIndexChoice);
+        return bandits;
     }
 
     public void selectBandit(String banditId) {
@@ -93,10 +107,10 @@ public class BayesianStrategy {
         banditsMachine.updateTrials(banditToUpdate, totalCountsToBoost);           
     }
     
-    public void calculateFeedback(String banditCollectionId, String banditId, int feedback) {
+    public void calculateFeedback(String banditCollectionId, String banditId, String feedbackValue) {
         int banditIndexChoice = Integer.valueOf(banditId);
         Bandit banditToUpdate = banditsMachine.getBanditAtIndex(banditIndexChoice);
-        banditsMachine.updateAllStatsInRound(banditToUpdate, feedback);   
+        banditsMachine.updateAllStatsInRound(banditToUpdate, feedbackValue);   
     }    
 
     private void printRound() {
@@ -133,3 +147,5 @@ public class BayesianStrategy {
        
 
 }
+
+

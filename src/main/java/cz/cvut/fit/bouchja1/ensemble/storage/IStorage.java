@@ -20,5 +20,6 @@ public interface IStorage {
     public List<BayesianStrategy> loadLastConfiguration(Environment env);
 
     public void createBanditSet(String banditSetId, Set<String> banditIds);
+    public void createBanditSuperSet(String banditSuperSetId, Set<String> collectionIds);
     
 }

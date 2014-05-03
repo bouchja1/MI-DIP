@@ -11,7 +11,12 @@ import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import cz.cvut.fit.bouchja1.ensemble.exception.MessageFormatException;
 import cz.cvut.fit.bouchja1.ensemble.operation.Operation;
 import cz.cvut.fit.bouchja1.ensemble.operation.OperationCreateBanditCollection;
+import cz.cvut.fit.bouchja1.ensemble.operation.OperationCreateBanditSuperCollection;
 import cz.cvut.fit.bouchja1.ensemble.operation.OperationDetectBestBandit;
+import cz.cvut.fit.bouchja1.ensemble.operation.OperationFeedbackBandit;
+import cz.cvut.fit.bouchja1.ensemble.operation.OperationGetAllCollections;
+import cz.cvut.fit.bouchja1.ensemble.operation.OperationGetAllSuperCollections;
+import cz.cvut.fit.bouchja1.ensemble.operation.OperationSelectBandit;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +46,20 @@ public class RequestHandlerJson implements RequestHandler {
 
         switch (result.getMethod()) {
             case "POST":
-                if (result.getPath().equals("/ensemble/services/collection")) {
+                if (result.getPath().equals("/ensemble/services/supercollection")) {
+                    operation = new OperationCreateBanditSuperCollection();
+
+                    if (!result.getBody().contains("&")) {
+                        throw new MessageFormatException("Bad format of request message.");
+                    }
+                    String[] messageParameters = result.getBody().split("&");
+
+                    for (int i = 0; i < messageParameters.length; i++) {
+                        String[] param = messageParameters[i].split("=");
+                        operationParamMap.put(param[0], param[1]);
+                    }
+                    operation.parseParameters(operationParamMap);
+                } else if (result.getPath().equals("/ensemble/services/collection")) {
                     operation = new OperationCreateBanditCollection();
 
                     if (!result.getBody().contains("&")) {
@@ -52,21 +70,65 @@ public class RequestHandlerJson implements RequestHandler {
                     for (int i = 0; i < messageParameters.length; i++) {
                         String[] param = messageParameters[i].split("=");
                         operationParamMap.put(param[0], param[1]);
-                    }    
+                    }
                     operation.parseParameters(operationParamMap);
                 }
                 break;
             case "GET":
-                Pattern pattern = Pattern.compile("/ensemble/services/collection/(\\d+)");
+                Pattern pattern = Pattern.compile("/ensemble/services/(collection|supercollection)/(\\d+)\\?filter=(\\S+)");
                 Matcher matcher = pattern.matcher(result.getPath());
                 int collectionToDetect = -1;
+                String filter = "";
+
                 while (matcher.find()) {
                     //System.out.println(matcher.group(1));
                     collectionToDetect = Integer.parseInt(matcher.group(1));
+                    if (matcher.group(2) != null) {
+                        filter = matcher.group(2);
+                    }
                 }
-                if (collectionToDetect > -1) {
+                if ((collectionToDetect > -1) && (("all".equals(filter)) || ("best".equals(filter)) || ("super".equals(filter)))) {
                     operation = new OperationDetectBestBandit();
-                    operationParamMap.put("collectionId", collectionToDetect+"");
+                    operationParamMap.put("collectionId", collectionToDetect + "");                                    
+                    operationParamMap.put("filter", filter);
+                    operation.parseParameters(operationParamMap);
+                } else if (result.getPath().equals("/ensemble/services/collection")) {
+                    operation = new OperationGetAllCollections();
+                } else if (result.getPath().equals("/ensemble/services/supercollection")) {
+                    operation = new OperationGetAllSuperCollections();
+                }
+                break;
+            case "PUT":
+                Pattern patternOperation = Pattern.compile("/ensemble/services/collection/(\\d+)/(\\d+)");
+                Matcher matcherOperation = patternOperation.matcher(result.getPath());
+                int collectionToDetectOperation = -1;
+                int banditToDetectOperation = -1;
+                while (matcherOperation.find()) {
+                    //System.out.println(matcher.group(1));
+                    collectionToDetectOperation = Integer.parseInt(matcherOperation.group(1));
+                    banditToDetectOperation = Integer.parseInt(matcherOperation.group(2));
+                }
+
+                if ((collectionToDetectOperation > -1) && (banditToDetectOperation > -1)) {
+                    if (result.getBody().contains("pull")) {
+                        operation = new OperationSelectBandit();
+                    } else {
+                        Pattern patternFeedback = Pattern.compile("value=(\\d+)");
+                        Matcher matcherFeedback = patternFeedback.matcher(result.getPath());
+                        int feedbackValue = -1;
+
+                        while (matcherFeedback.find()) {
+                            //System.out.println(matcher.group(1));
+                            feedbackValue = Integer.parseInt(matcherFeedback.group(1));
+                        }
+
+                        if (feedbackValue > -1) {
+                            operation = new OperationFeedbackBandit();
+                            operationParamMap.put("feedbackValue", feedbackValue + "");
+                        }
+                    }
+                    operationParamMap.put("collectionId", collectionToDetectOperation + "");
+                    operationParamMap.put("banditId", banditToDetectOperation + "");
                     operation.parseParameters(operationParamMap);
                 }
                 break;

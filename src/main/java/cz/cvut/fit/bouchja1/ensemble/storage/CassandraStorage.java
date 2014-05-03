@@ -39,9 +39,9 @@ public class CassandraStorage implements IStorage {
     private String keyspace;
     private String node;
 
-    CassandraStorage(String node, String keyspace) {
-        this.node = node;
-        this.keyspace = keyspace;
+    CassandraStorage(Environment env) {
+        this.node = env.getProperty("cassandra.host");
+        this.keyspace = env.getProperty("cassandra.keyspace");        
         connect();
         createSchema();
     }
@@ -69,14 +69,23 @@ public class CassandraStorage implements IStorage {
         session = cluster.connect();
     }
 
-    private void createSchema() {
-        //http://www.datastax.com/documentation/cql/3.1/cql/cql_reference/create_keyspace_r.html
+    //http://www.datastax.com/documentation/cql/3.1/cql/cql_reference/create_keyspace_r.html
+    
+    private void createSchema() {        
         session.execute("CREATE KEYSPACE IF NOT EXISTS " + keyspace + " WITH replication "
                 + "= {'class':'SimpleStrategy', 'replication_factor':3};");
 
         //http://www.datastax.com/documentation/cql/3.1/cql/cql_reference/create_table_r.html
         session.execute(
-                "CREATE TABLE IF NOT EXISTS " + keyspace + ".collection ("
+                "CREATE TABLE IF NOT EXISTS " + keyspace + ".supercollection ("
+                + "supercollection_id text,"
+                + "collection_set set<varchar>,"
+                + "PRIMARY KEY (supercollection_id)"
+                + ");");
+
+        
+        session.execute(
+                "CREATE TABLE IF NOT EXISTS " + keyspace + ".collection ("             
                 + "collection_id text,"
                 + "algorithm_set set<varchar>,"
                 + "PRIMARY KEY (collection_id)"
@@ -108,6 +117,18 @@ public class CassandraStorage implements IStorage {
 
         createBanditsInCollection(banditSetId, banditIds);
     }
+    
+    @Override
+    public void createBanditSuperSet(String banditSuperSetId, Set<String> collectionIds) {
+        PreparedStatement statement = session.prepare(
+                "INSERT INTO " + keyspace + ".supercollection "
+                + "(supercollection_id, collection_set) "
+                + "VALUES (?, ?);");
+        BoundStatement boundStatement = new BoundStatement(statement);
+        session.execute(boundStatement.bind(
+                banditSuperSetId,
+                collectionIds));
+    }    
 
     private void createBanditsInCollection(String banditSetId, Set<String> banditIds) {
         PreparedStatement statement = session.prepare(

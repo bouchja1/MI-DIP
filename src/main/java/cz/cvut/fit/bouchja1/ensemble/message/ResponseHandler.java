@@ -12,6 +12,7 @@ import cz.cvut.fit.bouchja1.ensemble.message.object.Reply;
  */
 public interface ResponseHandler {
     public void createSuccessReply(String message);    
+    public void createInternalErrorReply(String message);
     public void createErrorReply(String message);
     public Reply returnReply();
     public void setReply(Reply reply);

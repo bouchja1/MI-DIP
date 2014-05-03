@@ -77,13 +77,19 @@ public class BanditsMachine {
      *      - jemu se trochu odecte (preci jen byl povazovat do te doby za nejlepsiho)
      *      - ostatni zustanou stejne (at maji sanci stat se tako v budoucnu doporucovanymi)
      */
-    public void updateAllStatsInRound(Bandit banditToUpdate, int feedback) {
+    public void updateAllStatsInRound(Bandit banditToUpdate, String feedback) {
         //banditToUpdate.updateRoundStats(result);        
+        
+        /*
+         * TODO rekalkulace feedbacku do tech intervalu
+         * - dle poctu hvezdicek pozitivni, neutralni nebo negativni
+         */
+        
         switch (feedback) {
-            case 1 :
+            case "1" :
                 makePositiveFeedback(banditToUpdate);
                 break;
-            case 0 :
+            case "0" :
                 makeNegativeFeedback(banditToUpdate);
                 break;
         }            

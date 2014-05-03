@@ -36,5 +36,10 @@ public class JvmStorage implements IStorage {
     public void createBanditSet(String banditSetId, Set<String> banditIds) {
         logger.debug("Nothing to create to be persistent - program uses JVM to store information.");
     }
+
+    @Override
+    public void createBanditSuperSet(String banditSuperSetId, Set<String> collectionIds) {
+        logger.debug("Nothing to create to be persistent - program uses JVM to store information.");
+    }
     
 }

@@ -10,13 +10,6 @@ package cz.cvut.fit.bouchja1.ensemble.main;
  */
 public class EnsembleApp extends EnsembleAppBase {      
 
-    /*
-    protected void postApplicationLoad() {
-        SomeServer server = springCtx.getBean("server");
-        server.start();
-    }
-    */
-
     @SuppressWarnings("resource")
     public static void main(String[] args) {
         EnsembleApp ensembleApp = new EnsembleApp();

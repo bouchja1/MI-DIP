@@ -12,20 +12,16 @@ import java.util.Map;
  *
  * @author jan
  */
-public class OperationFeedback extends AbstractOperation {
-    
-    private String banditCollectionId;
-    private String banditId;  
-    private int feedback;
+public class OperationGetAllCollections extends AbstractOperation {
 
     @Override
     public Reply executeOperation(EnsembleApiFacade api) {
-        return api.calculateFeedback(banditCollectionId, banditId, feedback);
+        return api.getAllCollections();
     }
 
     @Override
     public boolean validateOperation() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return true;
     }
 
     @Override

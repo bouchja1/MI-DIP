@@ -12,20 +12,21 @@ import java.util.Map;
  *
  * @author jan
  */
-public class OperationSelectBandit extends AbstractOperation {
-
-    private String banditCollectionId;
-    private String banditId;
+public class OperationFeedbackBandit extends AbstractOperation {
     
+    private String banditCollectionId;
+    private String banditId;  
+    private String feedbackValue;  
+
     @Override
     public Reply executeOperation(EnsembleApiFacade api) {
-        return api.selectBandit(banditCollectionId, banditId);        
+        return api.calculateFeedback(banditCollectionId, banditId, feedbackValue);
     }
 
     @Override
     public boolean validateOperation() {
-        if ((banditCollectionId == null) || (banditId == null)) {
-            errorMessage = "You need to pass all parameters (empty collection ID or bandit ID).";
+        if ((banditCollectionId == null) || (banditId == null) || (feedbackValue == null)) {
+            errorMessage = "You need to pass all parameters (empty collection ID or bandit ID or feedback value).";
             return false;
         }
         return true;
@@ -35,6 +36,7 @@ public class OperationSelectBandit extends AbstractOperation {
     public void parseParameters(Map<String, String> parameters) {
         this.banditCollectionId = parameters.get("collectionId");
         this.banditId = parameters.get("banditId");
+        this.feedbackValue = parameters.get("feedbackValue");
     }
     
 }

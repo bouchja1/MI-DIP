@@ -168,5 +168,10 @@ public class Bandit {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "Bandit{" + "name=" + name + '}';
+    }    
 }
 

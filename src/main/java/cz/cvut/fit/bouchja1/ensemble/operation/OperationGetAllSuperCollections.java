@@ -12,29 +12,21 @@ import java.util.Map;
  *
  * @author jan
  */
-public class OperationSelectBandit extends AbstractOperation {
+public class OperationGetAllSuperCollections extends AbstractOperation {
 
-    private String banditCollectionId;
-    private String banditId;
-    
     @Override
     public Reply executeOperation(EnsembleApiFacade api) {
-        return api.selectBandit(banditCollectionId, banditId);        
+        return api.getAllSuperCollections();
     }
 
     @Override
     public boolean validateOperation() {
-        if ((banditCollectionId == null) || (banditId == null)) {
-            errorMessage = "You need to pass all parameters (empty collection ID or bandit ID).";
-            return false;
-        }
         return true;
     }
 
     @Override
     public void parseParameters(Map<String, String> parameters) {
-        this.banditCollectionId = parameters.get("collectionId");
-        this.banditId = parameters.get("banditId");
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }
