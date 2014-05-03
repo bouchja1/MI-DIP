@@ -97,8 +97,9 @@ public class AlgorithmRandom implements IAlgorithm {
         for (int i = 0; i < results.size(); ++i) {
             System.out.println(results.get(i));
             OutputDocument output = Util.fillOutputDocument(results.get(i));
-            docs.add(output);
+            docs.add(output);            
         }
+        solrService.incrementImpression(coreId, results);
         return docs;
     }    
 

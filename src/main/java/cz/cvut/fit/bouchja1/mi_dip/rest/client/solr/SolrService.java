@@ -1,5 +1,6 @@
 package cz.cvut.fit.bouchja1.mi_dip.rest.client.solr;
 
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.ArticleDocument;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.UserArticleDocument;
 import java.io.IOException;
 import java.util.Collection;
@@ -8,6 +9,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ws.rs.WebApplicationException;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -27,22 +30,23 @@ import org.springframework.stereotype.Component;
  *
  * @author jan
  */
-
 @Component
 @Scope("singleton")
 public class SolrService {
+
     private String serverUrl;
     private Map<String, HttpSolrServer> validServers = new HashMap<String, HttpSolrServer>();
     private Set<String> validSolrCores;
-    
     private static final String DOC_ID = "id";
     private static final String ARTICLE_ID = "articleId";
     private static final String ARTICLE_TEXT = "articleText";
     private static final String USER_ID = "userId";
     private static final String GROUP = "group";
+    private static final String IMPRESSIONS = "impressions";
+    private static final String ALGORITHM = "algorithm";
     private static final String TIME = "time";
-    private static final String RECCOMM_FLAG = "usedInRecommendation";    
-    
+    private static final String RECCOMM_FLAG = "usedInRecommendation";
+
     @PostConstruct
     public void createValidSolrServers() {
         Iterator<String> validCores = validSolrCores.iterator();
@@ -51,7 +55,7 @@ public class SolrService {
             validServers.put(core, new HttpSolrServer(serverUrl + core));
         }
     }
-    
+
     public HttpSolrServer getServerFromPool(String coreId) {
         return validServers.get(coreId);
     }
@@ -62,7 +66,7 @@ public class SolrService {
         }
         return false;
     }
-    
+
     public String getServerUrl() {
         return serverUrl;
     }
@@ -73,20 +77,22 @@ public class SolrService {
 
     public void setValidSolrCores(Set<String> validSolrCores) {
         this.validSolrCores = validSolrCores;
-    }    
+    }
 
     public SolrDocument isDocumentInIndex(String coreId, String documentId) throws SolrServerException {
         HttpSolrServer server = getServerFromPool(coreId);
         SolrQuery query = new SolrQuery();
-        query.setQuery("articleId:"+documentId);
+        query.setQuery("articleId:" + documentId);
         query.setRows(1);
         QueryResponse response;
         response = server.query(query);
         if (response.getResults().getNumFound() > 0) {
             return response.getResults().get(0);
-        } else return null;
+        } else {
+            return null;
+        }
     }
-    
+
     public void disableArticle(String coreId, String documentId) throws SolrServerException, WebApplicationException, IOException {
         HttpSolrServer server = getServerFromPool(coreId);
         SolrQuery query = new SolrQuery();
@@ -119,17 +125,44 @@ public class SolrService {
             createSolrDocument(server, userArticle);
         }
     }
+    
+    public void postArticle(String coreId, ArticleDocument article) throws SolrServerException, IOException {
+        HttpSolrServer server = getServerFromPool(coreId);
+        //zjisteni, jestli tam tohle document ID existuje
+        SolrQuery query = new SolrQuery();
+        query.setQuery("articleId:" + article.getId());
+        query.setRows(1);
+        QueryResponse response = server.query(query);
+        SolrDocumentList docsList = response.getResults();  
+        
+        if (docsList.isEmpty()) {
+            createArticle(server, article);
+        } else {
+            //nebudeme pridavat, protoze uz tam existuje
+        }        
+    }    
 
     private void createSolrDocument(HttpSolrServer server, UserArticleDocument userArticle) throws SolrServerException, IOException {
         SolrInputDocument doc = new SolrInputDocument();
         doc.addField(DOC_ID, SolrAutoIncrementer.getLastIdToUse(server));
         doc.addField(ARTICLE_ID, userArticle.getArticleId());
-        doc.addField(ARTICLE_TEXT, userArticle.getArticleText());
-        doc.addField(GROUP, userArticle.getGroup());
         doc.addField(USER_ID, userArticle.getUserId());
-        doc.addField(RECCOMM_FLAG, true);
-        doc.addField(TIME, userArticle.getTime());
+        doc.addField(ALGORITHM, "ALGORITMUS");
         doc.addField(userArticle.getUserId() + "_rating", userArticle.getRating());
+        server.add(doc);
+        UpdateResponse commit = server.commit();
+        NamedList<Object> response = commit.getResponse();
+    }
+    
+    private void createArticle(HttpSolrServer server, ArticleDocument article) throws SolrServerException, IOException {
+        SolrInputDocument doc = new SolrInputDocument();
+        doc.addField(DOC_ID, SolrAutoIncrementer.getLastIdToUse(server));
+        doc.addField(ARTICLE_ID, article.getId());
+        doc.addField(ARTICLE_TEXT, article.getText());
+        doc.addField(GROUP, article.getGroupId());
+        doc.addField(RECCOMM_FLAG, true);
+        doc.addField(IMPRESSIONS, 0);
+        doc.addField(TIME, article.getTime());
         server.add(doc);
         UpdateResponse commit = server.commit();
         NamedList<Object> response = commit.getResponse();
@@ -170,5 +203,25 @@ public class SolrService {
         SolrInputDocument sid = ClientUtils.toSolrInputDocument(exisingDoc);
         server.add(sid);
         UpdateResponse commit = server.commit();
-    }    
+    }
+
+    public void incrementImpression(String coreId, SolrDocumentList results) {
+        try {
+            HttpSolrServer server = getServerFromPool(coreId);
+            for (SolrDocument solrDocument : results) {
+                int impression = (int) solrDocument.getFieldValue("impressions");
+                impression++;
+                solrDocument.setField("impressions", impression);
+                SolrInputDocument sid = ClientUtils.toSolrInputDocument(solrDocument);
+                server.add(sid);
+            }
+
+            server.commit();
+        } catch (SolrServerException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

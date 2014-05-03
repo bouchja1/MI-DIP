@@ -94,6 +94,7 @@ public class AlgorithmLatest implements IAlgorithm {
             OutputDocument output = Util.fillOutputDocument(results.get(i));
             docs.add(output);
         }
+        solrService.incrementImpression(coreId, results);
 
         return docs;
     }    

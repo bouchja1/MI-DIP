@@ -107,7 +107,7 @@ public class AlgorithmMlt implements IAlgorithm {
             OutputDocument output = Util.fillOutputDocument(results.get(i));
             docs.add(output);
         }
-
+        solrService.incrementImpression(coreId, results);
         return docs;
     }    
     
