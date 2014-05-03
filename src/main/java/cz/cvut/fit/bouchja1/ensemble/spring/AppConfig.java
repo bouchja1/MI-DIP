@@ -4,6 +4,7 @@
  */
 package cz.cvut.fit.bouchja1.ensemble.spring;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
@@ -20,25 +21,27 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Configuration
 @EnableScheduling
 @ComponentScan(basePackages = {
-        "cz.cvut.bouchja1.ensemble.spring"
+    "cz.cvut.bouchja1.ensemble.spring"
 })
 @PropertySource("classpath:application.properties")
 public class AppConfig {
+
+    @Autowired
+    private Environment env;
     
-  @Autowired
-  private Environment env;
-   
+    @Value("#{'${bandits.names}'.split(',')}")
+    private List<String> allowedBanditValues;
+
     @Bean(name = "applicationBean")
     public ApplicationBean applicationBeanService() {
-        return new ApplicationBean(env);
-    }      
-    
+        return new ApplicationBean(env, allowedBanditValues);
+    }
+
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
         PropertySourcesPlaceholderConfigurer properties = new PropertySourcesPlaceholderConfigurer();
-        properties.setLocation(new ClassPathResource( "application.properties" ));
+        properties.setLocation(new ClassPathResource("application.properties"));
         properties.setIgnoreResourceNotFound(false);
         return properties;
-    }    
-     
+    }
 }

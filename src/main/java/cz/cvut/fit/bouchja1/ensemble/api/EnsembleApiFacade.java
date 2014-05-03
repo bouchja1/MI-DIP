@@ -29,7 +29,7 @@ public interface EnsembleApiFacade {
 
     public void setSetOfStrategies(Set<SuperBayesianStrategy> setOfStrategies);    
     public Reply createBanditSuperSet(String banditSuperCollectionId, Set<String> collectionIds);
-
+    public void setAllowedBanditsValues(List<String> allowedBanditsValues);
     public Reply getAllCollections();
 
     public Reply getAllSuperCollections();

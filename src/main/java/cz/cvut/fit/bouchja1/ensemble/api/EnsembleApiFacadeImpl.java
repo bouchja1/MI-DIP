@@ -33,6 +33,7 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
     private List<BayesianStrategy> strategies = new ArrayList<>();
     protected final Log logger = LogFactory.getLog(getClass());
     private Environment env;
+    private List<String> allowedBanditsValues;
 
     public EnsembleApiFacadeImpl() {
     }
@@ -246,5 +247,10 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
     @Override
     public void setEnvironment(Environment env) {
         this.env = env;
+    }
+
+    @Override
+    public void setAllowedBanditsValues(List<String> allowedBanditsValues) {
+        this.allowedBanditsValues = allowedBanditsValues;
     }
 }

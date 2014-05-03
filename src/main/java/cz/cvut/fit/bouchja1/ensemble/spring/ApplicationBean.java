@@ -28,11 +28,16 @@ public class ApplicationBean {
     private List<BayesianStrategy> strategies;
     private IStorage storage;
     private Environment env;
+    private List<String> allowedBanditValues;
 
     public ApplicationBean(Environment env) {
         this.env = env;
     }
 
+    public ApplicationBean(Environment env, List<String> allowedBanditValues) {
+        this.env = env;
+    }    
+    
     public void run(EnsembleApiFacade api) {
         /*
          * PRO SIMULACI - POKUSY ZDE?
@@ -41,7 +46,8 @@ public class ApplicationBean {
         api.setStrategies(strategies); //muze by prazdne  
         api.setStorage(storage);
         api.setEnvironment(env);
-
+        api.setAllowedBanditsValues(allowedBanditValues);
+        
         //http://sysgears.com/articles/load-balancing-work-between-java-threads-using-zeromq/
         MultiThreadServer server = new MultiThreadServer(env.getProperty("zeromq.host"), env.getProperty("zeromq.port"));
         server.run(api);
@@ -71,4 +77,9 @@ public class ApplicationBean {
     private List<BayesianStrategy> getLastBanditConfiguration() {        
         return storage.loadLastConfiguration(env);
     }    
+
+    public List<String> getAllowedBanditValues() {
+        return allowedBanditValues;
+    }   
+    
 }
