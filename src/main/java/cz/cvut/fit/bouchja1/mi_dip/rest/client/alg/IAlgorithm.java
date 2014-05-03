@@ -5,7 +5,8 @@
 package cz.cvut.fit.bouchja1.mi_dip.rest.client.alg;
 
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.AlgorithmEndpointHelper;
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.AlgorithmSolrService;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.SolrService;
+
 import javax.ws.rs.core.Response;
 
 /**
@@ -14,6 +15,6 @@ import javax.ws.rs.core.Response;
  */
 public interface IAlgorithm {
 
-    public Response recommend(AlgorithmSolrService algorithmSolrService, AlgorithmEndpointHelper helper);
+    public Response recommend(SolrService solrService, AlgorithmEndpointHelper helper);
     
 }

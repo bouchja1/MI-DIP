@@ -4,22 +4,11 @@
  */
 package cz.cvut.fit.bouchja1.mi_dip.rest.client.helper;
 
-import com.google.common.collect.Lists;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.alg.IAlgorithm;
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.output.OutputDocument;
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.AlgorithmSolrService;
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.util.Util;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.ws.rs.core.GenericEntity;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.SolrService;
 import javax.ws.rs.core.Response;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.common.SolrDocument;
 
 /**
  *
@@ -27,12 +16,14 @@ import org.apache.solr.common.SolrDocument;
  */
 public class AlgorithmEndpointHelper extends CommonEndpointHelper {
 
-    private AlgorithmSolrService algorithmSolrService;
+    private SolrService solrService;
     private final Log logger = LogFactory.getLog(getClass());
 
-    public void setAlgorithmSolrService(AlgorithmSolrService algorithmSolrService) {
-        this.algorithmSolrService = algorithmSolrService;
+    public void setSolrService(SolrService solrService) {
+        this.solrService = solrService;
     }
+
+
 
     /*
 
@@ -62,10 +53,10 @@ public class AlgorithmEndpointHelper extends CommonEndpointHelper {
     }
 */
     public Response getRecommendation(IAlgorithm algorithm) {
-        return algorithm.recommend(algorithmSolrService, this);
+        return algorithm.recommend(solrService, this);
     }
     
     public Response createAlgorithmNotFound() {
-        return getNotFoundResponse("The resource with algorithm you request for does not exist.");
+        return getNotFoundResponse("The algorithm you request for does not exist (it is not supported algorithm or you entered bad name).");
     }    
 }

@@ -13,18 +13,14 @@ http://www.springframework.org/schema/context/spring-context.xsd">
     <context:component-scan base-package="cz.cvut.fit.bouchja1.mi_dip.rest.*" />
     
    
-    <bean id="ensembleZeroMqHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.zeromq.EnsembleZeroMqHelper" />
-    
-    <bean id="algorithmSolrService" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.AlgorithmSolrService"/> 
-    
-    <bean id="coreSolrService" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.CoreSolrService"/> 
+    <bean id="ensembleZeroMqHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.zeromq.EnsembleZeroMqHelper" />     
 
     <bean id="algorithmEndpointHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.AlgorithmEndpointHelper">
-        <property name="algorithmSolrService" ref="algorithmSolrService"/>
+        <property name="solrService" ref="solrService"/>
     </bean>      
         
     <bean id="coresEndpointHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.CoresEndpointHelper">
-        <property name="coreSolrService" ref="coreSolrService"/>
+        <property name="solrService" ref="solrService"/>
     </bean>        
     
     <bean id="algorithmEndpoint" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.AlgorithmEndpointImpl" >   
@@ -42,8 +38,8 @@ http://www.springframework.org/schema/context/spring-context.xsd">
         <!-- java.util.Set -->
         <property name="validSolrCores">
             <set>
-                <value>userBased</value>
-                <value>collaborative_filtering</value>
+                <value>articleCore</value>
+                <value>behavioralCore</value>
             </set>
         </property>        
     </bean>       

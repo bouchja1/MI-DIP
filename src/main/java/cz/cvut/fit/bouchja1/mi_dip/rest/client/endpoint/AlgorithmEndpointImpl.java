@@ -16,6 +16,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,6 +29,7 @@ public class AlgorithmEndpointImpl {
 
     public static final String ENDPOINT_PATH = "/algorithm";
     public static final String ALGORITHM_PATH = "/{coreId}/{algorithmId}";
+    @Autowired
     private AlgorithmEndpointHelper algorithmEndpointHelper;
 
     @Path(ALGORITHM_PATH)

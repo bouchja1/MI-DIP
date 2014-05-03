@@ -8,7 +8,7 @@ import com.google.common.collect.Lists;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.alg.IAlgorithm;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.output.OutputDocument;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.AlgorithmEndpointHelper;
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.AlgorithmSolrService;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.SolrService;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.util.Util;
 import ec.util.MersenneTwisterFast;
 import java.util.ArrayList;
@@ -52,13 +52,14 @@ public class AlgorithmRandom implements IAlgorithm {
      * //curl -i -H "Accept: application/json" -H "Content-Type: application/json" 'http://localhost:8089/ensembleRestApi/recommeng/algorithm/userBased/random?limit=5'
      */
     @Override
-    public Response recommend(AlgorithmSolrService algorithmSolrService, AlgorithmEndpointHelper helper) {
+    public Response recommend(SolrService solrService, AlgorithmEndpointHelper helper) {
         Response resp;
         List<OutputDocument> docs = new ArrayList<OutputDocument>();
-        if (algorithmSolrService.getSolrService().isServerCoreFromPool(coreId)) {
+        if (solrService.isServerCoreFromPool(coreId)) {
             int limitToQuery = Util.getCountOfElementsToBeReturned(limit);
             try {
-                docs = getRecommendationByRandom(coreId, groupId, limitToQuery, algorithmSolrService);
+                docs = getRecommendationByRandom(coreId, groupId, limitToQuery, solrService);
+                
                 resp = Response.ok(
                         new GenericEntity<List<OutputDocument>>(Lists.newArrayList(docs)) {
                 }).build();
@@ -73,8 +74,8 @@ public class AlgorithmRandom implements IAlgorithm {
         return resp;
     }
     
-    private List<OutputDocument> getRecommendationByRandom(String coreId, String groupId, int limit, AlgorithmSolrService algorithmSolrService) throws SolrServerException {
-        HttpSolrServer server = algorithmSolrService.getSolrService().getServerFromPool(coreId);
+    private List<OutputDocument> getRecommendationByRandom(String coreId, String groupId, int limit, SolrService solrService) throws SolrServerException {
+        HttpSolrServer server = solrService.getServerFromPool(coreId);
         List<OutputDocument> docs = new ArrayList<OutputDocument>();
         int random = generator.nextInt(Integer.MAX_VALUE) + 1; // values are between 1 and Integer.MAX_VALUE
         String sortOrder = "random_" + random;
@@ -86,7 +87,7 @@ public class AlgorithmRandom implements IAlgorithm {
         } else {
             groupIdString = "*";
         }
-        query.setFilterQueries("usedInRecommendation:true", "group:" + groupIdString);
+        query.setFilterQueries("usedInRec:true", "group:" + groupIdString);
         query.setRows(limit);
         query.setSortField(sortOrder, SolrQuery.ORDER.desc);
 

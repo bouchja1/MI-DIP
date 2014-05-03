@@ -6,7 +6,7 @@ package cz.cvut.fit.bouchja1.mi_dip.rest.client.alg.impl;
 
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.alg.IAlgorithm;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.AlgorithmEndpointHelper;
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.AlgorithmSolrService;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.SolrService;
 import java.util.Map;
 import javax.ws.rs.core.Response;
 
@@ -28,7 +28,7 @@ public class AlgorithmWeightedRating implements IAlgorithm {
     //http://en.wikipedia.org/wiki/Internet_Movie_Database#User_ratings_of_films
     
     @Override
-    public Response recommend(AlgorithmSolrService algorithmSolrService, AlgorithmEndpointHelper helper) {
+    public Response recommend(SolrService solrService, AlgorithmEndpointHelper helper) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

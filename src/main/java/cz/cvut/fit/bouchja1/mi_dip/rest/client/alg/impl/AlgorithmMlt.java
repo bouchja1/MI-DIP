@@ -8,7 +8,7 @@ import com.google.common.collect.Lists;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.alg.IAlgorithm;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.output.OutputDocument;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.AlgorithmEndpointHelper;
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.AlgorithmSolrService;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.SolrService;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.util.Util;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,15 +51,15 @@ public class AlgorithmMlt implements IAlgorithm {
      * curl -i -H "Accept: application/json" -H "Content-Type: application/json" 'http://localhost:8089/ensembleRestApi/recommeng/algorithm/userBased/morelikethisid?limit=5'        
      */
     @Override
-    public Response recommend(AlgorithmSolrService algorithmSolrService, AlgorithmEndpointHelper helper) {
+    public Response recommend(SolrService solrService, AlgorithmEndpointHelper helper) {
         Response resp;
         List<OutputDocument> docs = new ArrayList<OutputDocument>();
-        if (algorithmSolrService.getSolrService().isServerCoreFromPool(coreId)) {
+        if (solrService.isServerCoreFromPool(coreId)) {
             try {
                 int limitToQuery = Util.getCountOfElementsToBeReturned(limit);
-                SolrDocument existingDocument = algorithmSolrService.getSolrService().isDocumentInIndex(coreId, documentId);
+                SolrDocument existingDocument = solrService.isDocumentInIndex(coreId, documentId);
                 if (existingDocument != null) {
-                    docs = getRecommendationByMltId(coreId, existingDocument, limitToQuery, algorithmSolrService);
+                    docs = getRecommendationByMltId(coreId, existingDocument, limitToQuery, solrService);
                     resp = Response.ok(
                             new GenericEntity<List<OutputDocument>>(Lists.newArrayList(docs)) {
                     }).build();
@@ -81,8 +81,8 @@ public class AlgorithmMlt implements IAlgorithm {
     /*
      * Vyznamy jednotlivych parametru zde: https://wiki.apache.org/solr/MoreLikeThis
      */
-    private List<OutputDocument> getRecommendationByMltId(String coreId, SolrDocument document, int limitToQuery, AlgorithmSolrService algorithmSolrService) throws SolrServerException {
-        HttpSolrServer server = algorithmSolrService.getSolrService().getServerFromPool(coreId);
+    private List<OutputDocument> getRecommendationByMltId(String coreId, SolrDocument document, int limitToQuery, SolrService solrService) throws SolrServerException {
+        HttpSolrServer server = solrService.getServerFromPool(coreId);
         List<OutputDocument> docs = new ArrayList<OutputDocument>();
 
         SolrQuery query = new SolrQuery();
@@ -96,7 +96,7 @@ public class AlgorithmMlt implements IAlgorithm {
         query.set(MoreLikeThisParams.MAX_QUERY_TERMS, 1000);
         query.setRows(limitToQuery);
         query.setQuery("articleId:" + document.getFieldValue("articleId"));
-        query.setFilterQueries("usedInRecommendation:true", "group:" + document.getFieldValue("group"));
+        query.setFilterQueries("usedInRec:true", "group:" + document.getFieldValue("group"));
 
         QueryResponse response = server.query(query);
         SolrDocumentList results = response.getResults();

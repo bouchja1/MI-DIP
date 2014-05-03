@@ -8,7 +8,7 @@ import com.google.common.collect.Lists;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.alg.IAlgorithm;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.output.OutputDocument;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.AlgorithmEndpointHelper;
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.AlgorithmSolrService;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.SolrService;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.util.Util;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,13 +48,13 @@ public class AlgorithmLatest implements IAlgorithm {
 
 //curl -i -H "Accept: application/json" -H "Content-Type: application/json" 'http://localhost:8089/ensembleRestApi/recommeng/algorithm/userBased/latest?groupId=11&limit=5'        
     @Override
-    public Response recommend(AlgorithmSolrService algorithmSolrService, AlgorithmEndpointHelper helper) {
+    public Response recommend(SolrService solrService, AlgorithmEndpointHelper helper) {
         Response resp;
         List<OutputDocument> docs = new ArrayList<OutputDocument>();
-        if (algorithmSolrService.getSolrService().isServerCoreFromPool(coreId)) {
+        if (solrService.isServerCoreFromPool(coreId)) {
             int limitToQuery = Util.getCountOfElementsToBeReturned(limit);
             try {
-                docs = getRecommendationByLatest(coreId, groupId, limitToQuery, algorithmSolrService);
+                docs = getRecommendationByLatest(coreId, groupId, limitToQuery, solrService);
                 resp = Response.ok(
                         new GenericEntity<List<OutputDocument>>(Lists.newArrayList(docs)) {
                 }).build();
@@ -69,8 +69,8 @@ public class AlgorithmLatest implements IAlgorithm {
         return resp;
     }
     
-    private List<OutputDocument> getRecommendationByLatest(String coreId, String groupId, int limitToQuery, AlgorithmSolrService algorithmSolrService) throws SolrServerException {
-        HttpSolrServer server = algorithmSolrService.getSolrService().getServerFromPool(coreId);
+    private List<OutputDocument> getRecommendationByLatest(String coreId, String groupId, int limitToQuery, SolrService solrService) throws SolrServerException {
+        HttpSolrServer server = solrService.getServerFromPool(coreId);
         List<OutputDocument> docs = new ArrayList<OutputDocument>();
 
         String sortOrder = "time";
@@ -82,7 +82,7 @@ public class AlgorithmLatest implements IAlgorithm {
         } else {
             groupIdString = "*";
         }
-        query.setFilterQueries("usedInRecommendation:true", "group:" + groupIdString);
+        query.setFilterQueries("usedInRec:true", "group:" + groupIdString);
         query.setRows(limitToQuery);
         query.setSortField(sortOrder, SolrQuery.ORDER.desc);
 
