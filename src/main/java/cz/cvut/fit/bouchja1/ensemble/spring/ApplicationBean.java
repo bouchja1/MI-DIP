@@ -36,6 +36,7 @@ public class ApplicationBean {
 
     public ApplicationBean(Environment env, List<String> allowedBanditValues) {
         this.env = env;
+        this.allowedBanditValues = allowedBanditValues;
     }    
     
     public void run(EnsembleApiFacade api) {

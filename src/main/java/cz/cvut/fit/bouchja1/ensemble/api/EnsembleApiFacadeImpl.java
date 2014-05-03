@@ -11,8 +11,10 @@ import cz.cvut.fit.bouchja1.ensemble.bandits.BayesianStrategy;
 import cz.cvut.fit.bouchja1.ensemble.bandits.SuperBayesianStrategy;
 import cz.cvut.fit.bouchja1.ensemble.bandits.util.MathUtil;
 import cz.cvut.fit.bouchja1.ensemble.message.ResponseHandler;
-import cz.cvut.fit.bouchja1.ensemble.message.ResponseHandlerDefault;
+import cz.cvut.fit.bouchja1.ensemble.message.ResponseHandlerJson;
 import cz.cvut.fit.bouchja1.ensemble.message.object.Reply;
+import cz.cvut.fit.bouchja1.ensemble.operation.object.ContextCollection;
+import cz.cvut.fit.bouchja1.ensemble.operation.object.Supercollection;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,19 +43,24 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
     @Override
     public Reply createBanditSet(String banditCollectionId, Set<String> banditIds) {
         logger.info("Trying to creat new bandit collection with ID: " + banditCollectionId);
-        ResponseHandler responseHandler = new ResponseHandlerDefault();
+        ResponseHandler responseHandler = new ResponseHandlerJson();
         Reply reply = null;
 
         if (existBanditSet(banditCollectionId)) {
             responseHandler.createErrorReply("You cannot create a collection with ID " + banditCollectionId + " because this collection exists.");
             reply = responseHandler.returnReply();
         } else {
-            storage.createBanditSet(banditCollectionId, banditIds);
-            BanditsMachine machineForStrategy = createMachine(banditIds);
-            BayesianStrategy newStrategy = new BayesianStrategy(banditCollectionId, machineForStrategy);
-            strategies.add(newStrategy);
-            responseHandler.createSuccessReply("Collection with ID " + banditCollectionId + " was created successfully.");
-            reply = responseHandler.returnReply();
+            if (requestInallowedContext(banditIds)) {
+                storage.createBanditSet(banditCollectionId, banditIds);
+                BanditsMachine machineForStrategy = createMachine(banditIds);
+                BayesianStrategy newStrategy = new BayesianStrategy(banditCollectionId, machineForStrategy);
+                strategies.add(newStrategy);
+                responseHandler.createSuccessReply("Collection with ID " + banditCollectionId + " was created successfully.");
+                reply = responseHandler.returnReply();
+            } else {
+                responseHandler.createErrorReply("You can create only bandits with IDs allowed by system: " + allowedBanditsValues.toString() + ".");
+                reply = responseHandler.returnReply();
+            }
         }
 
         return reply;
@@ -62,7 +69,7 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
     @Override
     public Reply createBanditSuperSet(String banditSuperCollectionId, Set<String> collectionIds) {
         logger.info("Trying to creat new super collection with ID: " + banditSuperCollectionId);
-        ResponseHandler responseHandler = new ResponseHandlerDefault();
+        ResponseHandler responseHandler = new ResponseHandlerJson();
         Reply reply = null;
 
         if (existSuperBanditSet(banditSuperCollectionId)) {
@@ -81,14 +88,14 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
             storage.createBanditSuperSet(banditSuperCollectionId, existingContextCollectionsId);
             superStrategies.add(superStrategy);
             responseHandler.createSuccessReply("Super collection with ID " + banditSuperCollectionId + " was created successfully.");
-            reply = responseHandler.returnReply();            
+            reply = responseHandler.returnReply();
         }
         return reply;
     }
 
     @Override
     public Reply detectBestBandit(String banditCollectionId, String filter) {
-        ResponseHandler responseHandler = new ResponseHandlerDefault();
+        ResponseHandler responseHandler = new ResponseHandlerJson();
         Reply reply = null;
 
         if (existBanditSet(banditCollectionId)) {
@@ -100,7 +107,7 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
             } else if ("super".equals(filter)) {
                 String banditToChoose = superStrategyToUse.chooseBestFromSuperStrategy();
                 if (banditToChoose != null) {
-                    responseHandler.createSuccessReply("You should choose bandit with ID " + banditToChoose + " now. He is the best.");            
+                    responseHandler.createSuccessReply("You should choose bandit with ID " + banditToChoose + " now. He is the best.");
                 } else {
                     responseHandler.createInternalErrorReply("Internal error occured during your request for best bandit from super collection.");
                 }
@@ -115,26 +122,67 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
         }
         return reply;
     }
-    
+
     @Override
     public Reply getAllCollections() {
-        ResponseHandler responseHandler = new ResponseHandlerDefault();
-        responseHandler.createSuccessReply("Existing context collections: " + strategies.toString());
-        Reply reply = responseHandler.returnReply();                
-        return reply;        
-    }    
-    
+        ResponseHandler responseHandler = new ResponseHandlerJson();
+        List<ContextCollection> collections = new ArrayList<>();
+        for (BayesianStrategy strategy : strategies) {
+            List<String> bandits = new ArrayList<>();
+            ContextCollection collection = new ContextCollection();
+            collection.setId(strategy.getCollectionId());
+            for (Bandit b : strategy.getBanditsMachine().getBanditList()) {
+                bandits.add(b.getName());
+            }
+            collection.setBandits(bandits);
+            collections.add(collection);
+        }
+
+        if (collections.isEmpty()) {
+            responseHandler.createSuccessReply("There are no existing context collections right now.");
+        } else {
+            responseHandler.createSuccessReplyCollections("Existing context collections.", collections);
+        }
+
+        Reply reply = responseHandler.returnReply();
+        return reply;
+    }
+
     @Override
     public Reply getAllSuperCollections() {
-        ResponseHandler responseHandler = new ResponseHandlerDefault();
-        responseHandler.createSuccessReply("Existing super collections: " + superStrategies.toString());
-        Reply reply = responseHandler.returnReply();                
-        return reply;        
-    }      
+        ResponseHandler responseHandler = new ResponseHandlerJson();
+        List<Supercollection> collections = new ArrayList<>();
+        for (SuperBayesianStrategy superStrategy : superStrategies) {
+            List<ContextCollection> strategies = new ArrayList<>();
+            Supercollection supercollection = new Supercollection();
+            supercollection.setId(superStrategy.getSuperCollectionId());
+
+            for (BayesianStrategy strategy : superStrategy.getSetOfStrategies()) {
+                List<String> bandits = new ArrayList<>();
+                ContextCollection collection = new ContextCollection();
+                collection.setId(strategy.getCollectionId());
+                strategies.add(collection);
+                for (Bandit b : strategy.getBanditsMachine().getBanditList()) {
+                    bandits.add(b.getName());
+                }
+                collection.setBandits(bandits);
+            }
+            supercollection.setContextCollections(strategies);
+            collections.add(supercollection);
+        }
+
+        if (collections.isEmpty()) {
+            responseHandler.createSuccessReply("There are no existing super collections right now.");
+        } else {
+            responseHandler.createSuccessReplySupercollections("Existing context collections.", collections);
+        }
+        Reply reply = responseHandler.returnReply();
+        return reply;
+    }
 
     @Override
     public Reply selectBandit(String banditCollectionId, String banditId) {
-        ResponseHandler responseHandler = new ResponseHandlerDefault();
+        ResponseHandler responseHandler = new ResponseHandlerJson();
         Reply reply = null;
 
         if (existBanditSet(banditCollectionId)) {
@@ -156,7 +204,7 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
 
     @Override
     public Reply calculateFeedback(String banditCollectionId, String banditId, String feedbackValue) {
-        ResponseHandler responseHandler = new ResponseHandlerDefault();
+        ResponseHandler responseHandler = new ResponseHandlerJson();
         Reply reply = null;
 
         if (existBanditSet(banditCollectionId)) {
@@ -205,8 +253,8 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
             machine.addBanditToMachine(new Bandit(initialProbabilityRate, banditId));
         }
         return machine;
-    }        
-            
+    }
+
     private SuperBayesianStrategy getSuperStrategyBySuperCollectionId(String collectionId) {
         SuperBayesianStrategy str = null;
         for (SuperBayesianStrategy strategy : superStrategies) {
@@ -216,7 +264,7 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
             }
         }
         return str;
-    }            
+    }
 
     private BayesianStrategy getStrategyByCollectionId(String collectionId) {
         BayesianStrategy str = null;
@@ -252,5 +300,12 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
     @Override
     public void setAllowedBanditsValues(List<String> allowedBanditsValues) {
         this.allowedBanditsValues = allowedBanditsValues;
+    }
+
+    private boolean requestInallowedContext(Set<String> banditIds) {
+        if (allowedBanditsValues.containsAll(banditIds)) {
+            return true;
+        }
+        return false;
     }
 }

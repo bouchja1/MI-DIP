@@ -13,7 +13,7 @@ import cz.cvut.fit.bouchja1.ensemble.message.object.Reply;
 import cz.cvut.fit.bouchja1.ensemble.message.RequestHandler;
 import cz.cvut.fit.bouchja1.ensemble.message.RequestHandlerJson;
 import cz.cvut.fit.bouchja1.ensemble.message.ResponseHandler;
-import cz.cvut.fit.bouchja1.ensemble.message.ResponseHandlerDefault;
+import cz.cvut.fit.bouchja1.ensemble.message.ResponseHandlerJson;
 import cz.cvut.fit.bouchja1.ensemble.operation.Operation;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -46,16 +46,17 @@ public class MultiThreadServer {
         private final EnsembleApiFacade api;
         private RequestHandler requestHandler;
         private ResponseHandler responseHandler;
+        /*
         final SmileFactory smileFactory = new SmileFactory();
         final ObjectMapper smileMapper = new ObjectMapper(smileFactory);
-
+        */
         public WorkerThread(int threadNo, ZMQ.Context context, EnsembleApiFacade api, RequestHandler messageHandler) {
             super("Worker-" + threadNo);
             this.threadNo = threadNo;
             this.context = context;
             this.api = api;
             this.requestHandler = messageHandler;
-            this.responseHandler = new ResponseHandlerDefault();
+            this.responseHandler = new ResponseHandlerJson();
         }
 
         @Override
@@ -99,12 +100,10 @@ public class MultiThreadServer {
 
                 //  Send reply back to client
                 // bude se odpovidat vzdy, akorat se budou lisit navratove kody... neexistuje nic jako "null response"
-                byte[] reply = null;
-                try {
-                    reply = smileMapper.writeValueAsBytes(responseHandler.returnReply());
-                } catch (JsonProcessingException ex) {
-                    Logger.getLogger(MultiThreadServer.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                //byte[] reply = null;
+                String reply = "";
+                reply = responseHandler.buildReply();
+
                 //reply[reply.length - 1] = 0; //Sets the last byte of the reply to 0
                 receiver.send(reply, 0);
             }

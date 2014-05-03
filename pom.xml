@@ -93,6 +93,18 @@
             <version>0.3.2</version>
         </dependency>
         
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-processing</artifactId>
+            <version>2.7</version>
+        </dependency>
+        
+<dependency>
+	<groupId>org.json</groupId>
+	<artifactId>json</artifactId>
+	<version>20140107</version>
+</dependency>                        
+        
         <!-- Spring -->
         <!-- The cglib library is needed in order to use the @Configuration annotation. It is added to the pom.xml file, as shown below:-->
         <dependency>

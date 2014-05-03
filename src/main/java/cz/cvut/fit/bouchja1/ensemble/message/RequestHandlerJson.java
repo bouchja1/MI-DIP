@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.json.JSONObject;
 
 /**
  *
@@ -31,52 +32,69 @@ import java.util.regex.Pattern;
  */
 public class RequestHandlerJson implements RequestHandler {
 
-    private String method;
-    private String path;
-    private String body;
-    final SmileFactory smileFactory = new SmileFactory();
-    final ObjectMapper smileMapper = new ObjectMapper(smileFactory);
-
     @Override
     public Operation handleMessage(byte[] message) throws MessageFormatException, IOException {
         Operation operation = null;
-        RequestHandlerJson result = smileMapper.readValue(message, RequestHandlerJson.class);
+        JSONObject json = new JSONObject(new String(message));
+
+        String requestMethod;
+        String requestPath;
+        String requestBody = null;
+        
+        if (json.isNull("method") || json.isNull("path")) {
+            throw new MessageFormatException("Bad format of request message. You need to specify METHOD and PATH.");
+        } else {
+            requestMethod = (String) json.get("method");
+            requestPath = (String) json.get("path");
+        }
+
+        if (!json.isNull("body")) {
+            requestBody = (String) json.get("body");
+        }
 
         Map<String, String> operationParamMap = new HashMap<>();
 
-        switch (result.getMethod()) {
+        switch (requestMethod) {
             case "POST":
-                if (result.getPath().equals("/ensemble/services/supercollection")) {
+                if (requestPath.equals("/ensemble/services/supercollection")) {
                     operation = new OperationCreateBanditSuperCollection();
 
-                    if (!result.getBody().contains("&")) {
-                        throw new MessageFormatException("Bad format of request message.");
-                    }
-                    String[] messageParameters = result.getBody().split("&");
+                    if (requestBody != null) {
+                        if (!requestBody.contains("&")) {
+                            throw new MessageFormatException("Bad format of request message.");
+                        }
+                        String[] messageParameters = requestBody.split("&");
 
-                    for (int i = 0; i < messageParameters.length; i++) {
-                        String[] param = messageParameters[i].split("=");
-                        operationParamMap.put(param[0], param[1]);
+                        for (int i = 0; i < messageParameters.length; i++) {
+                            String[] param = messageParameters[i].split("=");
+                            operationParamMap.put(param[0], param[1]);
+                        }
+                        operation.parseParameters(operationParamMap);
+                    } else {
+                        //body je PRAZDNE
                     }
-                    operation.parseParameters(operationParamMap);
-                } else if (result.getPath().equals("/ensemble/services/collection")) {
+                } else if (requestPath.equals("/ensemble/services/collection")) {
                     operation = new OperationCreateBanditCollection();
 
-                    if (!result.getBody().contains("&")) {
-                        throw new MessageFormatException("Bad format of request message.");
-                    }
-                    String[] messageParameters = result.getBody().split("&");
+                    if (requestBody != null) {
+                        if (!requestBody.contains("&")) {
+                            throw new MessageFormatException("Bad format of request message.");
+                        }
+                        String[] messageParameters = requestBody.split("&");
 
-                    for (int i = 0; i < messageParameters.length; i++) {
-                        String[] param = messageParameters[i].split("=");
-                        operationParamMap.put(param[0], param[1]);
+                        for (int i = 0; i < messageParameters.length; i++) {
+                            String[] param = messageParameters[i].split("=");
+                            operationParamMap.put(param[0], param[1]);
+                        }
+                        operation.parseParameters(operationParamMap);
+                    } else {
+                        //vyhod exceptionu, je to prazdny
                     }
-                    operation.parseParameters(operationParamMap);
                 }
                 break;
             case "GET":
                 Pattern pattern = Pattern.compile("/ensemble/services/(collection|supercollection)/(\\d+)\\?filter=(\\S+)");
-                Matcher matcher = pattern.matcher(result.getPath());
+                Matcher matcher = pattern.matcher(requestPath);
                 int collectionToDetect = -1;
                 String filter = "";
 
@@ -89,18 +107,18 @@ public class RequestHandlerJson implements RequestHandler {
                 }
                 if ((collectionToDetect > -1) && (("all".equals(filter)) || ("best".equals(filter)) || ("super".equals(filter)))) {
                     operation = new OperationDetectBestBandit();
-                    operationParamMap.put("collectionId", collectionToDetect + "");                                    
+                    operationParamMap.put("collectionId", collectionToDetect + "");
                     operationParamMap.put("filter", filter);
                     operation.parseParameters(operationParamMap);
-                } else if (result.getPath().equals("/ensemble/services/collection")) {
+                } else if (requestPath.equals("/ensemble/services/collection")) {
                     operation = new OperationGetAllCollections();
-                } else if (result.getPath().equals("/ensemble/services/supercollection")) {
+                } else if (requestPath.equals("/ensemble/services/supercollection")) {
                     operation = new OperationGetAllSuperCollections();
                 }
                 break;
             case "PUT":
                 Pattern patternOperation = Pattern.compile("/ensemble/services/collection/(\\d+)/(\\d+)");
-                Matcher matcherOperation = patternOperation.matcher(result.getPath());
+                Matcher matcherOperation = patternOperation.matcher(requestPath);
                 int collectionToDetectOperation = -1;
                 int banditToDetectOperation = -1;
                 while (matcherOperation.find()) {
@@ -110,11 +128,11 @@ public class RequestHandlerJson implements RequestHandler {
                 }
 
                 if ((collectionToDetectOperation > -1) && (banditToDetectOperation > -1)) {
-                    if (result.getBody().contains("pull")) {
+                    if (requestBody.contains("pull")) {
                         operation = new OperationSelectBandit();
                     } else {
                         Pattern patternFeedback = Pattern.compile("value=(\\d+)");
-                        Matcher matcherFeedback = patternFeedback.matcher(result.getPath());
+                        Matcher matcherFeedback = patternFeedback.matcher(requestPath);
                         int feedbackValue = -1;
 
                         while (matcherFeedback.find()) {
@@ -134,29 +152,5 @@ public class RequestHandlerJson implements RequestHandler {
                 break;
         }
         return operation;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
     }
 }
