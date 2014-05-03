@@ -4,9 +4,9 @@
  */
 package cz.cvut.fit.bouchja1.mi_dip.rest.client.service;
 
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.AlgorithmEndpoint;
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.CoresEndpoint;
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.EnsembleEndpoint;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.AlgorithmEndpointImpl;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.CoresEndpointImpl;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.EnsembleEndpointImpl;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
@@ -22,11 +22,11 @@ public class RecommengApplication extends ResourceConfig {
         /**
     * Register JAX-RS application components.
     */    
-    public RecommengApplication(){
-        register(RequestContextFilter.class);
-        register(AlgorithmEndpoint.class);
-        register(CoresEndpoint.class);
-        register(EnsembleEndpoint.class);
-        register(JacksonFeature.class);        
-    }
+public RecommengApplication(){
+    register(RequestContextFilter.class);
+    register(AlgorithmEndpointImpl.class);
+    register(CoresEndpointImpl.class);
+    register(EnsembleEndpointImpl.class);
+    register(JacksonFeature.class);        
+}
 }

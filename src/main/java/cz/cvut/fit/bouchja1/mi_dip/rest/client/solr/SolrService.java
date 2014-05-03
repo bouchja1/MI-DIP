@@ -35,7 +35,7 @@ public class SolrService {
         }
     }
     
-    protected HttpSolrServer getServerFromPool(String coreId) {
+    public HttpSolrServer getServerFromPool(String coreId) {
         return validServers.get(coreId);
     }
 

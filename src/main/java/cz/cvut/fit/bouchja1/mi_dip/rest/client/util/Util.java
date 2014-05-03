@@ -20,14 +20,26 @@ import org.apache.solr.common.SolrDocumentList;
  */
 public class Util {
 
-    public static int getCountOfElementsToBeReturned(int limit) {
+    public static int getCountOfElementsToBeReturned(String limit) {
         int limitToRet = 5;
 
-        if (limit > 0) {
-            limitToRet = limit;
+        if (isInteger(limit)) {
+            if (Integer.valueOf(limit) > 0) {
+                limitToRet = Integer.valueOf(limit);
+            }
         }
 
         return limitToRet;
+    }
+
+    private static boolean isInteger(String s) {
+        try {
+            Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        // only got here if we didn't return false
+        return true;
     }
 
     public static OutputDocument fillOutputDocument(SolrDocument result) {
@@ -38,12 +50,15 @@ public class Util {
         output.setTime((Date) result.getFieldValue("time"));
         Set<UserIdDocument> usersToDoc = new HashSet<UserIdDocument>();
         Collection<Object> users = result.getFieldValues("userId");
-        Iterator<Object> usersIterator = users.iterator();
-        while (usersIterator.hasNext()) {
-            Integer userId = Integer.valueOf(usersIterator.next() + "");
-            usersToDoc.add(new UserIdDocument(userId));
+
+        if (users != null) {
+            Iterator<Object> usersIterator = users.iterator();
+            while (usersIterator.hasNext()) {
+                Integer userId = Integer.valueOf(usersIterator.next() + "");
+                usersToDoc.add(new UserIdDocument(userId));
+            }
+            output.setUser(usersToDoc);
         }
-        output.setUser(usersToDoc);
         return output;
     }
 }

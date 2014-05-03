@@ -12,15 +12,15 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author jan
  */
 @XmlRootElement(name = "bandit")
-public class BanditIdDocument {
+public class BanditId {
 
     private String id;
 
-    public BanditIdDocument() {
+    public BanditId() {
         // required for JAXB
     }
 
-    public BanditIdDocument(String id) {
+    public BanditId(String id) {
         this.id = id;
     }
 

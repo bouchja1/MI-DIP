@@ -11,30 +11,30 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 
 @XmlRootElement(name = "banditCollection")
-public class BanditCollectionDocument implements Serializable {
+public class BanditCollection implements Serializable {
     private static final long serialVersionUID = -4039686696075339053L;
     
-    private String banditSetId;
-    private Set<BanditIdDocument> banditIds;
+    private String banditCollectionId;
+    private Set<BanditId> banditIds;
 
-    public BanditCollectionDocument() {
+    public BanditCollection() {
+    }
+
+    @XmlElement    
+    public String getBanditCollectionId() {
+        return banditCollectionId;
+    }
+
+    public void setBanditCollectionId(String banditCollectionId) {
+        this.banditCollectionId = banditCollectionId;
     }
 
     @XmlElement
-    public String getBanditSetId() {
-        return banditSetId;
-    }
-
-    public void setBanditSetId(String banditSetId) {
-        this.banditSetId = banditSetId;
-    }
-
-    @XmlElement
-    public Set<BanditIdDocument> getBanditIds() {
+    public Set<BanditId> getBanditIds() {
         return banditIds;
     }
 
-    public void setBanditIds(Set<BanditIdDocument> banditIds) {
+    public void setBanditIds(Set<BanditId> banditIds) {
         this.banditIds = banditIds;
     }
     

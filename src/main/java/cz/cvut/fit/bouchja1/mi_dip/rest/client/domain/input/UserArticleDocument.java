@@ -19,8 +19,7 @@ public class UserArticleDocument implements Serializable {
     
     private String articleId;
     private String articleText;
-    private String group;
-    //private Set<Integer> users;      
+    private String group;    
     private int userId;    
     private Date time;    
     private double rating;
