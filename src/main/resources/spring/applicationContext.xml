@@ -13,19 +13,19 @@ http://www.springframework.org/schema/context/spring-context.xsd">
     <context:component-scan base-package="cz.cvut.fit.bouchja1.mi_dip.rest.*" />
     
    
-    <bean id="ensembleZeroMqHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.zeromq.EnsembleZeroMqHelper" />     
-
+    <bean id="ensembleZeroMqHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.zeromq.EnsembleZeroMqHelper" />                     
+    
     <bean id="algorithmEndpointHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.AlgorithmEndpointHelper">
         <property name="solrService" ref="solrService"/>
-    </bean>                   
+    </bean>       
     
     <bean id="algorithmEndpoint" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.AlgorithmEndpointImpl" >   
         <property name="algorithmEndpointHelper" ref="algorithmEndpointHelper"/>
     </bean>          
-
+    
     <bean id="articleEndpointHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.ArticleEndpointHelper">
         <property name="solrService" ref="solrService"/>
-    </bean>  
+    </bean>      
     
     <bean id="articleEndpoint" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.ArticleEndpointImpl" >
         <property name="articleEndpointHelper" ref="articleEndpointHelper"/>

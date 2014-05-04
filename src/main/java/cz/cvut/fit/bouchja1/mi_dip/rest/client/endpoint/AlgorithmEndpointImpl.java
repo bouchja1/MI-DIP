@@ -30,6 +30,7 @@ public class AlgorithmEndpointImpl implements AlgorithmEndpoint {
     public static final String ENDPOINT_PATH = "/algorithm";
     public static final String ALGORITHM_PATH = "/{coreId}/{algorithmId}";
     
+    @Autowired
     private AlgorithmEndpointHelper algorithmEndpointHelper;
 
     @Path(ALGORITHM_PATH)

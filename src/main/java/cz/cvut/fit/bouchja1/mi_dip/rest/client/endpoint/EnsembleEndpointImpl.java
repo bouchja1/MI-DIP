@@ -37,7 +37,6 @@ public class EnsembleEndpointImpl implements EnsembleEndpoint {
     public static final String SUPERCOLLECTION_ID = "/{supercollectionId}";    
     public static final String COLLECTION_PATH = "/collection";
     public static final String COLLECTION_ID = "/{collectionId}";
-    public static final String BANDIT_ID = "/{banditId}";
 
     @Autowired
     private EnsembleZeroMqHelper ensembleZeroMqHelper;
@@ -94,12 +93,21 @@ public class EnsembleEndpointImpl implements EnsembleEndpoint {
         return ensembleZeroMqHelper.filterBestBanditSuperCollection(supercollectionId, filter);
     }        
     
-    @Path(COLLECTION_PATH + COLLECTION_ID + BANDIT_ID)
+    @Path(COLLECTION_PATH + COLLECTION_ID)
     @PUT
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})  
     @Override
-    public Response sendEnsembleOperation(@PathParam(value="collectionId") String collectionId, @PathParam(value="banditId") String banditId, EnsembleOperation ensembleOperation) {
-        return ensembleZeroMqHelper.sendEnsembleOperation(collectionId, banditId, ensembleOperation);
+    public Response sendEnsembleOperationToCollection(@PathParam(value="collectionId") String collectionId, EnsembleOperation ensembleOperation) {
+        return ensembleZeroMqHelper.sendEnsembleOperationToCollection(collectionId, ensembleOperation);
     }
+    
+    @Path(SUPERCOLLECTION_PATH + SUPERCOLLECTION_ID)
+    @PUT
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})  
+    @Override
+    public Response sendEnsembleOperationToSuperCollection(@PathParam(value="supercollectionId") String supercollectionId, EnsembleOperation ensembleOperation) {
+        return ensembleZeroMqHelper.sendEnsembleOperationToSuperCollection(supercollectionId, ensembleOperation);
+    }    
 }

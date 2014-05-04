@@ -12,12 +12,14 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author jan
  */
-@XmlRootElement(name = "banditCollection")
+@XmlRootElement
 public class EnsembleOperation implements Serializable {
 
     private static final long serialVersionUID = -4039185696075322053L;
+    
+    private String bandit;
     private String operation;
-    private int value;
+    private String feedbackType;
 
     public EnsembleOperation() {
     }
@@ -31,14 +33,22 @@ public class EnsembleOperation implements Serializable {
         this.operation = operation;
     }
 
-    @XmlElement(required = false)    
-    public int getValue() {
-        return value;
+    @XmlElement
+    public String getBandit() {
+        return bandit;
     }
 
-    public void setValue(int value) {
-        this.value = value;
+    @XmlElement(required = false) 
+    public String getFeedbackType() {
+        return feedbackType;
     }
+
+    public void setFeedbackType(String feedbackType) {
+        this.feedbackType = feedbackType;
+    }
+
     
-    
+    public void setBandit(String bandit) {
+        this.bandit = bandit;
+    }        
 }
