@@ -22,7 +22,7 @@ public class ResponseHandlerJson implements ResponseHandler {
     private Reply reply;
     private static final String ERROR_REPLY = "400";
     private static final String INTERNAL_ERROR = "500";
-    private static final String SUCCESS_REPLY = "201";
+    private static final String SUCCESS_REPLY = "200";
     private static final String NOT_FOUND_REPLY = "404";
 
     @Override

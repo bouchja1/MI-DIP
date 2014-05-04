@@ -24,10 +24,10 @@ public interface EnsembleApiFacade {
     public Reply createBanditSet(String banditSetId, Set<String> banditIds);
     public Reply detectBestBandit(String banditCollectionId, String filter);
     public Reply detectBestSuperBandit(String banditCollectionId, String filter);
-    public Reply selectBandit(String banditCollectionId, String banditId);
+    public Reply useBanditFromCollection(String banditCollectionId, String banditId);
     public void setLastConfiguration(LastEnsembleConfiguration strategies);
     public void setStorage(IStorage storage);
-    public Reply calculateFeedback(String banditCollectionId, String banditId, String feedbackValue);
+    public Reply recalculateFeedbackCollection(String banditCollectionId, String banditId, String feedbackValue);
     public void setEnvironment(Environment env);
 
     public void setSetOfStrategies(Map<Integer, SuperBayesianStrategy> superStrategies);    
@@ -36,5 +36,9 @@ public interface EnsembleApiFacade {
     public Reply getAllCollections();
 
     public Reply getAllSuperCollections();
+
+    public Reply recalculateFeedbackSupercollection(String banditCollectionId, String banditId, String feedbackValue);
+
+    public Reply useBanditFromSupercollection(String banditCollectionId, String banditId);
     
 }

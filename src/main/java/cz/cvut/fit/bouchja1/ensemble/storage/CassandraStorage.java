@@ -22,6 +22,7 @@ import cz.cvut.fit.bouchja1.ensemble.operation.object.LastEnsembleConfiguration;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -181,7 +182,8 @@ public class CassandraStorage implements IStorage {
             ResultSet results = session.execute("SELECT * FROM " + keyspace + ".collection;");
 
             for (Row row : results) {
-                BanditsMachine machine = new BanditsMachine(new ArrayList<Bandit>(), env);
+                //BanditsMachine machine = new BanditsMachine(new ArrayList<Bandit>(), env);
+                BanditsMachine machine = new BanditsMachine(new HashMap<String, Bandit>(), env);
                 BayesianStrategy strategy = new BayesianStrategy(row.getInt("collection_id"), row.getString("collection_name"), machine);
 
                 Set<String> algorithms = row.getSet("algorithm_set", String.class);
@@ -233,7 +235,8 @@ public class CassandraStorage implements IStorage {
     public void saveCurrentState(LastEnsembleConfiguration strategies) {
         if (strategies != null) {
             for (BayesianStrategy strategy : strategies.getStrategies().values()) {
-                List<Bandit> bandits = strategy.getBanditsMachine().getBanditList();
+                //List<Bandit> bandits = strategy.getBanditsMachine().getBanditList();
+                Map<String, Bandit> bandits = strategy.getBanditsMachine().getBanditList();
                 if (bandits.size() > 0) {
                     PreparedStatement statement = session.prepare(
                             "INSERT INTO " + keyspace + ".algorithm "
@@ -242,17 +245,18 @@ public class CassandraStorage implements IStorage {
 
                     Date actualDate = Calendar.getInstance().getTime();
 
-                    for (Bandit b : bandits) {
+                    for (Map.Entry<String, Bandit> entry : bandits.entrySet()) {
                         BoundStatement boundStatement = new BoundStatement(statement);
                         session.execute(boundStatement.bind(
                                 strategy.getCollectionId(),
-                                b.getName(),
+                                entry.getValue().getName(),
                                 actualDate,
-                                b.getProbability(),
-                                b.getTrials(),
-                                b.getSuccesses()));
-                        logger.info("Time: " + actualDate + "Saving bandit with ID " + b.getName() + " into collection : " + strategy.getCollectionId());
+                                entry.getValue().getProbability(),
+                                entry.getValue().getTrials(),
+                                entry.getValue().getSuccesses()));
+                        logger.info("Time: " + actualDate + "Saving bandit with ID " + entry.getValue().getName() + " into collection : " + strategy.getCollectionId());
                     }
+
                 } else {
                     logger.info("Cannot persist bandits because there is no bandit in collection with ID: " + strategy.getCollectionId());
                 }

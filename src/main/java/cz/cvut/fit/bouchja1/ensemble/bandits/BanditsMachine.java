@@ -6,6 +6,7 @@ package cz.cvut.fit.bouchja1.ensemble.bandits;
 
 import cz.cvut.fit.bouchja1.ensemble.bandits.util.MathUtil;
 import java.util.List;
+import java.util.Map;
 import org.springframework.core.env.Environment;
 
 /**
@@ -16,12 +17,14 @@ import org.springframework.core.env.Environment;
  */
 public class BanditsMachine {
 
-    private List<Bandit> banditList; // seznam banditu
+    //private List<Bandit> banditList; // seznam banditu
+    private Map<String, Bandit> banditList; // seznam banditu
     private double rate;
     private double possitiveFeedback;
     private double possitiveFeedbackOthers;
     private double negativeFeedback;
 
+    /*
     public BanditsMachine(List<Bandit> banditList, double rate) {
         this.banditList = banditList;
         this.rate = rate;
@@ -33,7 +36,21 @@ public class BanditsMachine {
         this.possitiveFeedback = Double.parseDouble(env.getProperty("ensemble.feedback.possitive.best"));
         this.possitiveFeedbackOthers = Double.parseDouble(env.getProperty("ensemble.feedback.possitive.others"));
         this.negativeFeedback = Double.parseDouble(env.getProperty("ensemble.feedback.negative"));
-    }          
+    } 
+    */
+    
+    public BanditsMachine(Map<String, Bandit> banditList, double rate) {
+        this.banditList = banditList;
+        this.rate = rate;
+    }
+    
+    public BanditsMachine(Map<String, Bandit> banditList, Environment env) {
+        this.banditList = banditList;
+        this.rate = Double.parseDouble(env.getProperty("ensemble.machine.rate"));
+        this.possitiveFeedback = Double.parseDouble(env.getProperty("ensemble.feedback.possitive.best"));
+        this.possitiveFeedbackOthers = Double.parseDouble(env.getProperty("ensemble.feedback.possitive.others"));
+        this.negativeFeedback = Double.parseDouble(env.getProperty("ensemble.feedback.negative"));
+    }     
 
     /*
      * return the results, 0 or 1, of pulling the banditArmth bandit.
@@ -60,9 +77,14 @@ public class BanditsMachine {
         return banditList.get(i);
     }
 
+    /*
     public List<Bandit> getBanditList() {
-        return banditList;
+    return banditList;
     }
+     */
+    public Map<String, Bandit> getBanditList() {
+        return banditList;
+    }       
     
     public void updateTrials(Bandit banditToUpdate, double totalCountsToBoost) {
         banditToUpdate.updateTrialStats(rate, totalCountsToBoost);                           
@@ -86,44 +108,52 @@ public class BanditsMachine {
          */
         
         switch (feedback) {
-            case "1" :
+            case "possitive" :
                 makePositiveFeedback(banditToUpdate);
                 break;
-            case "0" :
+            case "negative" :
                 makeNegativeFeedback(banditToUpdate);
                 break;
         }            
     }
 
     private void makePositiveFeedback(Bandit banditToUpdate) {
+        //tomu, ktery dal dobre doporuceni, pricteme pozitivni zpetnou vazbu
         banditToUpdate.updateRoundStatsExtended(possitiveFeedback, rate);
-        for (Bandit b : banditList) {
-            if (!b.equals(banditToUpdate)) {
-                b.updateNegativeRoundStatsExtended(possitiveFeedbackOthers, rate);
+
+        //vsem ostatnim v nejakem pomeru snizime
+        for (Map.Entry<String, Bandit> b : banditList.entrySet()) {
+            if (!b.getValue().equals(banditToUpdate)) {
+                b.getValue().updateNegativeRoundStatsExtended(possitiveFeedbackOthers, rate);
             }
         }        
     }
 
     private void makeNegativeFeedback(Bandit banditToUpdate) {
-        if (banditToUpdate.getSuccesses() > 1) {
-            banditToUpdate.updateRoundStatsExtended(negativeFeedback, rate);
+        if (banditToUpdate.getSuccesses() > negativeFeedback) {
+            banditToUpdate.updateRoundStatsExtended(-negativeFeedback, rate);
         } else {
             banditToUpdate.updateRoundStatsExtended(rate);
         }
     }
 
     public void addBanditToMachine(Bandit b) {
-        banditList.add(b);
+        //banditList.add(b);
+        banditList.put(b.getName(), b);
     }
 
     double recalculateProbabilities(double banditTrialsProbabilityRate) {
         double totalPartialyProbabilities = 0.0;
-        for (Bandit b : banditList) {
-            double result = b.getProbability() * banditTrialsProbabilityRate;
+        for (Map.Entry<String, Bandit> b : banditList.entrySet()) {
+            double result = b.getValue().getProbability() * banditTrialsProbabilityRate;
             totalPartialyProbabilities += result;
-            b.setProbability(b.getProbability() - result);
+            b.getValue().setProbability(b.getValue().getProbability() - result);
         }
         return totalPartialyProbabilities;
+    }
+
+    Bandit getBanditByKey(String banditId) {
+        return banditList.get(banditId);
     }
 }
 

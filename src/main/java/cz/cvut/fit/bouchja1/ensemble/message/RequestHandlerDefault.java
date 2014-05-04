@@ -9,7 +9,7 @@ import cz.cvut.fit.bouchja1.ensemble.operation.Operation;
 import cz.cvut.fit.bouchja1.ensemble.operation.object.OperationBody;
 import cz.cvut.fit.bouchja1.ensemble.operation.OperationCreateBanditCollection;
 import cz.cvut.fit.bouchja1.ensemble.operation.OperationDetectBestBandit;
-import cz.cvut.fit.bouchja1.ensemble.operation.OperationSelectBandit;
+import cz.cvut.fit.bouchja1.ensemble.operation.OperationUseCollectionBandit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,7 +62,7 @@ public class RequestHandlerDefault implements RequestHandler {
             }
                 break;
             case "recommend" : {
-                    operation = new OperationSelectBandit();
+                    operation = new OperationUseCollectionBandit();
             }
                 break;
         }

@@ -79,9 +79,12 @@ public class Bandit {
     }    
 
     public void updateNegativeRoundStatsExtended(double result, double rate) {
-        if (successes > 0.5) {
+        if (successes > result) {
             double newSuccesses = rate * successes;
             successes = newSuccesses - result;
+        } else {
+            double newSuccesses = rate * successes;
+            successes = newSuccesses;            
         }
     }
 

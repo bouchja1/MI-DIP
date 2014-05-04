@@ -8,6 +8,7 @@ import cz.cvut.fit.bouchja1.ensemble.bandits.util.MathUtil;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.math3.distribution.BetaDistribution;
 /**
@@ -108,11 +109,11 @@ public class BayesianStrategy {
     }
 
     public void selectBandit(String banditId) {
-        int banditIndexChoice = Integer.valueOf(banditId);
-        Bandit banditToUpdate = banditsMachine.getBanditAtIndex(banditIndexChoice);
+        //int banditIndexChoice = Integer.valueOf(banditId);
+        //Bandit banditToUpdate = banditsMachine.getBanditAtIndex(banditIndexChoice);
+        Bandit banditToUpdate = banditsMachine.getBanditByKey(banditId);
         
-        double banditTrialsProbabilityRate = (double) 1 / (double) (banditsMachine.getBanditList().size() - 1);
-        
+        double banditTrialsProbabilityRate = (double) 1 / (double) (banditsMachine.getBanditList().size() - 1);        
         double totalCountsToBoost = banditsMachine.recalculateProbabilities(banditTrialsProbabilityRate);
         
         //pricti banditovi, ze byl vybran
@@ -120,8 +121,9 @@ public class BayesianStrategy {
     }
     
     public void calculateFeedback(String banditCollectionId, String banditId, String feedbackValue) {
-        int banditIndexChoice = Integer.valueOf(banditId);
-        Bandit banditToUpdate = banditsMachine.getBanditAtIndex(banditIndexChoice);
+        //int banditIndexChoice = Integer.valueOf(banditId);
+        //Bandit banditToUpdate = banditsMachine.getBanditAtIndex(banditIndexChoice);
+        Bandit banditToUpdate = banditsMachine.getBanditByKey(banditId);
         banditsMachine.updateAllStatsInRound(banditToUpdate, feedbackValue);   
     }    
 
@@ -151,8 +153,8 @@ public class BayesianStrategy {
     }
 
     public boolean existBandit(String banditId) {
-        for (Bandit b : banditsMachine.getBanditList()) {
-            if (b.getName().equals(banditId)) return true;
+        for (String bandit : banditsMachine.getBanditList().keySet()) {
+            if (bandit.equals(banditId)) return true;
         }
         return false;
     }

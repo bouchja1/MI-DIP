@@ -10,10 +10,12 @@ import cz.cvut.fit.bouchja1.ensemble.operation.OperationCreateBanditCollection;
 import cz.cvut.fit.bouchja1.ensemble.operation.OperationCreateBanditSuperCollection;
 import cz.cvut.fit.bouchja1.ensemble.operation.OperationDetectBestBandit;
 import cz.cvut.fit.bouchja1.ensemble.operation.OperationDetectBestSuperBandit;
-import cz.cvut.fit.bouchja1.ensemble.operation.OperationFeedbackBandit;
+import cz.cvut.fit.bouchja1.ensemble.operation.OperationFeedbackCollectionBandit;
+import cz.cvut.fit.bouchja1.ensemble.operation.OperationFeedbackSupercollectionBandit;
 import cz.cvut.fit.bouchja1.ensemble.operation.OperationGetAllCollections;
 import cz.cvut.fit.bouchja1.ensemble.operation.OperationGetAllSuperCollections;
-import cz.cvut.fit.bouchja1.ensemble.operation.OperationSelectBandit;
+import cz.cvut.fit.bouchja1.ensemble.operation.OperationUseCollectionBandit;
+import cz.cvut.fit.bouchja1.ensemble.operation.OperationUseSupercollectionBandit;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -118,42 +120,61 @@ public class RequestHandlerJson implements RequestHandler {
                     operation = new OperationGetAllSuperCollections();
                 } else {
                     //ZE TO NEODPOVIDA NICEMU?
-                    }
+                }
                 break;
             case "PUT":
-                Pattern patternOperation = Pattern.compile("/ensemble/services/collection/(\\d+)/(\\d+)");
+                Pattern patternOperation = Pattern.compile("/ensemble/services/(collection|supercollection)/(\\d+)/(\\S+)");
                 Matcher matcherOperation = patternOperation.matcher(requestPath);
+                String collectionType = "";
                 int collectionToDetectOperation = -1;
-                int banditToDetectOperation = -1;
+                String banditToDetectOperation = "";
                 while (matcherOperation.find()) {
                     //System.out.println(matcher.group(1));
-                    collectionToDetectOperation = Integer.parseInt(matcherOperation.group(1));
-                    banditToDetectOperation = Integer.parseInt(matcherOperation.group(2));
+                    collectionType = matcherOperation.group(1);
+                    collectionToDetectOperation = Integer.parseInt(matcherOperation.group(2));
+                    banditToDetectOperation = matcherOperation.group(3);
                 }
 
-                if ((collectionToDetectOperation > -1) && (banditToDetectOperation > -1)) {
-                    if (requestBody.contains("pull")) {
-                        operation = new OperationSelectBandit();
-                    } else {
-                        Pattern patternFeedback = Pattern.compile("value=(\\d+)");
-                        Matcher matcherFeedback = patternFeedback.matcher(requestPath);
-                        int feedbackValue = -1;
-
-                        while (matcherFeedback.find()) {
-                            //System.out.println(matcher.group(1));
-                            feedbackValue = Integer.parseInt(matcherFeedback.group(1));
-                        }
-
-                        if (feedbackValue > -1) {
-                            operation = new OperationFeedbackBandit();
-                            operationParamMap.put("feedbackValue", feedbackValue + "");
-                        }
+                if ((collectionToDetectOperation > -1) && (!"".equals(banditToDetectOperation)) && (("collection".equals(collectionType)) || ("supercollection".equals(collectionType)))) {                    
+                    Pattern patternConcreteOperation = Pattern.compile("operation=(feedback|use)(&feedbackType=(possitive|negative))?");
+                    Matcher matcherConcreteOperation = patternConcreteOperation.matcher(requestBody);                   
+                    String operationType = "";
+                    String feedback = "";
+                    String feedbackType = "";
+                    while (matcherConcreteOperation.find()) {
+                        operationType = matcherConcreteOperation.group(1);
+                        feedback = matcherConcreteOperation.group(2);
+                        feedbackType = matcherConcreteOperation.group(3);
                     }
+                    
+                    if ("feedback".equals(operationType)) {
+                        if ((!"".equals(feedback)) && (("possitive".equals(feedbackType)) || ("negative".equals(feedbackType)))) {
+                            if ("collection".equals(collectionType)) {
+                                operation = new OperationFeedbackCollectionBandit();
+                                operationParamMap.put("feedbackType", feedbackType);                             
+                            } else {
+                                operation = new OperationFeedbackSupercollectionBandit();
+                                operationParamMap.put("feedbackType", feedbackType);                                    
+                            }                       
+                        }
+                    } else if ("use".equals(operationType)) {
+                            if ("collection".equals(collectionType)) {
+                                operation = new OperationUseCollectionBandit();
+                            } else {
+                                operation = new OperationUseSupercollectionBandit();
+                            } 
+                    } else {
+                        //neznamy typ operace
+                    }
+                    
                     operationParamMap.put("collectionId", collectionToDetectOperation + "");
-                    operationParamMap.put("banditId", banditToDetectOperation + "");
+                    operationParamMap.put("banditId", banditToDetectOperation);
                     operation.parseParameters(operationParamMap);
+                } else {
+                    //ze chybi ty parametry
                 }
                 break;
+            default: //neco jako Unsupported operation
         }
         return operation;
     }
