@@ -347,14 +347,14 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         return builder.toString();
     }
     
-    private String formatCollectionsId(Set<BanditCollection> banditContextIds) {
+    private String formatCollectionsId(Set<String> banditContextIds) {
         StringBuilder builder = new StringBuilder();
         int banditIdsSize = banditContextIds.size();
-        Iterator<BanditCollection> bi = banditContextIds.iterator();
+        Iterator<String> bi = banditContextIds.iterator();
         
         int counter = 1;
         while (bi.hasNext()) {
-            builder.append(bi.next().getId());
+            builder.append(bi.next());
             if (counter != banditIdsSize) {
                 builder.append(",");
             }  

@@ -15,7 +15,7 @@ public class BanditSuperCollection implements Serializable {
     private static final long serialVersionUID = -4039686696075339053L;
     
     private String id;
-    private Set<BanditCollection> contextCollections;
+    private Set<String> contextCollections;
 
     public BanditSuperCollection() {
     }
@@ -30,11 +30,11 @@ public class BanditSuperCollection implements Serializable {
     }
 
         @XmlElement
-    public Set<BanditCollection> getContextCollections() {
+    public Set<String> getContextCollections() {
         return contextCollections;
     }
 
-    public void setContextCollections(Set<BanditCollection> contextCollections) {
+    public void setContextCollections(Set<String> contextCollections) {
         this.contextCollections = contextCollections;
     }
 
