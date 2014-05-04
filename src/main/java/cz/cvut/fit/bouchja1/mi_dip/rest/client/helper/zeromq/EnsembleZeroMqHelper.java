@@ -46,7 +46,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         SmileRequest req = new SmileRequest();
         req.setMethod("POST");
         req.setPath("/ensemble/services/collection");
-        req.setBody("collectionId=" + banditCollection.getId() + "&bandits=" + formatBanditIds(banditCollection.getBanditIds()));        
+        req.setBody("collectionId=" + banditCollection.getName() + "&bandits=" + formatBanditIds(banditCollection.getBanditIds()));        
 
         try {
             String json = new ObjectMapper().writeValueAsString(req);
@@ -85,7 +85,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         SmileRequest req = new SmileRequest();
         req.setMethod("POST");
         req.setPath("/ensemble/services/supercollection");
-        req.setBody("supercollectionId=" + banditSuperCollection.getId() + "&collections=" + formatCollectionsId(banditSuperCollection.getContextCollections()));        
+        req.setBody("supercollectionId=" + banditSuperCollection.getName() + "&collections=" + formatCollectionsId(banditSuperCollection.getContextCollections()));        
 
         try {
             String json = new ObjectMapper().writeValueAsString(req);
@@ -205,7 +205,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         Response resp = null;
         ZMQ.Context context = ZMQ.context(1);
         ZMQ.Socket requester = context.socket(ZMQ.REQ);       
-        requester.connect("tcp://localhost:5555"); 
+        requester.connect("tcp://localhost:5555");  
 
         SmileRequest req = new SmileRequest();
         req.setMethod("GET");
@@ -240,7 +240,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         return resp; 
     }
 
-    public Response getBestBanditSuperCollection(String supercollectionId) {
+    public Response filterBestBanditSuperCollection(String supercollectionId, String filter) {
         Response resp = null;
                 ZMQ.Context context = ZMQ.context(1);
         ZMQ.Socket requester = context.socket(ZMQ.REQ);       
@@ -249,7 +249,13 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         SmileRequest req = new SmileRequest();
         req.setMethod("GET");
         
-        req.setPath("/ensemble/services/supercollection/" + supercollectionId + "?filter=super");
+        if (filter == null) {
+            filter = "all";
+        } else if (!"best".equals(filter)) {
+            return getBadRequestResponse("Bad value for filter. Supported filters are: best");
+        }        
+        
+        req.setPath("/ensemble/services/supercollection/" + supercollectionId + "?filter=" + filter);
         
         try {
             String json = new ObjectMapper().writeValueAsString(req);

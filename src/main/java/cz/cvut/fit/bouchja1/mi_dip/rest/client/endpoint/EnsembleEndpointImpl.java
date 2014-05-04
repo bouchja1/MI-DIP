@@ -90,8 +90,8 @@ public class EnsembleEndpointImpl implements EnsembleEndpoint {
     @GET   
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Override
-    public Response getBestBanditSuperCollection(@PathParam(value="supercollectionId") String supercollectionId) {
-        return ensembleZeroMqHelper.getBestBanditSuperCollection(supercollectionId);
+    public Response getBestBanditSuperCollection(@PathParam(value="supercollectionId") String supercollectionId, @QueryParam(value = "filter") String filter) {
+        return ensembleZeroMqHelper.filterBestBanditSuperCollection(supercollectionId, filter);
     }        
     
     @Path(COLLECTION_PATH + COLLECTION_ID + BANDIT_ID)

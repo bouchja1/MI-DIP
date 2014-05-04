@@ -19,6 +19,6 @@ public interface EnsembleEndpoint {
     public Response getBanditCollections();
     public Response getBanditSuperCollections();
     public Response getBestBanditCollection(String collectionId, String filter);
-    public Response getBestBanditSuperCollection(String supercollectionId);
+    public Response getBestBanditSuperCollection(String supercollectionId, String filter);
     public Response sendEnsembleOperation(String collectionId, String banditId, EnsembleOperation ensembleOperation);    
 }

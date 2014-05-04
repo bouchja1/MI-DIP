@@ -14,19 +14,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class BanditSuperCollection implements Serializable {
     private static final long serialVersionUID = -4039686696075339053L;
     
-    private String id;
+    private String name;
     private Set<String> contextCollections;
 
     public BanditSuperCollection() {
     }
 
         @XmlElement
-    public String getId() {
-        return id;
+    public String getName() {
+        return name;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setName(String name) {
+        this.name = name;
     }
 
         @XmlElement
