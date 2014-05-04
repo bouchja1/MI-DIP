@@ -21,6 +21,10 @@ public class SuperBayesianStrategy {
     private String superCollectionId;
     private Set<BayesianStrategy> setOfStrategies;
 
+    public SuperBayesianStrategy(String superCollectionId) {
+        this.superCollectionId = superCollectionId;
+    }
+
     public String getSuperCollectionId() {
         return superCollectionId;
     }
@@ -36,6 +40,10 @@ public class SuperBayesianStrategy {
 
     public Set<BayesianStrategy> getSetOfStrategies() {
         return setOfStrategies;
+    }
+    
+    public void addStrategyToSuperstrategy(BayesianStrategy strategy) {
+        setOfStrategies.add(strategy);
     }
 
     public void setSetOfStrategies(Set<BayesianStrategy> setOfStrategies) {

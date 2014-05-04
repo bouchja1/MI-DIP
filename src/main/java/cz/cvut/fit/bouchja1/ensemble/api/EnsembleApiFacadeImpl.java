@@ -14,6 +14,7 @@ import cz.cvut.fit.bouchja1.ensemble.message.ResponseHandler;
 import cz.cvut.fit.bouchja1.ensemble.message.ResponseHandlerJson;
 import cz.cvut.fit.bouchja1.ensemble.message.object.Reply;
 import cz.cvut.fit.bouchja1.ensemble.operation.object.ContextCollection;
+import cz.cvut.fit.bouchja1.ensemble.operation.object.LastEnsembleConfiguration;
 import cz.cvut.fit.bouchja1.ensemble.operation.object.Supercollection;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -81,8 +82,13 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
             Set<String> existingContextCollectionsId = new HashSet<>();
             for (String contextCollectionId : collectionIds) {
                 BayesianStrategy existingStrategy = getStrategyByCollectionId(contextCollectionId);
-                existingContextCollections.add(existingStrategy);
-                existingContextCollectionsId.add(existingStrategy.getCollectionId());
+                if (existingStrategy == null) {
+                    responseHandler.createErrorReply("Super collection can be created only from existing context collections.");
+                    return responseHandler.returnReply();
+                } else {
+                    existingContextCollections.add(existingStrategy);
+                    existingContextCollectionsId.add(existingStrategy.getCollectionId());
+                }
             }
             SuperBayesianStrategy superStrategy = new SuperBayesianStrategy(banditSuperCollectionId, existingContextCollections);
             storage.createBanditSuperSet(banditSuperCollectionId, existingContextCollectionsId);
@@ -278,8 +284,9 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
     }
 
     @Override
-    public void setStrategies(List<BayesianStrategy> strategies) {
-        this.strategies = strategies;
+    public void setLastConfiguration(LastEnsembleConfiguration strategiesAndSuperstrategies) {
+        this.strategies = strategiesAndSuperstrategies.getContextCollections();
+        this.superStrategies = strategiesAndSuperstrategies.getSuperStrategies();
     }
 
     @Override

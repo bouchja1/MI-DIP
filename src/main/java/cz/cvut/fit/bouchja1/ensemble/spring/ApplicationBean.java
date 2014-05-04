@@ -9,6 +9,7 @@ import cz.cvut.fit.bouchja1.ensemble.storage.StorageFactory;
 import cz.cvut.fit.bouchja1.ensemble.api.EnsembleApiFacade;
 import cz.cvut.fit.bouchja1.ensemble.bandits.BanditsMachine;
 import cz.cvut.fit.bouchja1.ensemble.bandits.BayesianStrategy;
+import cz.cvut.fit.bouchja1.ensemble.operation.object.LastEnsembleConfiguration;
 import cz.cvut.fit.bouchja1.ensemble.socket.MultiThreadServer;
 import java.util.List;
 import org.apache.commons.logging.Log;
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Service;
 public class ApplicationBean {
 
     private final Log logger = LogFactory.getLog(getClass());
-    private List<BayesianStrategy> strategies;
+    private LastEnsembleConfiguration lastConfiguration;
     private IStorage storage;
     private Environment env;
     private List<String> allowedBanditValues;
@@ -43,8 +44,8 @@ public class ApplicationBean {
         /*
          * PRO SIMULACI - POKUSY ZDE?
          */
-        strategies = getLastBanditConfiguration();       
-        api.setStrategies(strategies); //muze by prazdne  
+        lastConfiguration = getLastBanditConfiguration();       
+        api.setLastConfiguration(lastConfiguration); //muze by prazdne  
         api.setStorage(storage);
         api.setEnvironment(env);
         api.setAllowedBanditsValues(allowedBanditValues);
@@ -59,7 +60,7 @@ public class ApplicationBean {
      */
     public void saveCurrentState() {
         try {
-            storage.saveCurrentState(strategies);
+            storage.saveCurrentState(lastConfiguration);
         } catch (NullPointerException ex) {
             logger.error("Maybe application is not initialized yet.", ex);
         }
@@ -75,7 +76,7 @@ public class ApplicationBean {
      * sada banditu se bude specifikovat v konfiguraku, pokud nebude specifikovana nebo bude neexistujici, nacte se nejaka defaultni (prvni ulozena)
      * Pokud zadna takova nebo ani defaultni neexistuje, nenacte se nic a bude to muset byt osetrene
      */
-    private List<BayesianStrategy> getLastBanditConfiguration() {        
+    private LastEnsembleConfiguration getLastBanditConfiguration() {        
         return storage.loadLastConfiguration(env);
     }    
 

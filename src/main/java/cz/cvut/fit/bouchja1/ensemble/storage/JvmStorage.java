@@ -6,7 +6,10 @@ package cz.cvut.fit.bouchja1.ensemble.storage;
 
 import cz.cvut.fit.bouchja1.ensemble.bandits.Bandit;
 import cz.cvut.fit.bouchja1.ensemble.bandits.BayesianStrategy;
+import cz.cvut.fit.bouchja1.ensemble.bandits.SuperBayesianStrategy;
+import cz.cvut.fit.bouchja1.ensemble.operation.object.LastEnsembleConfiguration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.logging.Log;
@@ -22,14 +25,18 @@ public class JvmStorage implements IStorage {
     private final Log logger = LogFactory.getLog(getClass());
 
     @Override
-    public void saveCurrentState(List<BayesianStrategy> strategies) {
+    public void saveCurrentState(LastEnsembleConfiguration strategies) {
         logger.debug("Nothing to save to be persistent - program uses JVM to store information.");
     }
 
     @Override
-    public List<BayesianStrategy> loadLastConfiguration(Environment env) {
+    public LastEnsembleConfiguration loadLastConfiguration(Environment env) {
+        Set<SuperBayesianStrategy> superstrategy = new HashSet<>();
         List<BayesianStrategy> strategies = new ArrayList<>();
-        return strategies;
+        LastEnsembleConfiguration emptyConfiguration = new LastEnsembleConfiguration();
+        emptyConfiguration.setContextCollections(strategies);
+        emptyConfiguration.setSuperStrategies(superstrategy);
+        return emptyConfiguration;
     }
 
     @Override

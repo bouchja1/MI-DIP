@@ -16,10 +16,13 @@ import com.datastax.driver.core.exceptions.InvalidQueryException;
 import cz.cvut.fit.bouchja1.ensemble.bandits.Bandit;
 import cz.cvut.fit.bouchja1.ensemble.bandits.BanditsMachine;
 import cz.cvut.fit.bouchja1.ensemble.bandits.BayesianStrategy;
+import cz.cvut.fit.bouchja1.ensemble.bandits.SuperBayesianStrategy;
 import cz.cvut.fit.bouchja1.ensemble.bandits.util.MathUtil;
+import cz.cvut.fit.bouchja1.ensemble.operation.object.LastEnsembleConfiguration;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +44,7 @@ public class CassandraStorage implements IStorage {
 
     CassandraStorage(Environment env) {
         this.node = env.getProperty("cassandra.host");
-        this.keyspace = env.getProperty("cassandra.keyspace");        
+        this.keyspace = env.getProperty("cassandra.keyspace");
         connect();
         createSchema();
     }
@@ -70,8 +73,7 @@ public class CassandraStorage implements IStorage {
     }
 
     //http://www.datastax.com/documentation/cql/3.1/cql/cql_reference/create_keyspace_r.html
-    
-    private void createSchema() {        
+    private void createSchema() {
         session.execute("CREATE KEYSPACE IF NOT EXISTS " + keyspace + " WITH replication "
                 + "= {'class':'SimpleStrategy', 'replication_factor':3};");
 
@@ -83,9 +85,9 @@ public class CassandraStorage implements IStorage {
                 + "PRIMARY KEY (supercollection_id)"
                 + ");");
 
-        
+
         session.execute(
-                "CREATE TABLE IF NOT EXISTS " + keyspace + ".collection ("             
+                "CREATE TABLE IF NOT EXISTS " + keyspace + ".collection ("
                 + "collection_id text,"
                 + "algorithm_set set<varchar>,"
                 + "PRIMARY KEY (collection_id)"
@@ -117,7 +119,7 @@ public class CassandraStorage implements IStorage {
 
         createBanditsInCollection(banditSetId, banditIds);
     }
-    
+
     @Override
     public void createBanditSuperSet(String banditSuperSetId, Set<String> collectionIds) {
         PreparedStatement statement = session.prepare(
@@ -128,7 +130,7 @@ public class CassandraStorage implements IStorage {
         session.execute(boundStatement.bind(
                 banditSuperSetId,
                 collectionIds));
-    }    
+    }
 
     private void createBanditsInCollection(String banditSetId, Set<String> banditIds) {
         PreparedStatement statement = session.prepare(
@@ -137,7 +139,7 @@ public class CassandraStorage implements IStorage {
                 + "VALUES (?, ?, ?, ?, ?, ?);");
 
         Date actualDate = Calendar.getInstance().getTime();
-        
+
         int banditsCount = MathUtil.countBandits(banditIds);
         double initialProbabilityRate = (double) 1 / (double) banditsCount;
 
@@ -162,8 +164,10 @@ public class CassandraStorage implements IStorage {
     }
 
     @Override
-    public List<BayesianStrategy> loadLastConfiguration(Environment env) {
+    public LastEnsembleConfiguration loadLastConfiguration(Environment env) {
         List<BayesianStrategy> strategies = new ArrayList<>();
+        Set<SuperBayesianStrategy> superstrategies = new HashSet<>();
+        LastEnsembleConfiguration lastConfiguration = new LastEnsembleConfiguration();
 
         try {
             //ResultSet results = session.execute("SELECT * FROM " + keyspace + ".collection WHERE collection_id='" + env.getProperty("ensemble.default.collection") + "';");
@@ -173,7 +177,7 @@ public class CassandraStorage implements IStorage {
             for (Row row : results) {
                 BanditsMachine machine = new BanditsMachine(new ArrayList<Bandit>(), env);
                 BayesianStrategy strategy = new BayesianStrategy(row.getString("collection_id"), machine);
-                
+
                 Set<String> algorithms = row.getSet("algorithm_set", String.class);
 
                 Iterator<String> iterator = algorithms.iterator();
@@ -188,43 +192,76 @@ public class CassandraStorage implements IStorage {
                 }
                 strategies.add(strategy);
             }
+            lastConfiguration.setContextCollections(strategies);
         } catch (InvalidQueryException ex) {
             logger.error(ex);
         }
 
-        return strategies;
+        try {
+            ResultSet results = session.execute("SELECT * FROM " + keyspace + ".supercollection;");
+
+            for (Row row : results) {
+                Set<BayesianStrategy> existingStrategyList = new HashSet<>();
+                SuperBayesianStrategy superstrategy = new SuperBayesianStrategy(row.getString("supercollection_id"), existingStrategyList);
+                Set<String> contextCollections = row.getSet("collection_set", String.class);
+
+                Iterator<String> iterator = contextCollections.iterator();
+                while (iterator.hasNext()) {
+                    String setElement = iterator.next();
+                    BayesianStrategy existingStrategy = findStrategy(setElement, strategies);
+                    if (existingStrategy != null) {
+                        superstrategy.addStrategyToSuperstrategy(existingStrategy);
+                    }
+                }
+                superstrategies.add(superstrategy);
+            }
+            lastConfiguration.setSuperStrategies(superstrategies);
+        } catch (InvalidQueryException ex) {
+            logger.error(ex);
+        }
+
+        return lastConfiguration;
     }
 
     @Override
-    public void saveCurrentState(List<BayesianStrategy> strategies) {
+    public void saveCurrentState(LastEnsembleConfiguration strategies) {
         if (strategies != null) {
-        for (BayesianStrategy strategy : strategies) {
-            List<Bandit> bandits = strategy.getBanditsMachine().getBanditList();
-            if (bandits.size() > 0) {
-                PreparedStatement statement = session.prepare(
-                        "INSERT INTO " + keyspace + ".algorithm "
-                        + "(collection_id, algorithm_id, event_time, probability_in_time, trials_rate, successes_rate) "
-                        + "VALUES (?, ?, ?, ?, ?, ?);");
+            for (BayesianStrategy strategy : strategies.getContextCollections()) {
+                List<Bandit> bandits = strategy.getBanditsMachine().getBanditList();
+                if (bandits.size() > 0) {
+                    PreparedStatement statement = session.prepare(
+                            "INSERT INTO " + keyspace + ".algorithm "
+                            + "(collection_id, algorithm_id, event_time, probability_in_time, trials_rate, successes_rate) "
+                            + "VALUES (?, ?, ?, ?, ?, ?);");
 
-                Date actualDate = Calendar.getInstance().getTime();
+                    Date actualDate = Calendar.getInstance().getTime();
 
-                for (Bandit b : bandits) {
-                    BoundStatement boundStatement = new BoundStatement(statement);
-                    session.execute(boundStatement.bind(
-                            strategy.getCollectionId(),
-                            b.getName(),
-                            actualDate,
-                            b.getProbability(),
-                            b.getTrials(),
-                            b.getSuccesses()));
-                    logger.info("Time: " + actualDate + "Saving bandit with ID " + b.getName() + " into collection : " + strategy.getCollectionId());
+                    for (Bandit b : bandits) {
+                        BoundStatement boundStatement = new BoundStatement(statement);
+                        session.execute(boundStatement.bind(
+                                strategy.getCollectionId(),
+                                b.getName(),
+                                actualDate,
+                                b.getProbability(),
+                                b.getTrials(),
+                                b.getSuccesses()));
+                        logger.info("Time: " + actualDate + "Saving bandit with ID " + b.getName() + " into collection : " + strategy.getCollectionId());
+                    }
+                } else {
+                    logger.info("Cannot persist bandits because there is no bandit in collection with ID: " + strategy.getCollectionId());
                 }
-            } else {
-                logger.info("Cannot persist bandits because there is no bandit in collection with ID: " + strategy.getCollectionId());
             }
-        }
         } else {
             logger.info("Nothing to persist because there are no strategies in database.");
         }
+    }
+
+    private BayesianStrategy findStrategy(String strategyId, List<BayesianStrategy> strategies) {
+        for (BayesianStrategy strategy : strategies) {
+            if (strategy.getCollectionId().equals(strategyId)) {
+                return strategy;
+            }
+        }
+        return null;
     }
 }
