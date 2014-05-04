@@ -11,15 +11,16 @@ import java.util.List;
  * @author jan
  */
 public class ContextCollection {
-    private String id;
+    private int id;
+    private String name;
     private List<String> bandits;
 
-    public String getId() {
-        return id;
+    public String getName() {
+        return name;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public List<String> getBandits() {
@@ -28,6 +29,14 @@ public class ContextCollection {
 
     public void setBandits(List<String> bandits) {
         this.bandits = bandits;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
     
     

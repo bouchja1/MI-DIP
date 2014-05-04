@@ -4,15 +4,12 @@
  */
 package cz.cvut.fit.bouchja1.ensemble.message;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import cz.cvut.fit.bouchja1.ensemble.exception.MessageFormatException;
 import cz.cvut.fit.bouchja1.ensemble.operation.Operation;
 import cz.cvut.fit.bouchja1.ensemble.operation.OperationCreateBanditCollection;
 import cz.cvut.fit.bouchja1.ensemble.operation.OperationCreateBanditSuperCollection;
 import cz.cvut.fit.bouchja1.ensemble.operation.OperationDetectBestBandit;
+import cz.cvut.fit.bouchja1.ensemble.operation.OperationDetectBestSuperBandit;
 import cz.cvut.fit.bouchja1.ensemble.operation.OperationFeedbackBandit;
 import cz.cvut.fit.bouchja1.ensemble.operation.OperationGetAllCollections;
 import cz.cvut.fit.bouchja1.ensemble.operation.OperationGetAllSuperCollections;
@@ -20,8 +17,6 @@ import cz.cvut.fit.bouchja1.ensemble.operation.OperationSelectBandit;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.json.JSONObject;
@@ -40,7 +35,7 @@ public class RequestHandlerJson implements RequestHandler {
         String requestMethod;
         String requestPath;
         String requestBody = null;
-        
+
         if (json.isNull("method") || json.isNull("path")) {
             throw new MessageFormatException("Bad format of request message. You need to specify METHOD and PATH.");
         } else {
@@ -95,18 +90,25 @@ public class RequestHandlerJson implements RequestHandler {
             case "GET":
                 Pattern pattern = Pattern.compile("/ensemble/services/(collection|supercollection)/(\\d+)\\?filter=(\\S+)");
                 Matcher matcher = pattern.matcher(requestPath);
+                String collOrSupercoll = "";
                 int collectionToDetect = -1;
                 String filter = "";
 
                 while (matcher.find()) {
                     //System.out.println(matcher.group(1));
-                    collectionToDetect = Integer.parseInt(matcher.group(1));
-                    if (matcher.group(2) != null) {
-                        filter = matcher.group(2);
+                    collOrSupercoll = matcher.group(1);
+                    collectionToDetect = Integer.valueOf(matcher.group(2));
+                    if (matcher.group(3) != null) {
+                        filter = matcher.group(3);
                     }
                 }
-                if ((collectionToDetect > -1) && (("all".equals(filter)) || ("best".equals(filter)) || ("super".equals(filter)))) {
-                    operation = new OperationDetectBestBandit();
+
+                if ((collectionToDetect > -1) && (("all".equals(filter)) || ("best".equals(filter))) && (("collection".equals(collOrSupercoll)) || ("supercollection".equals(collOrSupercoll)))) {
+                    if ("collection".equals(collOrSupercoll)) {
+                        operation = new OperationDetectBestBandit();
+                    } else if ("supercollection".equals(collOrSupercoll)) {
+                        operation = new OperationDetectBestSuperBandit();
+                    }
                     operationParamMap.put("collectionId", collectionToDetect + "");
                     operationParamMap.put("filter", filter);
                     operation.parseParameters(operationParamMap);
@@ -114,7 +116,9 @@ public class RequestHandlerJson implements RequestHandler {
                     operation = new OperationGetAllCollections();
                 } else if (requestPath.equals("/ensemble/services/supercollection")) {
                     operation = new OperationGetAllSuperCollections();
-                }
+                } else {
+                    //ZE TO NEODPOVIDA NICEMU?
+                    }
                 break;
             case "PUT":
                 Pattern patternOperation = Pattern.compile("/ensemble/services/collection/(\\d+)/(\\d+)");

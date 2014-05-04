@@ -18,12 +18,24 @@ import java.util.Set;
  */
 public class SuperBayesianStrategy {
 
+    private int id;
     private String superCollectionId;
     private Set<BayesianStrategy> setOfStrategies;
 
     public SuperBayesianStrategy(String superCollectionId) {
         this.superCollectionId = superCollectionId;
     }
+    
+    public SuperBayesianStrategy(int id, String superCollectionId) {
+        this.id = id;
+        this.superCollectionId = superCollectionId;
+    }    
+    
+    public SuperBayesianStrategy(int id, String superCollectionId, Set<BayesianStrategy> setOfStrategies) {
+        this.id = id;
+        this.superCollectionId = superCollectionId;
+        this.setOfStrategies = setOfStrategies;
+    }    
 
     public String getSuperCollectionId() {
         return superCollectionId;
@@ -31,11 +43,6 @@ public class SuperBayesianStrategy {
 
     public void setSuperCollectionId(String superCollectionId) {
         this.superCollectionId = superCollectionId;
-    }
-
-    public SuperBayesianStrategy(String superCollectionId, Set<BayesianStrategy> setOfStrategies) {
-        this.superCollectionId = superCollectionId;
-        this.setOfStrategies = setOfStrategies;
     }
 
     public Set<BayesianStrategy> getSetOfStrategies() {
@@ -98,4 +105,14 @@ public class SuperBayesianStrategy {
         //bude se vracet algoritmus
         return bestBandit;
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    
 }

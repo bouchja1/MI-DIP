@@ -73,14 +73,13 @@ public class MultiThreadServer {
 
                 //  Do some 'work'
                 try {
-                    Operation op = requestHandler.handleMessage(request);
-
+                    Operation op = requestHandler.handleMessage(request);                    
                     if (op.validateOperation()) {
                         try {
                             Reply reply = op.executeOperation(api);
                             responseHandler.setReply(reply);
                         } catch (Exception ex) {
-                            ex.printStackTrace();
+                            responseHandler.createInternalErrorReply("Internal error.");
                         }
                     } else {
                         responseHandler.createErrorReply(op.getErrorMessage());
@@ -96,8 +95,10 @@ public class MultiThreadServer {
                     }
                 } catch (MessageFormatException | IOException ex) {
                     responseHandler.createErrorReply(ex.getMessage());
+                } catch (NullPointerException ex) {
+                    responseHandler.createErrorReply("Unrecognized operation.");
                 }
-
+            
                 //  Send reply back to client
                 // bude se odpovidat vzdy, akorat se budou lisit navratove kody... neexistuje nic jako "null response"
                 //byte[] reply = null;

@@ -7,6 +7,7 @@ package cz.cvut.fit.bouchja1.ensemble.operation.object;
 import cz.cvut.fit.bouchja1.ensemble.bandits.BayesianStrategy;
 import cz.cvut.fit.bouchja1.ensemble.bandits.SuperBayesianStrategy;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -14,24 +15,24 @@ import java.util.Set;
  * @author jan
  */
 public class LastEnsembleConfiguration {
-    private List<BayesianStrategy> contextCollections;
-    private Set<SuperBayesianStrategy> superStrategies;
+    private Map<Integer, BayesianStrategy> strategies;
+    private Map<Integer, SuperBayesianStrategy> superStrategies;
 
-    public List<BayesianStrategy> getContextCollections() {
-        return contextCollections;
+    public Map<Integer, BayesianStrategy> getStrategies() {
+        return strategies;
     }
 
-    public void setContextCollections(List<BayesianStrategy> contextCollections) {
-        this.contextCollections = contextCollections;
+    public void setStrategies(Map<Integer, BayesianStrategy> strategies) {
+        this.strategies = strategies;
     }
 
-    public Set<SuperBayesianStrategy> getSuperStrategies() {
+    public Map<Integer, SuperBayesianStrategy> getSuperStrategies() {
         return superStrategies;
     }
 
-    public void setSuperStrategies(Set<SuperBayesianStrategy> superStrategies) {
+    public void setSuperStrategies(Map<Integer, SuperBayesianStrategy> superStrategies) {
         this.superStrategies = superStrategies;
     }
-    
+       
     
 }

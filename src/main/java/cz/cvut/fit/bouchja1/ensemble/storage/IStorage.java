@@ -19,8 +19,7 @@ public interface IStorage {
     public void saveCurrentState(LastEnsembleConfiguration strategies);
 
     public LastEnsembleConfiguration loadLastConfiguration(Environment env);
-
-    public void createBanditSet(String banditSetId, Set<String> banditIds);
-    public void createBanditSuperSet(String banditSuperSetId, Set<String> collectionIds);
+    public void createBanditSet(int banditSetId, String banditSetName, Set<String> banditIds);
+    public void createBanditSuperSet(int banditSuperSetId, String banditSuperSetName, Set<Integer> collectionIds);
     
 }

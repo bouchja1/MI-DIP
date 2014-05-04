@@ -23,6 +23,7 @@ import org.apache.commons.math3.distribution.BetaDistribution;
  */
 public class BayesianStrategy {
 
+    private int id;
     private String collectionId;
     private BanditsMachine banditsMachine;
     // the cumulative number of samples
@@ -42,6 +43,17 @@ public class BayesianStrategy {
         //this.pastBbScore = new ArrayList<>();
         this.roundInverseDistributions = new ArrayList<>();
     }
+    
+    public BayesianStrategy(int id, String collectionId, BanditsMachine bandits) {
+        this.id = id;
+        this.collectionId = collectionId;
+        this.banditsMachine = bandits;
+        // the cumulative number of samples
+        this.samplesNumber = 0;
+        //this.pastChoices = new ArrayList<>();
+        //this.pastBbScore = new ArrayList<>();
+        this.roundInverseDistributions = new ArrayList<>();
+    }    
 
     public Bandit sampleBandits() {
         //sample from the bandits's priors, and select the largest sample
@@ -143,6 +155,14 @@ public class BayesianStrategy {
             if (b.getName().equals(banditId)) return true;
         }
         return false;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
        
 

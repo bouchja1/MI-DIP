@@ -11,15 +11,16 @@ import java.util.List;
  * @author jan
  */
 public class Supercollection {
-    private String id;
+    private int id;
+    private String name;
     private List<ContextCollection> contextCollections;
 
-    public String getId() {
-        return id;
+    public String getName() {
+        return name;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public List<ContextCollection> getContextCollections() {
@@ -28,6 +29,14 @@ public class Supercollection {
 
     public void setContextCollections(List<ContextCollection> contextCollections) {
         this.contextCollections = contextCollections;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
     
     
