@@ -2,17 +2,16 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.cvut.fit.bouchja1.recommeng.client;
+package cz.cvut.fit.bouchja1.client.api;
 
-import cz.cvut.fit.bouchja1.client.api.EnsembleClientApi;
+import java.util.List;
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.json.JSONObject;
@@ -21,43 +20,21 @@ import org.json.JSONObject;
  *
  * @author jan
  */
-public class ClientThread extends Thread {
+public class Communication {
 
-    private String name;
     private EnsembleClientApi clientApi;
 
-    public ClientThread(String name, EnsembleClientApi clientApi) {
-        this.name = name;
+    public Communication(EnsembleClientApi clientApi) {
         this.clientApi = clientApi;
     }
 
-    public void run() {
-
-
-        //ALGORITHMS
-        //getRandomRecommendation();
-
-        //ENSEMBLE
-        //createContextCollectionRest();
-        //createBanditSuperCollection();
-        //getBanditCollections();
-        //getBanditSuperCollections();
-        
-        //getBestBanditCollection();
-        //getBestBanditSuperCollection();
-        
-        //sendUseEnsembleOperation();        
-        //sendFeedbackEnsembleOperation();
-        sendSuperFeedbackEnsembleOperation();
-    }
-
-    private void getRandomRecommendation() {
+    public void getRandomRecommendation() {
         Client client = clientApi.getClient();
 
         Response response = client.target(clientApi.getRestfulApiLocation())
                 .path("recommeng/algorithm/articleCore/random")
-                .queryParam("groupId", "123")
-                .queryParam("limit", "12")
+                .queryParam("groupId", 123)
+                .queryParam("limit", 12)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 //.header("some-header", "true")
                 .get();
@@ -66,10 +43,59 @@ public class ClientThread extends Thread {
         System.out.println(response.readEntity(String.class));
     }
 
+    public void getLatestRecommendation() {
+        Client client = clientApi.getClient();
+
+        Response response = client.target(clientApi.getRestfulApiLocation())
+                .path("recommeng/algorithm/articleCore/latest")
+                .queryParam("groupId", 123)
+                .queryParam("limit", 12)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                //.header("some-header", "true")
+                .get();
+
+        System.out.println(response.getStatus());
+        System.out.println(response.readEntity(String.class));
+    }
+
+    public void getTopratedRecommendation() {
+        Client client = clientApi.getClient();
+
+        Response response = client.target(clientApi.getRestfulApiLocation())
+                .path("recommeng/algorithm/behavioralCore/toprate")
+                .queryParam("groupId", 0)
+                .queryParam("limit", 12)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                //.header("some-header", "true")
+                .get();
+
+        System.out.println(response.getStatus());
+        System.out.println(response.readEntity(String.class));
+    }
+
+    public void sendUserRatingItemFeedback() {
+        JsonObject collection = Json.createObjectBuilder()
+                .add("articleId", "oavgofrsdxxcos5x1man")
+                .add("userId", 2)
+                .add("rating", 4.0)
+                .build();
+
+        Client client = clientApi.getClient();
+
+        Response response = client.target(clientApi.getRestfulApiLocation())
+                .path("recommeng/core/behavioralCore/document")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                //.header("some-header", "true")
+                .post(Entity.entity(collection, MediaType.APPLICATION_JSON_TYPE));
+
+        System.out.println(response.getStatus());
+        System.out.println(response.readEntity(String.class));
+    }
+
     /*
      *************************************** ENSEMBLE
      */
-    private void createContextCollectionRest() {
+    public void createContextCollectionRest() {
         JsonObject collection = Json.createObjectBuilder()
                 .add("name", "vecer")
                 .add("banditIds", Json.createArrayBuilder()
@@ -121,13 +147,13 @@ public class ClientThread extends Thread {
                 .get();
 
         System.out.println(response.getStatus());
-       
+
         final JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
         /*
-        if (jsonObj != null && jsonObj.isNull("location")) {
-            final JSONObject location = (JSONObject) jsonObj.get("location");
-        }
-        */
+         if (jsonObj != null && jsonObj.isNull("location")) {
+         final JSONObject location = (JSONObject) jsonObj.get("location");
+         }
+         */
         System.out.println(jsonObj.toString());
     }
 
@@ -141,14 +167,14 @@ public class ClientThread extends Thread {
                 .get();
 
         System.out.println(response.getStatus());
-       
+
         final JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
         /*
-        if (jsonObj != null && jsonObj.isNull("location")) {
-            final JSONObject location = (JSONObject) jsonObj.get("location");
-        }
-        */
-        System.out.println(jsonObj.toString());        
+         if (jsonObj != null && jsonObj.isNull("location")) {
+         final JSONObject location = (JSONObject) jsonObj.get("location");
+         }
+         */
+        System.out.println(jsonObj.toString());
     }
 
     public void getBestBanditCollection() {
@@ -161,9 +187,9 @@ public class ClientThread extends Thread {
                 .get();
 
         System.out.println(response.getStatus());
-       
+
         final JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
-        System.out.println(jsonObj.toString());        
+        System.out.println(jsonObj.toString());
     }
 
     public void getBestBanditSuperCollection() {
@@ -177,18 +203,18 @@ public class ClientThread extends Thread {
                 .get();
 
         System.out.println(response.getStatus());
-       
+
         final JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
-        System.out.println(jsonObj.toString());          
+        System.out.println(jsonObj.toString());
     }
-    
+
     public void sendUseEnsembleOperation() {
         JsonObject collection = Json.createObjectBuilder()
                 .add("bandit", "random")
                 .add("operation", "use")
                 .build();
-        
-        Client client = clientApi.getClient();        
+
+        Client client = clientApi.getClient();
 
         Response response = client.target(clientApi.getRestfulApiLocation())
                 //.path("recommeng/ensemble/collection/1")
@@ -198,8 +224,8 @@ public class ClientThread extends Thread {
                 .put(Entity.entity(collection, MediaType.APPLICATION_JSON_TYPE));
 
         System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));              
-        
+        System.out.println(response.readEntity(String.class));
+
     }
 
     public void sendFeedbackEnsembleOperation() {
@@ -209,17 +235,17 @@ public class ClientThread extends Thread {
                 //.add("feedbackType", "possitive")
                 .add("feedbackType", "negative")
                 .build();
-       
+
         /*
          * TODO testovat na to, co se stane kdyz se tam hodi blba kolekce, kdyz se tam hodi blbej nazev operace a tak
-        JsonObject collection = Json.createObjectBuilder()
-                .add("bandit", "random")
-                .add("operation", "feedback")
-                .add("feedbackType", "negative")
-                .build();
-        */        
-        
-        Client client = clientApi.getClient();        
+         JsonObject collection = Json.createObjectBuilder()
+         .add("bandit", "random")
+         .add("operation", "feedback")
+         .add("feedbackType", "negative")
+         .build();
+         */
+
+        Client client = clientApi.getClient();
 
         Response response = client.target(clientApi.getRestfulApiLocation())
                 .path("recommeng/ensemble/collection/1")
@@ -228,9 +254,9 @@ public class ClientThread extends Thread {
                 .put(Entity.entity(collection, MediaType.APPLICATION_JSON_TYPE));
 
         System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));              
-    }    
-    
+        System.out.println(response.readEntity(String.class));
+    }
+
     public void sendSuperFeedbackEnsembleOperation() {
         JsonObject collection = Json.createObjectBuilder()
                 .add("bandit", "random")
@@ -238,17 +264,17 @@ public class ClientThread extends Thread {
                 //.add("feedbackType", "possitive")
                 .add("feedbackType", "possitive")
                 .build();
-       
+
         /*
          * TODO testovat na to, co se stane kdyz se tam hodi blba kolekce, kdyz se tam hodi blbej nazev operace a tak
-        JsonObject collection = Json.createObjectBuilder()
-                .add("bandit", "random")
-                .add("operation", "feedback")
-                .add("feedbackType", "negative")
-                .build();
-        */        
-        
-        Client client = clientApi.getClient();        
+         JsonObject collection = Json.createObjectBuilder()
+         .add("bandit", "random")
+         .add("operation", "feedback")
+         .add("feedbackType", "negative")
+         .build();
+         */
+
+        Client client = clientApi.getClient();
 
         Response response = client.target(clientApi.getRestfulApiLocation())
                 .path("recommeng/ensemble/supercollection/1")
@@ -257,6 +283,82 @@ public class ClientThread extends Thread {
                 .put(Entity.entity(collection, MediaType.APPLICATION_JSON_TYPE));
 
         System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));              
-    }        
+        System.out.println(response.readEntity(String.class));
+    }
+
+    public void deleteDocumentInCore() {
+        Client client = clientApi.getClient();
+
+        Response response = client.target(clientApi.getRestfulApiLocation())
+                .path("recommeng/core/articleCore/document")
+                .queryParam("documentId", "rwpuxn3yo0 ivjlyg 5h")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                //.header("some-header", "true")
+                .delete();
+
+        System.out.println(response.getStatus());
+        System.out.println(response.readEntity(String.class));
+    }
+
+    public void getCfUserRecommendation() {
+        Client client = clientApi.getClient();
+
+        Response response = client.target(clientApi.getRestfulApiLocation())
+                .path("recommeng/algorithm/behavioralCore/cfuser")
+                .queryParam("groupId", 0)
+                .queryParam("limit", 12)
+                .queryParam("userId", 2)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                //.header("some-header", "true")
+                .get();
+
+        System.out.println(response.getStatus());
+        System.out.println(response.readEntity(String.class));
+    }
+
+    public void getCfItemRecommendation() {
+        Client client = clientApi.getClient();
+
+        Response response = client.target(clientApi.getRestfulApiLocation())
+                .path("recommeng/algorithm/behavioralCore/cfitem")
+                .queryParam("groupId", 0)
+                .queryParam("limit", 12)
+                .queryParam("userId", 2)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                //.header("some-header", "true")
+                .get();
+
+        System.out.println(response.getStatus());
+        System.out.println(response.readEntity(String.class));
+    }
+
+    public void getMltRecommendation() {
+        Client client = clientApi.getClient();
+
+        Response response = client.target(clientApi.getRestfulApiLocation())
+                .path("recommeng/algorithm/articleCore/mlt")
+                .queryParam("groupId", 0)
+                .queryParam("limit", 12)
+                .queryParam("documentId", "http://pnjj5cr4f9 f500k9vld.org")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                //.header("some-header", "true")
+                .get();
+
+        System.out.println(response.getStatus());
+        System.out.println(response.readEntity(String.class));
+    }    
+    
+    public void createArticlesInCore(List<JsonObject> collectionOfArticles) {
+        Client client = clientApi.getClient();
+        for (JsonObject o : collectionOfArticles) {
+            Response response = client.target(clientApi.getRestfulApiLocation())
+                    .path("recommeng/core/articleCore/article")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    //.header("some-header", "true")
+                    .post(Entity.entity(o, MediaType.APPLICATION_JSON_TYPE));
+
+            System.out.println(response.getStatus());
+            System.out.println(response.readEntity(String.class));
+        }
+    }
 }
