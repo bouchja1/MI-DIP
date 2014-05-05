@@ -96,7 +96,7 @@ public class AlgorithmMlt implements IAlgorithm {
         query.set(MoreLikeThisParams.MAX_QUERY_TERMS, 1000);
         query.setRows(limitToQuery);
         query.setQuery("articleId:" + document.getFieldValue("articleId"));
-        query.setFilterQueries("usedInRec:true", "group:" + document.getFieldValue("group"));
+        query.setFilterQueries("group:" + document.getFieldValue("group"));
 
         QueryResponse response = server.query(query);
         SolrDocumentList results = response.getResults();

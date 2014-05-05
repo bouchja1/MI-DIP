@@ -55,7 +55,7 @@ public class ArticleEndpointImpl implements ArticleEndpoint {
     }    
 
     @Override
-    @Path(ENDPOINT_PATH + ARTICLE_PATH)
+    @Path(ARTICLE_PATH)
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @POST       
@@ -67,7 +67,7 @@ public class ArticleEndpointImpl implements ArticleEndpoint {
      * to the database.    
      */
     @Override
-    @Path(ENDPOINT_PATH + ARTICLES_PATH)
+    @Path(ARTICLES_PATH)
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @POST    

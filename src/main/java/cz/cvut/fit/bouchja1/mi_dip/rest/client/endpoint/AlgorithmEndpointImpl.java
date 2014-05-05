@@ -40,11 +40,12 @@ public class AlgorithmEndpointImpl implements AlgorithmEndpoint {
     public Response recommend(@PathParam("coreId") String coreId,
             @PathParam("algorithmId") String algorithmId,
             @QueryParam(value = "groupId") int groupId,
+            @QueryParam(value = "userId") int userId,
             @QueryParam(value = "documentId") String documentId,
             @QueryParam(value = "text") String text,
             @QueryParam(value = "limit") int limit) {
         
-        Map<String, String> algorithmParams = createAlgorithmParams(coreId, algorithmId, groupId, documentId, text, limit);
+        Map<String, String> algorithmParams = createAlgorithmParams(coreId, algorithmId, groupId, userId, documentId, text, limit);
         IAlgorithm algorithm = AlgorithmFactory.getAlgorithm(algorithmId, algorithmParams);
         
         if (algorithm == null) {
@@ -57,7 +58,7 @@ public class AlgorithmEndpointImpl implements AlgorithmEndpoint {
         this.algorithmEndpointHelper = algorithmEndpointHelper;
     }
 
-    private Map<String, String> createAlgorithmParams(String coreId, String algorithmId, int groupId, String documentId, String text, int limit) {
+    private Map<String, String> createAlgorithmParams(String coreId, String algorithmId, int groupId, int userId, String documentId, String text, int limit) {
         Map<String, String> algorithmParams = new HashMap<>();
         if (coreId != null) {
             algorithmParams.put("coreId", coreId);
@@ -67,7 +68,10 @@ public class AlgorithmEndpointImpl implements AlgorithmEndpoint {
         }  
         if (groupId != 0) {
             algorithmParams.put("groupId", String.valueOf(groupId));
-        }    
+        }  
+        if (userId != 0) {
+            algorithmParams.put("userId", String.valueOf(userId));
+        }            
         if (documentId != null) {
             algorithmParams.put("documentId", documentId);
         }  

@@ -85,7 +85,7 @@ public class SolrService {
     public SolrDocument isDocumentInIndex(String coreId, String documentId) throws SolrServerException {
         HttpSolrServer server = getServerFromPool(coreId);
         SolrQuery query = new SolrQuery();
-        query.setQuery("articleId:" + documentId);
+        query.setQuery("articleId:\"" + documentId + "\"");
         query.setRows(1);
         QueryResponse response;
         response = server.query(query);
@@ -115,7 +115,7 @@ public class SolrService {
         HttpSolrServer server = getServerFromPool(coreId);
         //zjisteni, jestli tam tohle document ID existuje
         SolrQuery query = new SolrQuery();
-        query.setQuery("articleId:" + userArticle.getArticleId());
+        query.setQuery("articleId:\"" + userArticle.getArticleId() + "\"");
         query.setRows(1);
         QueryResponse response = server.query(query);
         SolrDocumentList docsList = response.getResults();                
@@ -133,7 +133,7 @@ public class SolrService {
         HttpSolrServer server = getServerFromPool(coreId);
         //zjisteni, jestli tam tohle document ID existuje
         SolrQuery query = new SolrQuery();
-        query.setQuery("articleId:" + article.getId());
+        query.setQuery("articleId:\"" + article.getId() + "\"");
         query.setRows(1);
         QueryResponse response = server.query(query);
         SolrDocumentList docsList = response.getResults();
@@ -238,7 +238,7 @@ public class SolrService {
         SolrQuery query = new SolrQuery();
 
         for (ArticleDocument a : articles) {
-            query.setQuery("articleId:" + a.getId());
+            query.setQuery("articleId:\"" + a.getId() + "\"");
             query.setRows(1);
             QueryResponse response = server.query(query);
             SolrDocumentList docsList = response.getResults();

@@ -14,6 +14,7 @@ public interface AlgorithmEndpoint {
     public Response recommend(String coreId,
             String algorithmId,
             int groupId,
+            int userId,
             String documentId,
             String text,
             int limit);  

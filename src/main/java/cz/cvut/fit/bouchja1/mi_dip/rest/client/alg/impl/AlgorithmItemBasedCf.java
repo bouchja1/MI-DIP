@@ -50,6 +50,7 @@ public class AlgorithmItemBasedCf implements IAlgorithm {
     private String groupId;
     private String articleId;
     private String limit;  
+    private String userId;
     
     private long articleIdInt;
 
@@ -58,6 +59,7 @@ public class AlgorithmItemBasedCf implements IAlgorithm {
         this.groupId = algorithmParams.get("groupId");
         this.articleId = algorithmParams.get("articleId");
         this.limit = algorithmParams.get("limit");
+        this.userId = algorithmParams.get("userId");
         this.id = ALGORITHM_NAME;
     }
 

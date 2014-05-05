@@ -17,6 +17,7 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
 import org.apache.mahout.cf.taste.impl.common.FastIDSet;
 import org.apache.mahout.cf.taste.impl.model.GenericBooleanPrefDataModel;
@@ -40,25 +41,23 @@ import org.apache.solr.common.SolrDocumentList;
  * @author jan
  */
 public class AlgorithmUserBasedCf implements IAlgorithm {
+
     private final Log logger = LogFactory.getLog(getClass());
-    
     private static final String ALGORITHM_NAME = "usercf";
     private String id;
-
     private HttpSolrServer server;
-    
     private String coreId;
     private String groupId;
     private String userId;
     private String limit;
-        
+
     public AlgorithmUserBasedCf(Map<String, String> algorithmParams) {
         this.coreId = algorithmParams.get("coreId");
         this.groupId = algorithmParams.get("groupId");
         this.userId = algorithmParams.get("userId");
         this.limit = algorithmParams.get("limit");
         this.id = ALGORITHM_NAME;
-    }    
+    }
 
     @Override
     public Response recommend(SolrService solrService, AlgorithmEndpointHelper helper) {
@@ -71,7 +70,7 @@ public class AlgorithmUserBasedCf implements IAlgorithm {
                 resp = Response.ok(
                         new GenericEntity<List<OutputDocument>>(Lists.newArrayList(docs)) {
                 }).build();
-            } catch (SolrServerException ex) {
+            } catch (TasteException | SolrServerException ex) {
                 logger.error(ex);
                 resp = helper.getServerError(ex.getMessage());
             }
@@ -79,81 +78,95 @@ public class AlgorithmUserBasedCf implements IAlgorithm {
             //vratit odpoved, ze takovy core-id tam neexistuje
             resp = helper.getBadRequestResponse("You filled bad or non-existing {core-id}.");
         }
-        return resp;  
+        return resp;
     }
-    
-    private List<OutputDocument> getRecommendationByUserBasedCf(String coreId, String userId, String groupId, int limit, SolrService solrService) throws SolrServerException {
+
+    private List<OutputDocument> getRecommendationByUserBasedCf(String coreId, String userId, String groupId, int limit, SolrService solrService) throws SolrServerException, TasteException {
         this.server = solrService.getServerFromPool(coreId);
         List<OutputDocument> docs = new ArrayList<OutputDocument>();
-        
+
         /*
          * We need userIds and their articles - userid field represents the unique
          * user identification and articleList is a list of article ids. 
          * So if we execute a Solr query then we get a response like this
          */
         Set<Integer> userIdsSet = new HashSet<Integer>();
-        List<SolrDocument> docsToReturn = new ArrayList<SolrDocument>();
 
-        try {
-            SolrQuery testQuery = new SolrQuery();
-            // Potrebuju projet vsechny dokumenty v indexu a od kazdyho ulozit do Set userId
-            testQuery.setQuery("id:*");
-            testQuery.setRows(0);
-            QueryResponse response = server.query(testQuery);
+        SolrQuery testQuery = new SolrQuery();
+        // Potrebuju projet vsechny dokumenty v indexu a od kazdyho ulozit do Set userId
+        testQuery.setQuery("id:*");
 
-            fillUserIdsSet(response, userIdsSet);
-
-            //nyni mam tedy userIds a mohu se dotazovat a ziskavat jejich articles
-
-            //Mahout Map and Set implementations
-            FastByIDMap<FastIDSet> userData = new FastByIDMap<FastIDSet>();
-
-            createUserData(response, userIdsSet, userData);
-
-            DataModel model = new GenericBooleanPrefDataModel(userData);
-
-            //After create a DataModel object we are able to build a recommender: 
-            /*
-             * The LogLikelihoodSimilarity class does not need preferences values.
-             * Other similarity metrics like Euclidean distance and Pearson
-             * correlation throw IllegalArgumentException for boolean preferences. 
-             */
-            UserSimilarity similarity = new LogLikelihoodSimilarity(model);
-
-            // user-based recommender - considering 2-nearest neighboors, given log-likelihood similarity
-            /*
-             * Nearest neighborhood means that recommended items for some user will
-             * be calculated according to the (log-likelihood) similarity between this user and users contained in model.
-             */
-            UserNeighborhood neighborhood = new NearestNUserNeighborhood(2, similarity, model);
-            long[] sousedi = neighborhood.getUserNeighborhood(Long.parseLong(userId));
-
-            for (int i = 0; i < sousedi.length; i++) {
-                System.out.println("soused: " + sousedi[i]);
-            }
-
-            //GenericBooleanPrefUserBasedRecommender = the appropriate recommender for boolean preferences
-            Recommender recommender = new GenericBooleanPrefUserBasedRecommender(model, neighborhood, similarity);
-
-            // recommended items for specific user (one item recommended)
-            List<RecommendedItem> recommendedItems = recommender.recommend(Long.parseLong(userId), limit);
-
-            processRecommendedItems(response, docsToReturn, recommendedItems);
-            
-            //NEJAK NAPLNIT TY DOCS
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            //return Response.status(500).entity("error : " + e.toString()).build();
+        String groupIdString;
+        if (groupId != null) {
+            groupIdString = groupId;
+        } else {
+            groupIdString = "*";
         }
-        
-        return docs;        
+        testQuery.setFilterQueries("group:" + groupIdString);
+
+        testQuery.setRows(0);
+        QueryResponse response = server.query(testQuery);
+
+        fillUserIdsSet(response, userIdsSet);
+
+        //nyni mam tedy userIds a mohu se dotazovat a ziskavat jejich articles
+
+        //Mahout Map and Set implementations
+        FastByIDMap<FastIDSet> userData = new FastByIDMap<FastIDSet>();
+
+        createUserData(response, userIdsSet, userData, groupId);
+
+        DataModel model = new GenericBooleanPrefDataModel(userData);
+
+        //After create a DataModel object we are able to build a recommender: 
+            /*
+         * The LogLikelihoodSimilarity class does not need preferences values.
+         * Other similarity metrics like Euclidean distance and Pearson
+         * correlation throw IllegalArgumentException for boolean preferences. 
+         */
+        UserSimilarity similarity = new LogLikelihoodSimilarity(model);
+
+        // user-based recommender - considering 2-nearest neighboors, given log-likelihood similarity
+            /*
+         * Nearest neighborhood means that recommended items for some user will
+         * be calculated according to the (log-likelihood) similarity between this user and users contained in model.
+         */
+        UserNeighborhood neighborhood = new NearestNUserNeighborhood(2, similarity, model);
+        long[] sousedi = neighborhood.getUserNeighborhood(Long.parseLong(userId));
+
+        for (int i = 0; i < sousedi.length; i++) {
+            System.out.println("soused: " + sousedi[i]);
+        }
+
+        //GenericBooleanPrefUserBasedRecommender = the appropriate recommender for boolean preferences
+        Recommender recommender = new GenericBooleanPrefUserBasedRecommender(model, neighborhood, similarity);
+
+        // recommended items for specific user (one item recommended)
+        List<RecommendedItem> recommendedItems = recommender.recommend(Long.parseLong(userId), limit);
+
+        List<SolrDocument> docsToReturn = processRecommendedItems(response, recommendedItems);
+
+        for (SolrDocument d : docsToReturn) {
+            OutputDocument output = Util.fillOutputDocument(d);
+            docs.add(output);
+        }
+
+        return docs;
     }
-    
+
     private void fillUserIdsSet(QueryResponse response, Set<Integer> userIdsSet) throws SolrServerException {
         int numFound = (int) response.getResults().getNumFound();
+
         SolrQuery query = new SolrQuery();
         query.setQuery("id:*");
+        String groupIdString;
+        if (groupId != null) {
+            groupIdString = groupId;
+        } else {
+            groupIdString = "*";
+        }
+        query.setFilterQueries("group:" + groupIdString);
+        //query.setRows(limitToQuery);           
         query.setFields("userId");
 
         for (int i = 0; i < numFound; i = i + 50) {
@@ -173,11 +186,18 @@ public class AlgorithmUserBasedCf implements IAlgorithm {
             }
         }
     }
-    
-    private void createUserData(QueryResponse response, Set<Integer> userIdsSet, FastByIDMap<FastIDSet> userData) throws SolrServerException {
+
+    private void createUserData(QueryResponse response, Set<Integer> userIdsSet, FastByIDMap<FastIDSet> userData, String groupId) throws SolrServerException {
         SolrQuery cfQuery = new SolrQuery();
         cfQuery.setRows(Integer.MAX_VALUE);
         cfQuery.setFields("id");
+        String groupIdString;
+        if (groupId != null) {
+            groupIdString = groupId;
+        } else {
+            groupIdString = "*";
+        }
+        cfQuery.setFilterQueries("group:" + groupIdString);
         //nyni ziskej ty dvojice uzivatelId - articleId
         Iterator<Integer> userSetIterator = userIdsSet.iterator();
         while (userSetIterator.hasNext()) {
@@ -196,10 +216,10 @@ public class AlgorithmUserBasedCf implements IAlgorithm {
             userData.put(userRelatedId, new FastIDSet(itemValues));
         }
     }
-    
-    private void processRecommendedItems(QueryResponse response, List<SolrDocument> docsToReturn, List<RecommendedItem> recommendedItems) throws SolrServerException {
-        System.out.println("Recommended items for user# " + userId);
 
+    private List<SolrDocument> processRecommendedItems(QueryResponse response, List<RecommendedItem> recommendedItems) throws SolrServerException {
+        System.out.println("Recommended items for user# " + userId);
+        List<SolrDocument> docsToReturn = new ArrayList<SolrDocument>();
         SolrQuery queryReturnArticles = new SolrQuery();
 
         for (RecommendedItem recommendedItem : recommendedItems) {
@@ -212,11 +232,11 @@ public class AlgorithmUserBasedCf implements IAlgorithm {
                 docsToReturn.add(results.get(i));
             }
         }
-    }    
+
+        return docsToReturn;
+    }
 
     public String getId() {
         return id;
     }
-    
-    
 }
