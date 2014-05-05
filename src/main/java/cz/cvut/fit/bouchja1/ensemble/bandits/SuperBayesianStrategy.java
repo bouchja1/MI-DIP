@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -73,7 +74,8 @@ public class SuperBayesianStrategy {
     }
 
     private String bestBanditFromCombination(List<Bandit> banditsCombination) {
-        String bestBandit = null;
+        //String bestBandit = null;
+        List<String> bestBandits = new ArrayList<>();
         SuperBanditArrayBuilder banditCombiner = new SuperBanditArrayBuilder(banditsCombination);
         //nyni mam vytvoreny nastroj pro pocitani unikatnich vyskytu banditu a jednotlivcu
         //kolik mi to doporucilo celkem ruznych algoritmu - 1 za kazdy kontext
@@ -81,38 +83,34 @@ public class SuperBayesianStrategy {
 
         Map<String, Integer> uniqueBanditMapSorted = MathUtil.sortMapByValues(banditCombiner.getDifferentBanditsMap());
 
+        int previous=-1;
         //vezmu prvniho nejlepsiho
         for (Map.Entry<String, Integer> entry : uniqueBanditMapSorted.entrySet()) {
-            bestBandit = entry.getKey();
-            break;
-        }
-        
-        //TODO vyber z vice shodnych
-        /*
-        int lastValue = 0;
-        int currentValue = 0;
-        for (Map.Entry<String, Integer> entry : uniqueBanditMapSorted.entrySet()) {
-            //entry.getKey();
-            //entry.getValue();            
-            currentValue = entry.getValue();
-            if (currentValue != lastValue) {
-                
+            //bestBandit = entry.getKey();
+            if (bestBandits.isEmpty() || previous==entry.getValue()) {
+                bestBandits.add(entry.getKey());
+                previous=entry.getValue();
+            } else {                
                 break;
             }
-        }
-        */
+            
+        }       
 
-        //bude se vracet algoritmus
+        String bestBandit = selectBestByGamingStrategy(bestBandits);
         return bestBandit;
     }
 
+    private String selectBestByGamingStrategy(List<String> bestBandits) {
+        Random randomizer = new Random();
+        return bestBandits.get(randomizer.nextInt(bestBandits.size()));
+    }    
+    
     public int getId() {
         return id;
     }
 
     public void setId(int id) {
         this.id = id;
-    }
-    
+    }  
     
 }
