@@ -44,4 +44,9 @@ public class AppConfig {
         properties.setIgnoreResourceNotFound(false);
         return properties;
     }
+    
+    @Bean
+    public ScheduledJob task() {
+    	return new ScheduledJob();
+    }    
 }

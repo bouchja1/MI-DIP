@@ -16,15 +16,13 @@ public class ScheduledJob {
 
     private final Log logger = LogFactory.getLog(getClass());
     
-    /*
     @Autowired
     private ApplicationBean applicationBean;
     
-    */
     //http://javahunter.wordpress.com/2011/05/05/cronscheduler-in-spring/
     @Scheduled(cron = "${scheduling.job.cron}")
-    public void run() {
+    public void run() {       
         logger.info("Scheduled job to persist current application job started.");
-        //applicationBean.saveCurrentState();
+        applicationBean.saveCurrentState();
     }
 }

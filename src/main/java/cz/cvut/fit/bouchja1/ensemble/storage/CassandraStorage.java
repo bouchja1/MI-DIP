@@ -248,7 +248,7 @@ public class CassandraStorage implements IStorage {
                     for (Map.Entry<String, Bandit> entry : bandits.entrySet()) {
                         BoundStatement boundStatement = new BoundStatement(statement);
                         session.execute(boundStatement.bind(
-                                strategy.getCollectionId(),
+                                strategy.getId(),
                                 entry.getValue().getName(),
                                 actualDate,
                                 entry.getValue().getProbability(),

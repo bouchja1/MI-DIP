@@ -7,16 +7,15 @@ package cz.cvut.fit.bouchja1.ensemble.spring;
 import cz.cvut.fit.bouchja1.ensemble.storage.IStorage;
 import cz.cvut.fit.bouchja1.ensemble.storage.StorageFactory;
 import cz.cvut.fit.bouchja1.ensemble.api.EnsembleApiFacade;
-import cz.cvut.fit.bouchja1.ensemble.bandits.BanditsMachine;
-import cz.cvut.fit.bouchja1.ensemble.bandits.BayesianStrategy;
 import cz.cvut.fit.bouchja1.ensemble.operation.object.LastEnsembleConfiguration;
+import cz.cvut.fit.bouchja1.ensemble.socket.AsynchronousServer;
 import cz.cvut.fit.bouchja1.ensemble.socket.MultiThreadServer;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Service;
+import org.zeromq.ZContext;
 
 /**
  *
@@ -51,8 +50,10 @@ public class ApplicationBean {
         api.setAllowedBanditsValues(allowedBanditValues);
         
         //http://sysgears.com/articles/load-balancing-work-between-java-threads-using-zeromq/
-        MultiThreadServer server = new MultiThreadServer(env.getProperty("zeromq.host"), env.getProperty("zeromq.port"));
-        server.run(api);
+        //MultiThreadServer server = new MultiThreadServer(env.getProperty("zeromq.host"), env.getProperty("zeromq.port"));
+            AsynchronousServer server = new AsynchronousServer(env.getProperty("zeromq.host"), env.getProperty("zeromq.port"));
+            server.run(api);
+
     }
 
     /*
