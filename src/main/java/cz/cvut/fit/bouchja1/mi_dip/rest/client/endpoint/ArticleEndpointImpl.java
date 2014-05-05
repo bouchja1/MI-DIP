@@ -28,9 +28,12 @@ import org.springframework.stereotype.Component;
 @Path(ArticleEndpointImpl.ENDPOINT_PATH)
 public class ArticleEndpointImpl implements ArticleEndpoint {
 
-    public static final String ENDPOINT_PATH = "/cores";
+    public static final String ENDPOINT_PATH = "/core";
     public static final String USER_ARTICLE_PATH = "/{coreId}/document";
+    public static final String ARTICLE_PATH = "/{coreId}/article";
+    public static final String ARTICLES_PATH = "/{coreId}/articles";
     
+    @Autowired
     private ArticleEndpointHelper articleEndpointHelper;  
     
     @Path(USER_ARTICLE_PATH)
@@ -47,17 +50,28 @@ public class ArticleEndpointImpl implements ArticleEndpoint {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @DELETE
     @Override
-    public Response disableArticleFromRecommendation(@PathParam("coreId") String coreId, @QueryParam("documentId") String documentId) {
+    public Response deleteDocument(@PathParam("coreId") String coreId, @QueryParam("documentId") String documentId) {
         return articleEndpointHelper.disableArticleFromRecommendation(coreId, documentId);
     }    
 
     @Override
+    @Path(ENDPOINT_PATH + ARTICLE_PATH)
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @POST       
     public Response postArticle(@PathParam("coreId") String coreId, ArticleDocument article) {
         return articleEndpointHelper.postArticle(coreId, article);
     }
 
+     /* A list of resources provided in json format will be added
+     * to the database.    
+     */
     @Override
-    public Response postArticles(@PathParam("coreId") String coreId, List<ArticleDocument> articles) {
+    @Path(ENDPOINT_PATH + ARTICLES_PATH)
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @POST    
+    public Response postArticles(@PathParam("coreId") String coreId, List<ArticleDocument> articles) {        
         return articleEndpointHelper.postArticles(coreId, articles);
     }
 

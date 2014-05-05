@@ -39,7 +39,7 @@ public class ArticleEndpointHelper extends CommonEndpointHelper {
             if ("success".equals(message)) {
                 try {
                     solrService.putUserArticle(coreId, userArticle);
-                    resp = getOkResponse();
+                    resp = getOkResponse("User-rating-item succesfully added into Solr core.");
                 } catch (SolrServerException ex) {
                     logger.error(ex);
                     resp = getServerError(ex.getMessage());
@@ -65,7 +65,7 @@ public class ArticleEndpointHelper extends CommonEndpointHelper {
             if ("success".equals(message)) {
                 try {
                     solrService.postArticle(coreId, article);
-                    resp = getOkResponse();
+                    resp = getOkResponse("Article succesfully posted.");
                 } catch (SolrServerException ex) {
                     logger.error(ex);
                     resp = getServerError(ex.getMessage());
@@ -85,7 +85,29 @@ public class ArticleEndpointHelper extends CommonEndpointHelper {
     }
 
     public Response postArticles(String coreId, List<ArticleDocument> articles) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Response resp = null;
+        if (solrService.isServerCoreFromPool(coreId)) {
+            String message = ArticleValidator.validateArticle(articles);
+            if ("success".equals(message)) {
+                try {
+                    solrService.postArticles(coreId, articles);
+                    resp = getOkResponse("Articles succesfully posted.");
+                } catch (SolrServerException ex) {
+                    logger.error(ex);
+                    resp = getServerError(ex.getMessage());
+                } catch (IOException ex) {
+                    logger.error(ex);
+                    resp = getServerError(ex.getMessage());
+                }
+            } else {
+                resp = getBadRequestResponse(message);
+            }
+        } else {
+            //vratit odpoved, ze takovy core-id tam neexistuje
+            resp = getBadRequestResponse("You filled bad or non-existing {core-id}.");
+        }
+
+        return resp;
     }
 
     public Response disableArticleFromRecommendation(String coreId, String documentId) {
@@ -93,8 +115,8 @@ public class ArticleEndpointHelper extends CommonEndpointHelper {
         if (solrService.isServerCoreFromPool(coreId)) {
             if (documentId != null) {
                 try {
-                solrService.disableArticle(coreId, documentId);
-                resp = getOkResponse();
+                solrService.deleteDocument(coreId, documentId);
+                resp = getOkResponse("Document with ID: " + documentId + "was succesfully deleted.");
                 } catch (SolrServerException ex) {
                     logger.error(ex);
                     resp = getServerError(ex.getMessage());

@@ -18,11 +18,9 @@ public class UserArticleDocument implements Serializable {
     private static final long serialVersionUID = -8039686696076337053L;
     
     private String articleId;
-    private String articleText;
-    private String group;    
     private int userId;    
-    private Date time;    
     private double rating;
+    private int groupId;
     
     /*
      
@@ -32,12 +30,9 @@ curl -X POST -H "Content-Type: application/json" -d '{"articleId": "articleId","
     public UserArticleDocument() {
     }
 
-    public UserArticleDocument(String articleId, String articleText, String group, int userId, Date time, double rating) {
+    public UserArticleDocument(String articleId, int userId, double rating) {
         this.articleId = articleId;
-        this.articleText = articleText;
-        this.group = group;
         this.userId = userId;
-        this.time = time;
         this.rating = rating;
     }
 
@@ -48,37 +43,13 @@ curl -X POST -H "Content-Type: application/json" -d '{"articleId": "articleId","
     public void setArticleId(String articleId) {
         this.articleId = articleId;
     }
-
-    public String getArticleText() {
-        return articleText;
-    }
-
-    public void setArticleText(String articleText) {
-        this.articleText = articleText;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
+    
     public int getUserId() {
         return userId;
     }
 
     public void setUserId(int userId) {
         this.userId = userId;
-    }
-
-    public Date getTime() {
-        return time;
-    }
-
-    public void setTime(Date time) {
-        this.time = time;
     }
 
     public double getRating() {
@@ -88,5 +59,15 @@ curl -X POST -H "Content-Type: application/json" -d '{"articleId": "articleId","
     public void setRating(double rating) {
         this.rating = rating;
     }
+
+    public int getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(int groupId) {
+        this.groupId = groupId;
+    }
+    
+    
 
 }

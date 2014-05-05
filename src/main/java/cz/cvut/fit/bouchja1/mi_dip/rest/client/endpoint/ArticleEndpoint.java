@@ -17,5 +17,5 @@ public interface ArticleEndpoint {
     public Response updateBehavioralToArticle(String coreId, UserArticleDocument userArticle);  
     public Response postArticle(String coreId, ArticleDocument article);
     public Response postArticles(String coreId, List<ArticleDocument> articles);
-    public Response disableArticleFromRecommendation(String coreId, String documentId);      
+    public Response deleteDocument(String coreId, String documentId);      
 }

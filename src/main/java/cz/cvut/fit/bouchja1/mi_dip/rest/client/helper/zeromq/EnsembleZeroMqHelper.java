@@ -15,14 +15,25 @@ import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.zeromq.SmileResponse;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.CommonEndpointHelper;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
+import org.zeromq.ZContext;
+import org.zeromq.ZFrame;
 import org.zeromq.ZMQ;
+import org.zeromq.ZMQ.PollItem;
+import org.zeromq.ZMQ.Poller;
+import org.zeromq.ZMQ.Socket;
+import org.zeromq.ZMsg;
 
 /**
  *
@@ -33,15 +44,50 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
 
     private final Log logger = LogFactory.getLog(getClass());
 
+    private static class ClientTask implements Callable<String> {
+
+        private String json;
+
+        public ClientTask(String json) {
+            this.json = json;
+        }
+
+        @Override
+        public String call() throws Exception {
+            ZContext ctx = new ZContext();
+            Socket client = ctx.createSocket(ZMQ.DEALER);
+            client.connect("tcp://localhost:5555");
+            String replyString = "";
+
+            client.send(json.getBytes(), 0);
+
+            ZMsg msg = ZMsg.recvMsg(client);
+            ZFrame content = msg.pop();
+
+            assert (content != null);
+            
+            byte[] reply = content.getData();
+            System.out.println("Received reply: ["
+                    + new String(reply) //  Creates a String from request, minus the last byte
+                    + "]");
+
+            replyString = new String(reply);
+
+            msg.destroy();
+            //}
+
+            ctx.destroy();
+            return replyString;
+        }
+    }
+
     public EnsembleZeroMqHelper() {
     }
 
     //curl -X POST -H "Content-Type: application/json" -d '{"banditSetId":"1","banditIds": [ { "id":"1" }, { "id":"2" }, { "id":"3" }]}' 'http://localhost:8089/ensembleRestApi/recommeng/ensemble/collection'
     public Response createBanditSet(BanditCollection banditCollection) {
         Response resp = null;
-        ZMQ.Context context = ZMQ.context(1);
-        ZMQ.Socket requester = context.socket(ZMQ.REQ);
-        requester.connect("tcp://localhost:5555");
+        ZContext ctx = new ZContext();
 
         SmileRequest req = new SmileRequest();
         req.setMethod("POST");
@@ -54,33 +100,27 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             logger.info(json);
             logger.info("");
 
-            //encode data
-            requester.send(json.getBytes(), 0);
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<String> result = executor.submit(new ClientTask(json));
 
-            //Block until we receive a response
-            //reply is a byte[] containing whatever the REP socket replied with
-            System.out.println("Reply from server:");
-            byte[] reply = requester.recv(0);
-            logger.info(json);
+            try {
+                resp = buildResponse(result.get());
+            } catch (Exception ex) {
+                resp = getServerError(ex.getMessage());
+            }
 
-            resp = buildResponse(new String(reply));
-
-            requester.close();
         } catch (JsonProcessingException ex) {
             resp = getBadRequestResponse(ex.getMessage());
         } catch (IOException ex) {
             resp = getServerError(ex.getMessage());
         }
-
-        //disconnect(context, requester);
+        ctx.destroy();
         return resp;
     }
 
     public Response createBanditSuperSet(BanditSuperCollection banditSuperCollection) {
         Response resp = null;
-        ZMQ.Context context = ZMQ.context(1);
-        ZMQ.Socket requester = context.socket(ZMQ.REQ);
-        requester.connect("tcp://localhost:5555");
+        ZContext ctx = new ZContext();
 
         SmileRequest req = new SmileRequest();
         req.setMethod("POST");
@@ -93,25 +133,21 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             logger.info(json);
             logger.info("");
 
-            //encode data
-            requester.send(json.getBytes(), 0);
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<String> result = executor.submit(new ClientTask(json));
 
-            //Block until we receive a response
-            //reply is a byte[] containing whatever the REP socket replied with
-            System.out.println("Reply from server:");
-            byte[] reply = requester.recv(0);
-            logger.info(json);
+            try {
+                resp = buildResponse(result.get());
+            } catch (Exception ex) {
+                resp = getServerError(ex.getMessage());
+            }
 
-            resp = buildResponse(new String(reply));
-
-            requester.close();
         } catch (JsonProcessingException ex) {
             resp = getBadRequestResponse(ex.getMessage());
         } catch (IOException ex) {
             resp = getServerError(ex.getMessage());
         }
-
-        //disconnect(context, requester);
+        ctx.destroy();
         return resp;
     }
 
@@ -119,9 +155,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
     public Response filterBanditCollection(String collectionId, String filter) {
         //Filter slouzi k tomu, ze se muze treba zadat filter=best a vrati to toho nejvhodnejsiho
         Response resp = null;
-        ZMQ.Context context = ZMQ.context(1);
-        ZMQ.Socket requester = context.socket(ZMQ.REQ);
-        requester.connect("tcp://localhost:5555");
+        ZContext ctx = new ZContext();
 
         SmileRequest req = new SmileRequest();
         req.setMethod("GET");
@@ -140,33 +174,27 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             logger.info(json);
             logger.info("");
 
-            //encode data
-            requester.send(json.getBytes(), 0);
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<String> result = executor.submit(new ClientTask(json));
 
-            //Block until we receive a response
-            //reply is a byte[] containing whatever the REP socket replied with
-            System.out.println("Reply from server:");
-            byte[] reply = requester.recv(0);
-            logger.info(json);
+            try {
+                resp = buildResponse(result.get());
+            } catch (Exception ex) {
+                resp = getServerError(ex.getMessage());
+            }
 
-            resp = buildResponse(new String(reply));
-
-            requester.close();
         } catch (JsonProcessingException ex) {
             resp = getBadRequestResponse(ex.getMessage());
         } catch (IOException ex) {
             resp = getServerError(ex.getMessage());
         }
-
-        //disconnect(context, requester);
+        ctx.destroy();
         return resp;
     }
 
     public Response getAllBanditSuperCollections() {
         Response resp = null;
-        ZMQ.Context context = ZMQ.context(1);
-        ZMQ.Socket requester = context.socket(ZMQ.REQ);
-        requester.connect("tcp://localhost:5555");
+        ZContext ctx = new ZContext();
 
         SmileRequest req = new SmileRequest();
         req.setMethod("GET");
@@ -179,33 +207,27 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             logger.info(json);
             logger.info("");
 
-            //encode data
-            requester.send(json.getBytes(), 0);
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<String> result = executor.submit(new ClientTask(json));
 
-            //Block until we receive a response
-            //reply is a byte[] containing whatever the REP socket replied with
-            System.out.println("Reply from server:");
-            byte[] reply = requester.recv(0);
-            logger.info(json);
+            try {
+                resp = buildResponse(result.get());
+            } catch (Exception ex) {
+                resp = getServerError(ex.getMessage());
+            }
 
-            resp = buildResponse(new String(reply));
-
-            requester.close();
         } catch (JsonProcessingException ex) {
             resp = getBadRequestResponse(ex.getMessage());
         } catch (IOException ex) {
             resp = getServerError(ex.getMessage());
         }
-
-        //disconnect(context, requester);
+        ctx.destroy();
         return resp;
     }
 
     public Response getAllBanditCollections() {
         Response resp = null;
-        ZMQ.Context context = ZMQ.context(1);
-        ZMQ.Socket requester = context.socket(ZMQ.REQ);
-        requester.connect("tcp://localhost:5555");
+        ZContext ctx = new ZContext();
 
         SmileRequest req = new SmileRequest();
         req.setMethod("GET");
@@ -218,33 +240,27 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             logger.info(json);
             logger.info("");
 
-            //encode data
-            requester.send(json.getBytes(), 0);
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<String> result = executor.submit(new ClientTask(json));
 
-            //Block until we receive a response
-            //reply is a byte[] containing whatever the REP socket replied with
-            System.out.println("Reply from server:");
-            byte[] reply = requester.recv(0);
-            logger.info(json);
+            try {
+                resp = buildResponse(result.get());
+            } catch (Exception ex) {
+                resp = getServerError(ex.getMessage());
+            }
 
-            resp = buildResponse(new String(reply));
-
-            requester.close();
         } catch (JsonProcessingException ex) {
             resp = getBadRequestResponse(ex.getMessage());
         } catch (IOException ex) {
             resp = getServerError(ex.getMessage());
         }
-
-        //disconnect(context, requester);
+        ctx.destroy();
         return resp;
     }
 
     public Response filterBestBanditSuperCollection(String supercollectionId, String filter) {
         Response resp = null;
-        ZMQ.Context context = ZMQ.context(1);
-        ZMQ.Socket requester = context.socket(ZMQ.REQ);
-        requester.connect("tcp://localhost:5555");
+        ZContext ctx = new ZContext();
 
         SmileRequest req = new SmileRequest();
         req.setMethod("GET");
@@ -263,37 +279,31 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             logger.info(json);
             logger.info("");
 
-            //encode data
-            requester.send(json.getBytes(), 0);
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<String> result = executor.submit(new ClientTask(json));
 
-            //Block until we receive a response
-            //reply is a byte[] containing whatever the REP socket replied with
-            System.out.println("Reply from server:");
-            byte[] reply = requester.recv(0);
-            logger.info(json);
+            try {
+                resp = buildResponse(result.get());
+            } catch (Exception ex) {
+                resp = getServerError(ex.getMessage());
+            }
 
-            resp = buildResponse(new String(reply));
-
-            requester.close();
         } catch (JsonProcessingException ex) {
             resp = getBadRequestResponse(ex.getMessage());
         } catch (IOException ex) {
             resp = getServerError(ex.getMessage());
         }
-
-        //disconnect(context, requester);
+        ctx.destroy();
         return resp;
-    }   
+    }
 
     public Response sendEnsembleOperationToCollection(String collectionId, EnsembleOperation ensembleOperation) {
         Response resp = null;
-        ZMQ.Context context = ZMQ.context(1);
-        ZMQ.Socket requester = context.socket(ZMQ.REQ);
-        requester.connect("tcp://localhost:5555");
+        ZContext ctx = new ZContext();
 
         SmileRequest req = new SmileRequest();
         req.setMethod("PUT");
-        
+
         //kontrola pritomnosti operace a rozhodnuti o ni
         if ((ensembleOperation.getOperation() == null) || (ensembleOperation.getBandit() == null)) {
             resp = getBadRequestResponse("You need to specify bandit name and operation to be provided on the bandit.");
@@ -301,57 +311,52 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         } else {
             if ("feedback".equals(ensembleOperation.getOperation())) {
                 if (("possitive".equals(ensembleOperation.getFeedbackType())) || ("negative".equals(ensembleOperation.getFeedbackType()))) {
-                    req.setBody("operation=" + ensembleOperation.getOperation() + "&feedbackType=" + ensembleOperation.getFeedbackType());                    
+                    req.setBody("operation=" + ensembleOperation.getOperation() + "&feedbackType=" + ensembleOperation.getFeedbackType());
                 } else {
                     resp = getBadRequestResponse("You need to specify a type of feedback: possitive or negative.");
-                    return resp;                    
+                    return resp;
                 }
-            } else if (!"use".equals(ensembleOperation.getOperation())) {                
+            } else if (!"use".equals(ensembleOperation.getOperation())) {
                 resp = getBadRequestResponse("Unknown type of operation.");
                 return resp;
             } else {
-                req.setBody("operation=" + ensembleOperation.getOperation());                                    
-            }  
+                req.setBody("operation=" + ensembleOperation.getOperation());
+            }
         }
 
         req.setPath("/ensemble/services/collection/" + collectionId + "/" + ensembleOperation.getBandit());
-        
+
         try {
             String json = new ObjectMapper().writeValueAsString(req);
             logger.info("Sending to server:");
             logger.info(json);
             logger.info("");
 
-            //encode data
-            requester.send(json.getBytes(), 0);
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<String> result = executor.submit(new ClientTask(json));
 
-            //Block until we receive a response
-            //reply is a byte[] containing whatever the REP socket replied with
-            System.out.println("Reply from server:");
-            byte[] reply = requester.recv(0);
+            try {
+                resp = buildResponse(result.get());
+            } catch (Exception ex) {
+                resp = getServerError(ex.getMessage());
+            }
 
-            resp = buildResponse(new String(reply));
-
-            requester.close();
         } catch (JsonProcessingException ex) {
             resp = getBadRequestResponse(ex.getMessage());
         } catch (IOException ex) {
             resp = getServerError(ex.getMessage());
         }
-
-        //disconnect(context, requester);
-        return resp;        
+        ctx.destroy();
+        return resp;
     }
 
     public Response sendEnsembleOperationToSuperCollection(String supercollectionId, EnsembleOperation ensembleOperation) {
         Response resp = null;
-        ZMQ.Context context = ZMQ.context(1);
-        ZMQ.Socket requester = context.socket(ZMQ.REQ);
-        requester.connect("tcp://localhost:5555");
+        ZContext ctx = new ZContext();
 
         SmileRequest req = new SmileRequest();
         req.setMethod("PUT");
-        
+
         //kontrola pritomnosti operace a rozhodnuti o ni
         if ((ensembleOperation.getOperation() == null) || (ensembleOperation.getBandit() == null)) {
             resp = getBadRequestResponse("You need to specify bandit name and operation to be provided on the bandit.");
@@ -359,51 +364,43 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         } else {
             if ("feedback".equals(ensembleOperation.getOperation())) {
                 if (("possitive".equals(ensembleOperation.getFeedbackType())) || ("negative".equals(ensembleOperation.getFeedbackType()))) {
-                    req.setBody("operation=" + ensembleOperation.getOperation() + "&feedbackType=" + ensembleOperation.getFeedbackType());                    
+                    req.setBody("operation=" + ensembleOperation.getOperation() + "&feedbackType=" + ensembleOperation.getFeedbackType());
                 } else {
                     resp = getBadRequestResponse("You need to specify a type of feedback: possitive or negative.");
-                    return resp;                    
+                    return resp;
                 }
-            } else if (!"use".equals(ensembleOperation.getOperation())) {                
+            } else if (!"use".equals(ensembleOperation.getOperation())) {
                 resp = getBadRequestResponse("Unknown type of operation.");
                 return resp;
             } else {
-                req.setBody("operation=" + ensembleOperation.getOperation());                                    
-            }  
+                req.setBody("operation=" + ensembleOperation.getOperation());
+            }
         }
 
         req.setPath("/ensemble/services/supercollection/" + supercollectionId + "/" + ensembleOperation.getBandit());
-        
+
         try {
             String json = new ObjectMapper().writeValueAsString(req);
             logger.info("Sending to server:");
             logger.info(json);
             logger.info("");
 
-            //encode data
-            requester.send(json.getBytes(), 0);
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<String> result = executor.submit(new ClientTask(json));
 
-            //Block until we receive a response
-            //reply is a byte[] containing whatever the REP socket replied with
-            System.out.println("Reply from server:");
-            byte[] reply = requester.recv(0);
+            try {
+                resp = buildResponse(result.get());
+            } catch (Exception ex) {
+                resp = getServerError(ex.getMessage());
+            }
 
-            resp = buildResponse(new String(reply));
-
-            requester.close();
         } catch (JsonProcessingException ex) {
             resp = getBadRequestResponse(ex.getMessage());
         } catch (IOException ex) {
             resp = getServerError(ex.getMessage());
         }
-
-        //disconnect(context, requester);
-        return resp;     
-    }
-
-    private void disconnect(ZMQ.Context context, ZMQ.Socket requester) {
-        requester.close();
-        context.term();
+        ctx.destroy();
+        return resp;
     }
 
     private String formatBanditIds(Set<BanditId> banditIds) {

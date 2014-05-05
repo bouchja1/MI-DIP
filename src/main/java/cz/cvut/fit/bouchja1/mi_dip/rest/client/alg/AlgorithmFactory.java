@@ -5,9 +5,11 @@
 package cz.cvut.fit.bouchja1.mi_dip.rest.client.alg;
 
 
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.alg.impl.AlgorithmItemBasedCf;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.alg.impl.AlgorithmLatest;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.alg.impl.AlgorithmMlt;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.alg.impl.AlgorithmRandom;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.alg.impl.AlgorithmUserBasedCf;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.alg.impl.AlgorithmWeightedRating;
 import java.util.Map;
 
@@ -25,7 +27,11 @@ public class AlgorithmFactory {
             case "mlt" : 
                 return new AlgorithmMlt(algorithmParams);   
             case "toprate" : 
-                return new AlgorithmWeightedRating(algorithmParams);                                                  
+                return new AlgorithmWeightedRating(algorithmParams);   
+            case "cfuser" : 
+                return new AlgorithmUserBasedCf(algorithmParams);  
+            case "cfitem" : 
+                return new AlgorithmItemBasedCf(algorithmParams);                   
             default : 
                 return null;
         }

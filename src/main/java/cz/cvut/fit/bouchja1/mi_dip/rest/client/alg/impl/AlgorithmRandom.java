@@ -87,7 +87,7 @@ public class AlgorithmRandom implements IAlgorithm {
         } else {
             groupIdString = "*";
         }
-        query.setFilterQueries("usedInRec:true", "group:" + groupIdString);
+        query.setFilterQueries("group:" + groupIdString);
         query.setRows(limit);
         query.setSortField(sortOrder, SolrQuery.ORDER.desc);
 
@@ -99,7 +99,7 @@ public class AlgorithmRandom implements IAlgorithm {
             OutputDocument output = Util.fillOutputDocument(results.get(i));
             docs.add(output);            
         }
-        solrService.incrementImpression(coreId, results);
+        //solrService.incrementImpression(coreId, results);
         return docs;
     }    
 

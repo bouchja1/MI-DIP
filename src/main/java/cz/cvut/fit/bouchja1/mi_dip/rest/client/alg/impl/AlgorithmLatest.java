@@ -82,7 +82,7 @@ public class AlgorithmLatest implements IAlgorithm {
         } else {
             groupIdString = "*";
         }
-        query.setFilterQueries("usedInRec:true", "group:" + groupIdString);
+        query.setFilterQueries("group:" + groupIdString);
         query.setRows(limitToQuery);
         query.setSortField(sortOrder, SolrQuery.ORDER.desc);
 
@@ -94,7 +94,7 @@ public class AlgorithmLatest implements IAlgorithm {
             OutputDocument output = Util.fillOutputDocument(results.get(i));
             docs.add(output);
         }
-        solrService.incrementImpression(coreId, results);
+        //solrService.incrementImpression(coreId, results);
 
         return docs;
     }    

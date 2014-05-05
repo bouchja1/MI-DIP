@@ -13,6 +13,12 @@ import javax.ws.rs.core.Response;
  */
 public class UserArticleValidator {
     public static String validateUserArticle(UserArticleDocument userArticle) {
-        return "success";    
+        int userId = userArticle.getUserId();
+        String articleId = userArticle.getArticleId();
+        double rating = userArticle.getRating();
+        
+        if ((userId == 0) || (articleId == null) || (rating == 0)) {
+            return "empty";
+        } else return "success";    
     }
 }
