@@ -35,11 +35,11 @@ public class ClientThreadA extends Thread {
         
         //ENSEMBLE
         //communication.createContextCollectionRest();
-        //communication.createBanditSuperCollection();
+        //communication.createBanditSuperCollectionRest();
         //communication.getBanditCollections();
         //communication.getBanditSuperCollections();
         
-        //communication.getBestBanditCollection();
+        //communication.getBestBanditContextCollection();
         //communication.getBestBanditSuperCollection();
         
         //communication.sendUseEnsembleOperation();        

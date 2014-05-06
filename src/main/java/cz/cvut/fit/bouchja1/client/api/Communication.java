@@ -22,12 +22,12 @@ import org.json.JSONObject;
  */
 public class Communication {
 
-    private EnsembleClientApi clientApi;
+    protected EnsembleClientApi clientApi;
 
     public Communication(EnsembleClientApi clientApi) {
         this.clientApi = clientApi;
     }
-
+    
     public void getRandomRecommendation() {
         Client client = clientApi.getClient();
 
@@ -71,8 +71,56 @@ public class Communication {
 
         System.out.println(response.getStatus());
         System.out.println(response.readEntity(String.class));
+    }  
+    
+    public void getCfUserRecommendation() {
+        Client client = clientApi.getClient();
+
+        Response response = client.target(clientApi.getRestfulApiLocation())
+                .path("recommeng/algorithm/behavioralCore/cfuser")
+                .queryParam("groupId", 0)
+                .queryParam("limit", 12)
+                .queryParam("userId", 2)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                //.header("some-header", "true")
+                .get();
+
+        System.out.println(response.getStatus());
+        System.out.println(response.readEntity(String.class));
     }
 
+    public void getCfItemRecommendation() {
+        Client client = clientApi.getClient();
+
+        Response response = client.target(clientApi.getRestfulApiLocation())
+                .path("recommeng/algorithm/behavioralCore/cfitem")
+                .queryParam("groupId", 0)
+                .queryParam("limit", 12)
+                .queryParam("userId", 2)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                //.header("some-header", "true")
+                .get();
+
+        System.out.println(response.getStatus());
+        System.out.println(response.readEntity(String.class));
+    }
+
+    public void getMltRecommendation() {
+        Client client = clientApi.getClient();
+
+        Response response = client.target(clientApi.getRestfulApiLocation())
+                .path("recommeng/algorithm/articleCore/mlt")
+                .queryParam("groupId", 0)
+                .queryParam("limit", 12)
+                .queryParam("documentId", "http://pnjj5cr4f9 f500k9vld.org")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                //.header("some-header", "true")
+                .get();
+
+        System.out.println(response.getStatus());
+        System.out.println(response.readEntity(String.class));
+    }  
+    
     public void sendUserRatingItemFeedback() {
         JsonObject collection = Json.createObjectBuilder()
                 .add("articleId", "oavgofrsdxxcos5x1man")
@@ -92,17 +140,38 @@ public class Communication {
         System.out.println(response.readEntity(String.class));
     }
 
+    public void deleteDocumentInCore() {
+        Client client = clientApi.getClient();
+
+        Response response = client.target(clientApi.getRestfulApiLocation())
+                .path("recommeng/core/articleCore/document")
+                .queryParam("documentId", "rwpuxn3yo0 ivjlyg 5h")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                //.header("some-header", "true")
+                .delete();
+
+        System.out.println(response.getStatus());
+        System.out.println(response.readEntity(String.class));
+    }  
+    
+    public void createArticlesInCore(List<JsonObject> collectionOfArticles) {
+        Client client = clientApi.getClient();
+        for (JsonObject o : collectionOfArticles) {
+            Response response = client.target(clientApi.getRestfulApiLocation())
+                    .path("recommeng/core/articleCore/article")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    //.header("some-header", "true")
+                    .post(Entity.entity(o, MediaType.APPLICATION_JSON_TYPE));
+
+            System.out.println(response.getStatus());
+            System.out.println(response.readEntity(String.class));
+        }
+    }   
+    
     /*
      *************************************** ENSEMBLE
      */
-    public void createContextCollectionRest() {
-        JsonObject collection = Json.createObjectBuilder()
-                .add("name", "vecer")
-                .add("banditIds", Json.createArrayBuilder()
-                .add("latest")
-                .add("random"))
-                .build();
-
+    public JSONObject createContextCollectionRest(JsonObject collection) {
         Client client = clientApi.getClient();
 
         Response response = client.target(clientApi.getRestfulApiLocation())
@@ -111,20 +180,12 @@ public class Communication {
                 //.header("some-header", "true")
                 .post(Entity.entity(collection, MediaType.APPLICATION_JSON_TYPE));
 
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
+        JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
+
+        return jsonObj;
     }
 
-    public void createBanditSuperCollection() {
-
-        JsonObjectBuilder supercollectionBuilder = Json.createObjectBuilder()
-                .add("name", "rano v Evrope");
-        JsonArrayBuilder contextCollectionsBuilder = Json.createArrayBuilder();
-        contextCollectionsBuilder.add(1);
-        contextCollectionsBuilder.add(3);
-        supercollectionBuilder.add("contextCollections", contextCollectionsBuilder);
-        JsonObject supercollection = supercollectionBuilder.build();
-
+    public JSONObject createBanditSuperCollectionRest(JsonObject supercollection) {
         Client client = clientApi.getClient();
 
         Response response = client.target(clientApi.getRestfulApiLocation())
@@ -133,11 +194,12 @@ public class Communication {
                 //.header("some-header", "true")
                 .post(Entity.entity(supercollection, MediaType.APPLICATION_JSON_TYPE));
 
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
+        JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
+
+        return jsonObj;
     }
 
-    public void getBanditCollections() {
+    public JSONObject getBanditCollections() {
         Client client = clientApi.getClient();
 
         Response response = client.target(clientApi.getRestfulApiLocation())
@@ -148,16 +210,12 @@ public class Communication {
 
         System.out.println(response.getStatus());
 
-        final JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
-        /*
-         if (jsonObj != null && jsonObj.isNull("location")) {
-         final JSONObject location = (JSONObject) jsonObj.get("location");
-         }
-         */
-        System.out.println(jsonObj.toString());
+        JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
+
+        return jsonObj;
     }
 
-    public void getBanditSuperCollections() {
+    public JSONObject getBanditSuperCollections() {
         Client client = clientApi.getClient();
 
         Response response = client.target(clientApi.getRestfulApiLocation())
@@ -168,35 +226,64 @@ public class Communication {
 
         System.out.println(response.getStatus());
 
-        final JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
-        /*
-         if (jsonObj != null && jsonObj.isNull("location")) {
-         final JSONObject location = (JSONObject) jsonObj.get("location");
-         }
-         */
-        System.out.println(jsonObj.toString());
+        JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
+
+        return jsonObj;
     }
 
-    public void getBestBanditCollection() {
+    public JSONObject getBestBanditContextCollectionFilter(String collectionId, String filter) {        
         Client client = clientApi.getClient();
 
         Response response = client.target(clientApi.getRestfulApiLocation())
-                .path("recommeng/ensemble/collection/1")
+                .path("recommeng/ensemble/collection/" + collectionId)
+                .queryParam("filter", filter)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get();
+
+        System.out.println(response.getStatus());
+
+        JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
+
+        return jsonObj;
+    }    
+    
+    public JSONObject getBestBanditSuperCollectionFilter(String collectionId, String filter) {        
+        Client client = clientApi.getClient();
+
+        Response response = client.target(clientApi.getRestfulApiLocation())
+                .path("recommeng/ensemble/supercollection/" + collectionId)
+                .queryParam("filter", filter)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get();
+
+        System.out.println(response.getStatus());
+
+        JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
+
+        return jsonObj;
+    }        
+    
+    public JSONObject getBestBanditContextCollection(String collectionId) {
+        Client client = clientApi.getClient();
+
+        Response response = client.target(clientApi.getRestfulApiLocation())
+                .path("recommeng/ensemble/collection/" + collectionId)
                 //.queryParam("filter", "best")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get();
 
         System.out.println(response.getStatus());
 
-        final JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
-        System.out.println(jsonObj.toString());
+        JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
+
+        return jsonObj;
     }
 
-    public void getBestBanditSuperCollection() {
+    public JSONObject getBestBanditSuperCollection(String supercollectionId) {
         Client client = clientApi.getClient();
 
         Response response = client.target(clientApi.getRestfulApiLocation())
-                .path("recommeng/ensemble/supercollection/1")
+                .path("recommeng/ensemble/supercollection/" + supercollectionId)
                 .queryParam("filter", "best")
                 //.queryParam("filter", "best")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -204,13 +291,14 @@ public class Communication {
 
         System.out.println(response.getStatus());
 
-        final JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
-        System.out.println(jsonObj.toString());
-    }
+        JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
 
-    public void sendUseEnsembleOperation() {
+        return jsonObj;
+    }
+    
+    public JSONObject sendUseEnsembleOperationCollection(int contextCollection, int bandit) {
         JsonObject collection = Json.createObjectBuilder()
-                .add("bandit", "random")
+                .add("bandit", bandit)
                 .add("operation", "use")
                 .build();
 
@@ -218,13 +306,35 @@ public class Communication {
 
         Response response = client.target(clientApi.getRestfulApiLocation())
                 //.path("recommeng/ensemble/collection/1")
-                .path("recommeng/ensemble/supercollection/1")
+                .path("recommeng/ensemble/collection/" + contextCollection)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 //.header("some-header", "true")
                 .put(Entity.entity(collection, MediaType.APPLICATION_JSON_TYPE));
 
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
+        JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
+
+        return jsonObj;
+
+    }    
+
+    public JSONObject sendUseEnsembleOperationSupercollection(int contextCollection, int bandit) {
+        JsonObject collection = Json.createObjectBuilder()
+                .add("bandit", bandit)
+                .add("operation", "use")
+                .build();
+
+        Client client = clientApi.getClient();
+
+        Response response = client.target(clientApi.getRestfulApiLocation())
+                //.path("recommeng/ensemble/collection/1")
+                .path("recommeng/ensemble/supercollection/" + contextCollection)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                //.header("some-header", "true")
+                .put(Entity.entity(collection, MediaType.APPLICATION_JSON_TYPE));
+
+        JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
+
+        return jsonObj;
 
     }
 
@@ -284,81 +394,5 @@ public class Communication {
 
         System.out.println(response.getStatus());
         System.out.println(response.readEntity(String.class));
-    }
-
-    public void deleteDocumentInCore() {
-        Client client = clientApi.getClient();
-
-        Response response = client.target(clientApi.getRestfulApiLocation())
-                .path("recommeng/core/articleCore/document")
-                .queryParam("documentId", "rwpuxn3yo0 ivjlyg 5h")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                //.header("some-header", "true")
-                .delete();
-
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
-    }
-
-    public void getCfUserRecommendation() {
-        Client client = clientApi.getClient();
-
-        Response response = client.target(clientApi.getRestfulApiLocation())
-                .path("recommeng/algorithm/behavioralCore/cfuser")
-                .queryParam("groupId", 0)
-                .queryParam("limit", 12)
-                .queryParam("userId", 2)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                //.header("some-header", "true")
-                .get();
-
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
-    }
-
-    public void getCfItemRecommendation() {
-        Client client = clientApi.getClient();
-
-        Response response = client.target(clientApi.getRestfulApiLocation())
-                .path("recommeng/algorithm/behavioralCore/cfitem")
-                .queryParam("groupId", 0)
-                .queryParam("limit", 12)
-                .queryParam("userId", 2)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                //.header("some-header", "true")
-                .get();
-
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
-    }
-
-    public void getMltRecommendation() {
-        Client client = clientApi.getClient();
-
-        Response response = client.target(clientApi.getRestfulApiLocation())
-                .path("recommeng/algorithm/articleCore/mlt")
-                .queryParam("groupId", 0)
-                .queryParam("limit", 12)
-                .queryParam("documentId", "http://pnjj5cr4f9 f500k9vld.org")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                //.header("some-header", "true")
-                .get();
-
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
-    }    
-    
-    public void createArticlesInCore(List<JsonObject> collectionOfArticles) {
-        Client client = clientApi.getClient();
-        for (JsonObject o : collectionOfArticles) {
-            Response response = client.target(clientApi.getRestfulApiLocation())
-                    .path("recommeng/core/articleCore/article")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    //.header("some-header", "true")
-                    .post(Entity.entity(o, MediaType.APPLICATION_JSON_TYPE));
-
-            System.out.println(response.getStatus());
-            System.out.println(response.readEntity(String.class));
-        }
-    }
+    }      
 }

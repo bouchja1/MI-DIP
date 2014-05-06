@@ -23,16 +23,17 @@ public class App {
         environmentBuilder.build();          
         */
         
-        (new ClientThreadA("Spokojený klient", new Communication(clientApi))).start();
+        //jeden porad v kuse uspesnej, ostatni nic - jak se to vyvine 
+        (new ClientThreadE("Jeden porad uspesnej", new Communication(clientApi))).start();        
+        
+        //(new ClientThreadA("Spokojený klient", new Communication(clientApi))).start();
+        
         /*
         (new ClientThreadB("Náročný klient", new Communication(clientApi))).start();
         //treba ignorovat ensemble - ze nam neco doprouci, ale ja mu 
         (new ClientThreadC("Ignorujici klient", new Communication(clientApi))).start();
         //prinest nejakou anomalii (treba kdyz si nekdo splete, ze se mu to libi s tim, ze nelibi, tak jak moc to zabije ty vahy)
-        (new ClientThreadD("Anomalie", new Communication(clientApi))).start();  
-        
-        //jeden porad v kuse uspesnej, ostatni nic - jak se to vyvine 
-        (new ClientThreadE("Jeden porad uspesnej", new Communication(clientApi))).start();
+        (new ClientThreadD("Anomalie", new Communication(clientApi))).start();         
         
         //
         // simulace rovnomernyho - vsichni budou doporucovat cca stejne
