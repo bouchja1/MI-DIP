@@ -17,7 +17,7 @@ public class EnsembleOperation implements Serializable {
 
     private static final long serialVersionUID = -4039185696075322053L;
     
-    private String bandit;
+    private int bandit;
     private String operation;
     private String feedbackType;
 
@@ -34,7 +34,7 @@ public class EnsembleOperation implements Serializable {
     }
 
     @XmlElement
-    public String getBandit() {
+    public int getBandit() {
         return bandit;
     }
 
@@ -48,7 +48,7 @@ public class EnsembleOperation implements Serializable {
     }
 
     
-    public void setBandit(String bandit) {
+    public void setBandit(int bandit) {
         this.bandit = bandit;
     }        
 }

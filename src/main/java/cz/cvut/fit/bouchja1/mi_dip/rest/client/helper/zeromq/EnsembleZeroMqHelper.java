@@ -305,7 +305,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         req.setMethod("PUT");
 
         //kontrola pritomnosti operace a rozhodnuti o ni
-        if ((ensembleOperation.getOperation() == null) || (ensembleOperation.getBandit() == null)) {
+        if ((ensembleOperation.getOperation() == null) || (ensembleOperation.getBandit() == 0)) {
             resp = getBadRequestResponse("You need to specify bandit name and operation to be provided on the bandit.");
             return resp;
         } else {
@@ -358,7 +358,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         req.setMethod("PUT");
 
         //kontrola pritomnosti operace a rozhodnuti o ni
-        if ((ensembleOperation.getOperation() == null) || (ensembleOperation.getBandit() == null)) {
+        if ((ensembleOperation.getOperation() == null) || (ensembleOperation.getBandit() == 0)) {
             resp = getBadRequestResponse("You need to specify bandit name and operation to be provided on the bandit.");
             return resp;
         } else {
@@ -440,17 +440,17 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         //result = result.replaceAll("\"", "\\");
         JSONObject json = new JSONObject(result);
 
-        switch ((String) json.get("status")) {
-            case "200":
+        switch ((int) json.get("status")) {
+            case 200:
                 resp = getOkResponse(result);
                 break;
-            case "400":
+            case 400:
                 resp = getBadRequestResponse(result);
                 break;
-            case "404":
+            case 404:
                 resp = getNotFoundResponse(result);
                 break;
-            case "500":
+            case 500:
                 resp = getServerError(result);
                 break;
             default:
