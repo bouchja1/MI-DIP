@@ -58,8 +58,8 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
         } else {
             if (requestInallowedContext(banditIds)) {
                 int strategyId = generateStrategyId();
-                storage.createBanditSet(strategyId, banditCollectionName, banditIds);
                 BanditsMachine machineForStrategy = createMachine(banditIds);
+                storage.createBanditSet(strategyId, banditCollectionName, banditIds);
                 BayesianStrategy newStrategy = new BayesianStrategy(strategyId, banditCollectionName, machineForStrategy);
                 strategies.put(strategyId, newStrategy);
                 responseHandler.createSuccessReply("Collection with name " + banditCollectionName + " was created successfully.");
@@ -115,7 +115,8 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
             BayesianStrategy strategyToUse = getStrategyByCollectionId(banditCollectionId);
             if ("best".equals(filter)) {
                 Bandit banditToChoose = strategyToUse.sampleBandits();
-                responseHandler.createSuccessReply("You should choose bandit with name " + banditToChoose.getName() + " now. He is the best for this context.");
+                //responseHandler.createSuccessReply("You should choose bandit with name " + banditToChoose.getName() + " now. He is the best for this context.");
+                responseHandler.createSuccessReplyDetection("You should choose bandit with name " + banditToChoose.getName() + " now. He is the best for this context.", banditToChoose.getId(), strategyToUse.getId());
             } else {
                 List<Bandit> banditsByOrder = strategyToUse.sampleBanditsAll(banditCollectionId);
                 responseHandler.createSuccessReply("Bandit IDs by order: " + banditsByOrder.toString());
@@ -133,12 +134,13 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
         ResponseHandler responseHandler = new ResponseHandlerJson();
         Reply reply = null;
 
-        if (existSuperBanditSet(banditCollectionId)) {
+        if (existSuperBanditSetById(banditCollectionId)) {
             SuperBayesianStrategy superStrategyToUse = getSuperStrategyBySuperCollectionId(banditCollectionId);
             if ("best".equals(filter)) {
-                String banditToChoose = superStrategyToUse.chooseBestFromSuperStrategy();
+                Bandit banditToChoose = superStrategyToUse.chooseBestFromSuperStrategy();
                 if (banditToChoose != null) {
-                    responseHandler.createSuccessReply("You should choose bandit with ID " + banditToChoose + " now. He is the best.");
+                    //responseHandler.createSuccessReply("You should choose bandit with ID " + banditToChoose + " now. He is the best.");
+                    responseHandler.createSuccessReplyDetection("You should choose bandit with name " + banditToChoose.getName() + " from supercollection " + superStrategyToUse.getId() + " now. He is the best for this context.", banditToChoose.getId(), superStrategyToUse.getId());
                 } else {
                     responseHandler.createInternalErrorReply("Internal error occured during your request for best bandit from super collection.");
                 }
@@ -159,11 +161,11 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
         ResponseHandler responseHandler = new ResponseHandlerJson();
         List<ContextCollection> collections = new ArrayList<>();
         for (BayesianStrategy strategy : strategies.values()) {
-            List<String> bandits = new ArrayList<>();
+            List<Integer> bandits = new ArrayList<>();
             ContextCollection collection = new ContextCollection();
             collection.setId(strategy.getId());
             collection.setName(strategy.getCollectionId());
-            for (String b : strategy.getBanditsMachine().getBanditList().keySet()) {
+            for (Integer b : strategy.getBanditsMachine().getBanditList().keySet()) {
                 bandits.add(b);
             }
             collection.setBandits(bandits);
@@ -190,12 +192,12 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
             supercollection.setId(superStrategy.getId());
             supercollection.setName(superStrategy.getSuperCollectionId());
             for (BayesianStrategy strategy : superStrategy.getSetOfStrategies()) {
-                List<String> bandits = new ArrayList<>();
+                List<Integer> bandits = new ArrayList<>();
                 ContextCollection collection = new ContextCollection();
                 collection.setId(strategy.getId());
                 collection.setName(strategy.getCollectionId());
                 contextStrategies.add(collection);
-                for (String b : strategy.getBanditsMachine().getBanditList().keySet()) {
+                for (Integer b : strategy.getBanditsMachine().getBanditList().keySet()) {
                     bandits.add(b);
                 }
                 collection.setBandits(bandits);
@@ -222,7 +224,7 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
             BayesianStrategy strategyToUse = getStrategyByCollectionId(banditCollectionId);
             if (strategyToUse.existBandit(banditId)) {
                 strategyToUse.selectBandit(banditId);
-                responseHandler.createSuccessReply("You selected bandit with ID " + banditId + " from collection with ID " + banditCollectionId + "to be used for recommendation.");
+                responseHandler.createSuccessReply("You selected bandit with ID " + banditId + " from collection with ID " + banditCollectionId + " to be used for recommendation.");
                 reply = responseHandler.returnReply();
             } else {
                 responseHandler.createNotFoundReply("There is no bandit with ID " + banditId + " in collection with ID " + banditCollectionId + ".");
@@ -240,19 +242,24 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
         ResponseHandler responseHandler = new ResponseHandlerJson();
         Reply reply = null;
 
-        if (existSuperBanditSet(banditCollectionId)) {
+        if (existSuperBanditSetById(banditCollectionId)) {
             SuperBayesianStrategy superstrategy = superStrategies.get(Integer.valueOf(banditCollectionId));
             Set<BayesianStrategy> strategiesBySuperstrategy = superstrategy.getSetOfStrategies();
 
+            boolean successFlag = true;
             for (BayesianStrategy strategyToUse : strategiesBySuperstrategy) {
                 if (strategyToUse.existBandit(banditId)) {
                     strategyToUse.selectBandit(banditId);
-                    responseHandler.createSuccessReply("You selected bandit with ID " + banditId + " from collection with ID " + strategyToUse.getId() + " from super collection with ID " + banditCollectionId + "to be used for recommendation.");
-                    reply = responseHandler.returnReply();
                 } else {
-                    responseHandler.createNotFoundReply("There is no bandit with ID " + banditId + " in collection with ID " + strategyToUse.getId() + " from super collection with ID " + banditCollectionId + "to be used for recommendation.");
+                    responseHandler.createNotFoundReply("There is no bandit with ID " + banditId + " in collection with ID " + strategyToUse.getId() + " from super collection with ID " + banditCollectionId + " to be used for recommendation.");
                     reply = responseHandler.returnReply();
+                    successFlag = false;
+                    break;
                 }
+            }
+            if (successFlag) {
+                responseHandler.createSuccessReply("You selected bandit with ID " + banditId + "  from super collection with ID " + banditCollectionId + "to be used for recommendation.");
+                reply = responseHandler.returnReply();
             }
 
         } else {
@@ -289,7 +296,7 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
         ResponseHandler responseHandler = new ResponseHandlerJson();
         Reply reply = null;
 
-        if (existSuperBanditSet(banditCollectionId)) {
+        if (existSuperBanditSetById(banditCollectionId)) {
             SuperBayesianStrategy superstrategy = superStrategies.get(Integer.valueOf(banditCollectionId));
             Set<BayesianStrategy> strategiesBySuperstrategy = superstrategy.getSetOfStrategies();
 
@@ -328,7 +335,7 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
         return false;
     }
 
-    private boolean existSuperBanditSet(String banditSuperCollectionId) {
+    private boolean existSuperBanditSetById(String banditSuperCollectionId) {
         for (SuperBayesianStrategy superStrategy : superStrategies.values()) {
             if (Integer.valueOf(banditSuperCollectionId) == superStrategy.getId()) {
                 return true;
@@ -337,15 +344,26 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
         return false;
     }
 
+    private boolean existSuperBanditSet(String banditSuperCollectionId) {
+        for (SuperBayesianStrategy superStrategy : superStrategies.values()) {
+            if (banditSuperCollectionId.equals(superStrategy.getSuperCollectionId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private BanditsMachine createMachine(Set<String> banditIds) {
         int banditsCount = MathUtil.countBandits(banditIds);
-        double initialProbabilityRate = (double) 1 / (double) banditsCount;
+        double initialTrialsFrequencyRate = (double) 1 / (double) banditsCount;
+        double initialSuccessesFrequencyRate = (double) 1 / (double) banditsCount;
 
-        BanditsMachine machine = new BanditsMachine(new HashMap<String, Bandit>(), env);
+        BanditsMachine machine = new BanditsMachine(new HashMap<Integer, Bandit>(), env);
         Iterator<String> bandits = banditIds.iterator();
+        int banditId = 1;
         while (bandits.hasNext()) {
-            String banditId = bandits.next();
-            machine.addBanditToMachine(new Bandit(initialProbabilityRate, banditId));
+            String banditName = bandits.next();
+            machine.addBanditToMachine(new Bandit(initialTrialsFrequencyRate, initialSuccessesFrequencyRate, banditName, banditId++));
         }
         return machine;
     }

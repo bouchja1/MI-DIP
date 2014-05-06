@@ -13,7 +13,7 @@ import java.util.List;
 public class ContextCollection {
     private int id;
     private String name;
-    private List<String> bandits;
+    private List<Integer> bandits;
 
     public String getName() {
         return name;
@@ -23,11 +23,11 @@ public class ContextCollection {
         this.name = name;
     }
 
-    public List<String> getBandits() {
+    public List<Integer> getBandits() {
         return bandits;
     }
 
-    public void setBandits(List<String> bandits) {
+    public void setBandits(List<Integer> bandits) {
         this.bandits = bandits;
     }
 

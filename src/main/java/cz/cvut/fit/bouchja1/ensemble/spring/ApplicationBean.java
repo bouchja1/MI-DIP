@@ -51,8 +51,8 @@ public class ApplicationBean {
         
         //http://sysgears.com/articles/load-balancing-work-between-java-threads-using-zeromq/
         //MultiThreadServer server = new MultiThreadServer(env.getProperty("zeromq.host"), env.getProperty("zeromq.port"));
-            AsynchronousServer server = new AsynchronousServer(env.getProperty("zeromq.host"), env.getProperty("zeromq.port"));
-            server.run(api);
+        AsynchronousServer server = new AsynchronousServer(env.getProperty("zeromq.host"), env.getProperty("zeromq.port"));
+        server.run(api);
 
     }
 

@@ -94,16 +94,18 @@ public class CassandraStorage implements IStorage {
                 "CREATE TABLE IF NOT EXISTS " + keyspace + ".collection ("
                 + "collection_id int,"
                 + "collection_name text,"
-                + "algorithm_set set<varchar>,"
+                + "algorithm_set set<int>,"
                 + "PRIMARY KEY (collection_id)"
                 + ");");
 
         session.execute(
                 "CREATE TABLE IF NOT EXISTS " + keyspace + ".algorithm ("
                 + "collection_id int,"
-                + "algorithm_id text,"
+                + "algorithm_id int,"
+                + "algorithm_name text,"                
                 + "event_time timestamp,"
-                + "probability_in_time double,"
+                + "trials_in_time double,"
+                + "success_in_time double,"
                 + "trials_rate double,"
                 + "successes_rate double,"
                 + "PRIMARY KEY ((collection_id, algorithm_id), event_time)"
@@ -117,11 +119,16 @@ public class CassandraStorage implements IStorage {
                 + "(collection_id, collection_name, algorithm_set) "
                 + "VALUES (?, ?, ?);");
 
+        Set<Integer> banditIdsKeys = new HashSet<>();
+        for (int i = 1; i <= banditIds.size(); i++) {
+            banditIdsKeys.add(i);
+        }
+        
         BoundStatement boundStatement = new BoundStatement(statement);
         session.execute(boundStatement.bind(
                 banditSetId,
                 banditSetName,
-                banditIds));
+                banditIdsKeys));
 
         createBanditsInCollection(banditSetId, banditIds);
     }
@@ -142,27 +149,31 @@ public class CassandraStorage implements IStorage {
     private void createBanditsInCollection(int banditSetId, Set<String> banditIds) {
         PreparedStatement statement = session.prepare(
                 "INSERT INTO " + keyspace + ".algorithm "
-                + "(collection_id, algorithm_id, event_time, probability_in_time, trials_rate, successes_rate) "
-                + "VALUES (?, ?, ?, ?, ?, ?);");
+                + "(collection_id, algorithm_id, algorithm_name, event_time, trials_in_time, success_in_time, trials_rate, successes_rate) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
 
         Date actualDate = Calendar.getInstance().getTime();
 
         int banditsCount = MathUtil.countBandits(banditIds);
-        double initialProbabilityRate = (double) 1 / (double) banditsCount;
+        double initialTrialsFreqRate = (double) 1 / (double) banditsCount;
+        double initialSuccessesFreqRate = (double) 1 / (double) banditsCount;
 
         Iterator<String> bandits = banditIds.iterator();
+        int id = 1;
         while (bandits.hasNext()) {
             String banditId = bandits.next();
 
             BoundStatement boundStatement = new BoundStatement(statement);
             session.execute(boundStatement.bind(
                     banditSetId,
+                    id++,
                     banditId,
                     actualDate,
-                    initialProbabilityRate,
+                    initialTrialsFreqRate,
+                    initialSuccessesFreqRate,
                     0.0,
                     0.0));
-            logger.info("Creating bandit with ID " + banditId + " for collection : " + banditSetId);
+            logger.info("Creating bandit with ID " + id + " and name " + banditId + " for collection : " + banditSetId);
         }
     }
 
@@ -183,18 +194,18 @@ public class CassandraStorage implements IStorage {
 
             for (Row row : results) {
                 //BanditsMachine machine = new BanditsMachine(new ArrayList<Bandit>(), env);
-                BanditsMachine machine = new BanditsMachine(new HashMap<String, Bandit>(), env);
+                BanditsMachine machine = new BanditsMachine(new HashMap<Integer, Bandit>(), env);
                 BayesianStrategy strategy = new BayesianStrategy(row.getInt("collection_id"), row.getString("collection_name"), machine);
 
-                Set<String> algorithms = row.getSet("algorithm_set", String.class);
+                Set<Integer> algorithms = row.getSet("algorithm_set", Integer.class);
 
-                Iterator<String> iterator = algorithms.iterator();
+                Iterator<Integer> iterator = algorithms.iterator();
                 while (iterator.hasNext()) {
-                    String setElement = iterator.next();
-                    ResultSet resultsAlg = session.execute("SELECT * FROM " + keyspace + ".algorithm WHERE collection_id=" + row.getInt("collection_id") + " AND algorithm_id='" + setElement + "' LIMIT 1;");
+                    Integer setElement = iterator.next();
+                    ResultSet resultsAlg = session.execute("SELECT * FROM " + keyspace + ".algorithm WHERE collection_id=" + row.getInt("collection_id") + " AND algorithm_id=" + setElement + " LIMIT 1;");
 
                     for (Row r : resultsAlg) {
-                        Bandit b = new Bandit(r.getDouble("probability_in_time"), r.getString("algorithm_id"), r.getDouble("trials_rate"), r.getDouble("successes_rate"));
+                        Bandit b = new Bandit(r.getDouble("trials_in_time"), r.getDouble("success_in_time"), r.getString("algorithm_name"), r.getInt("algorithm_id"), r.getDouble("trials_rate"), r.getDouble("successes_rate"));
                         machine.addBanditToMachine(b);
                     }
                 }
@@ -236,22 +247,24 @@ public class CassandraStorage implements IStorage {
         if (strategies != null) {
             for (BayesianStrategy strategy : strategies.getStrategies().values()) {
                 //List<Bandit> bandits = strategy.getBanditsMachine().getBanditList();
-                Map<String, Bandit> bandits = strategy.getBanditsMachine().getBanditList();
+                Map<Integer, Bandit> bandits = strategy.getBanditsMachine().getBanditList();
                 if (bandits.size() > 0) {
                     PreparedStatement statement = session.prepare(
                             "INSERT INTO " + keyspace + ".algorithm "
-                            + "(collection_id, algorithm_id, event_time, probability_in_time, trials_rate, successes_rate) "
-                            + "VALUES (?, ?, ?, ?, ?, ?);");
+                            + "(collection_id, algorithm_id, algorithm_name, event_time, trials_in_time, success_in_time, trials_rate, successes_rate) "
+                            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
 
                     Date actualDate = Calendar.getInstance().getTime();
 
-                    for (Map.Entry<String, Bandit> entry : bandits.entrySet()) {
+                    for (Map.Entry<Integer, Bandit> entry : bandits.entrySet()) {
                         BoundStatement boundStatement = new BoundStatement(statement);
                         session.execute(boundStatement.bind(
                                 strategy.getId(),
+                                entry.getValue().getId(),
                                 entry.getValue().getName(),
                                 actualDate,
-                                entry.getValue().getProbability(),
+                                entry.getValue().getNormalizedTrialsFrequencyInTime(),
+                                entry.getValue().getNormalizedSuccessFrequencyInTime(),
                                 entry.getValue().getTrials(),
                                 entry.getValue().getSuccesses()));
                         logger.info("Time: " + actualDate + "Saving bandit with ID " + entry.getValue().getName() + " into collection : " + strategy.getCollectionId());

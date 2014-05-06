@@ -61,7 +61,7 @@ public class SuperBayesianStrategy {
     //Tady by bylo pomerne jednoduche reseni zeptat se vsech a vybrat ten agoritmus,
     //ktery to doporuci nejvicekrat, pri konfliktu nebo shode prvni nebo s nej hodnotou
     //atd.       
-    public String chooseBestFromSuperStrategy() {
+    public Bandit chooseBestFromSuperStrategy() {
         List<Bandit> banditsCombination = new ArrayList<>();
         //projed vsechny bayesovske strategie alias kolekce a zjisti, ktera je tam nejvicekrat
         for (BayesianStrategy strategy : setOfStrategies) {
@@ -69,23 +69,23 @@ public class SuperBayesianStrategy {
             banditsCombination.add(bestFromStrategy);
         }
 
-        String bestBanditName = bestBanditFromCombination(banditsCombination);                
-        return bestBanditName;
+        Bandit bestBanditId = bestBanditFromCombination(banditsCombination);                
+        return bestBanditId;
     }
 
-    private String bestBanditFromCombination(List<Bandit> banditsCombination) {
+    private Bandit bestBanditFromCombination(List<Bandit> banditsCombination) {
         //String bestBandit = null;
-        List<String> bestBandits = new ArrayList<>();
+        List<Integer> bestBandits = new ArrayList<>();
         SuperBanditArrayBuilder banditCombiner = new SuperBanditArrayBuilder(banditsCombination);
         //nyni mam vytvoreny nastroj pro pocitani unikatnich vyskytu banditu a jednotlivcu
         //kolik mi to doporucilo celkem ruznych algoritmu - 1 za kazdy kontext
         //int uniqueBandits = banditCombiner.getDifferentNamesAmount();        
 
-        Map<String, Integer> uniqueBanditMapSorted = MathUtil.sortMapByValues(banditCombiner.getDifferentBanditsMap());
+        Map<Integer, Integer> uniqueBanditMapSorted = MathUtil.sortMapByValues(banditCombiner.getDifferentBanditsMap());
 
         int previous=-1;
         //vezmu prvniho nejlepsiho
-        for (Map.Entry<String, Integer> entry : uniqueBanditMapSorted.entrySet()) {
+        for (Map.Entry<Integer, Integer> entry : uniqueBanditMapSorted.entrySet()) {
             //bestBandit = entry.getKey();
             if (bestBandits.isEmpty() || previous==entry.getValue()) {
                 bestBandits.add(entry.getKey());
@@ -96,11 +96,11 @@ public class SuperBayesianStrategy {
             
         }       
 
-        String bestBandit = selectBestByGamingStrategy(bestBandits);
-        return bestBandit;
+        int bestBandit = selectBestByGamingStrategy(bestBandits);
+        return banditsCombination.get(bestBandit-1);
     }
 
-    private String selectBestByGamingStrategy(List<String> bestBandits) {
+    private Integer selectBestByGamingStrategy(List<Integer> bestBandits) {
         Random randomizer = new Random();
         return bestBandits.get(randomizer.nextInt(bestBandits.size()));
     }    

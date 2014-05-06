@@ -15,37 +15,39 @@ import java.util.Objects;
 public class Bandit {
 
     //pravdepodobnost v case, >0, <1
-    private double probability;
-    // pokusy - zajima nas pocet uspechu (wins) v n pokusech
-    //private Integer trials;
+    private double normalizedTrialsFrequencyInTime;
+    private double normalizedSuccessFrequencyInTime;
+    // pokusy
     private double trials;
     //uspechy
-    //private Integer successes;
     private double successes;
     private String name;
-    //private Integer trialsHistory;
-    //private double successesHistory;
+    private int id;
 
-    public Bandit(double probability, String name) {
-        this.probability = probability;
+    public Bandit(double normalizedTrialsFrequencyInTime, double normalizedSuccessFrequencyInTime, String name, int id) {
+        this.normalizedTrialsFrequencyInTime = normalizedTrialsFrequencyInTime;
+        this.normalizedSuccessFrequencyInTime = normalizedSuccessFrequencyInTime;
         this.trials = 0.0;
         this.successes = 0.0;
         this.name = name;
+        this.id = id;
         //this.trialsHistory = 0;
         //this.successesHistory = 0;
     }
     
-    public Bandit(double probability, String name, double trials, double successes) {
-        this.probability = probability;
+    public Bandit(double normalizedTrialsFrequencyInTime, double normalizedSuccessFrequencyInTime, String name, int id, double trials, double successes) {
+        this.normalizedTrialsFrequencyInTime = normalizedTrialsFrequencyInTime;
+        this.normalizedSuccessFrequencyInTime = normalizedSuccessFrequencyInTime;
         this.trials = trials;
         this.successes = successes;
         this.name = name;
+        this.id = id;
     }    
     
-    public void updateTrialStats(double rate, double totalCountsToBoost) {
+    public void updateTrialStats(double rate, double totalTrialsCountsToBoost) {
         double newTrials = rate * trials;
         trials = newTrials + 1;
-        probability += totalCountsToBoost;
+        normalizedTrialsFrequencyInTime += totalTrialsCountsToBoost;
     }    
 
     public void updateRoundStats(int result) {
@@ -88,31 +90,14 @@ public class Bandit {
         }
     }
 
-    public double getProbability() {
-        return probability;
+    public double getNormalizedTrialsFrequencyInTime() {
+        return normalizedTrialsFrequencyInTime;
     }
 
-    public void setProbability(double probability) {
-        this.probability = probability;
+    public void setNormalizedTrialsFrequencyInTime(double normalizedTrialsFrequencyInTime) {
+        this.normalizedTrialsFrequencyInTime = normalizedTrialsFrequencyInTime;
     }
 
-    /*
-     public Integer getTrials() {
-     return trials;
-     }
-
-     public void setTrials(Integer trials) {
-     this.trials = trials;
-     }
-
-     public Integer getSuccesses() {
-     return successes;
-     }
-
-     public void setSuccesses(Integer successes) {
-     this.successes = successes;
-     }       
-     */
     public double getTrials() {
         return trials;
     }
@@ -132,24 +117,6 @@ public class Bandit {
     public String getName() {
         return name;
     }
-
-    /*
-    public Integer getTrialsHistory() {
-        return trialsHistory;
-    }
-
-    public void setTrialsHistory(Integer trialsHistory) {
-        this.trialsHistory = trialsHistory;
-    }
-
-    public double getSuccessesHistory() {
-        return successesHistory;
-    }
-
-    public void setSuccessesHistory(double successesHistory) {
-        this.successesHistory = successesHistory;
-    }
-    */
 
     @Override
     public int hashCode() {
@@ -174,7 +141,25 @@ public class Bandit {
 
     @Override
     public String toString() {
-        return "Bandit{" + "name=" + name + '}';
-    }    
+        return "Bandit{ id: " + id + ", name: " + name + '}';
+    } 
+
+    public double getNormalizedSuccessFrequencyInTime() {
+        return normalizedSuccessFrequencyInTime;
+    }
+
+    public void setNormalizedSuccessFrequencyInTime(double normalizedSuccessFrequencyInTime) {
+        this.normalizedSuccessFrequencyInTime = normalizedSuccessFrequencyInTime;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    
 }
 

@@ -20,10 +20,10 @@ import javax.json.JsonObjectBuilder;
 public class ResponseHandlerJson implements ResponseHandler {
 
     private Reply reply;
-    private static final String ERROR_REPLY = "400";
-    private static final String INTERNAL_ERROR = "500";
-    private static final String SUCCESS_REPLY = "200";
-    private static final String NOT_FOUND_REPLY = "404";
+    private static final int ERROR_REPLY = 400;
+    private static final int INTERNAL_ERROR = 500;
+    private static final int SUCCESS_REPLY = 200;
+    private static final int NOT_FOUND_REPLY = 404;
 
     @Override
     public Reply returnReply() {
@@ -35,14 +35,20 @@ public class ResponseHandlerJson implements ResponseHandler {
         JsonObjectBuilder builder = Json.createObjectBuilder()
                 .add("status", reply.getStatus())
                 .add("message", reply.getMessage());
-        if (reply.getContextCollection() != null) {
+        if (reply.getBestBandit() != -1) {
+            builder.add("bestBandit", reply.getBestBandit());
+        }
+        if (reply.getCollection() != -1) {
+            builder.add("collection", reply.getCollection());
+        }        
+        if (!reply.getContextCollection().isEmpty()) {
             JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
             for (ContextCollection coll : reply.getContextCollection()) {
                 arrayBuilder.add(coll.getId());
             }
             builder.add("collections", arrayBuilder);
         }
-        if (reply.getSupercollection() != null) {
+        if (!reply.getSupercollection().isEmpty()) {
             JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
             for (Supercollection supercoll : reply.getSupercollection()) {
                 arrayBuilder.add(supercoll.getId());
@@ -61,6 +67,11 @@ public class ResponseHandlerJson implements ResponseHandler {
     public void createSuccessReply(String message) {
         reply = new Reply(SUCCESS_REPLY, message);
     }
+    
+    @Override
+    public void createSuccessReplyDetection(String message, int bestBandit, int collection) {
+        reply = new Reply(SUCCESS_REPLY, message, bestBandit, collection);
+    }       
 
     @Override
     public void createSuccessReplyCollections(String message, List<ContextCollection> contextCollections) {

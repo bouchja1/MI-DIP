@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class SuperBanditArrayBuilder extends ArrayList<Bandit> {
 
-    Map<String, Integer> differentBanditsMap = new HashMap<String, Integer>();
+    Map<Integer, Integer> differentBanditsMap = new HashMap<Integer, Integer>();
 
     public SuperBanditArrayBuilder(Collection<? extends Bandit> c) {
         super(c);
@@ -56,12 +56,12 @@ public class SuperBanditArrayBuilder extends ArrayList<Bandit> {
 
     private void prepareAdd(Bandit bandit) {
         if (bandit != null) {
-            Integer integer = this.differentBanditsMap.get(bandit.getName());
-            this.differentBanditsMap.put(bandit.getName(), (integer != null) ? integer + 1 : 1);
+            Integer integer = this.differentBanditsMap.get(bandit.getId());
+            this.differentBanditsMap.put(bandit.getId(), (integer != null) ? integer + 1 : 1);
         }
     }
 
-    public Map<String, Integer> getDifferentBanditsMap() {
+    public Map<Integer, Integer> getDifferentBanditsMap() {
         return differentBanditsMap;
     }
     

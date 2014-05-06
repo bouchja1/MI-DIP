@@ -18,7 +18,7 @@ import org.springframework.core.env.Environment;
 public class BanditsMachine {
 
     //private List<Bandit> banditList; // seznam banditu
-    private Map<String, Bandit> banditList; // seznam banditu
+    private Map<Integer, Bandit> banditList; // seznam banditu
     private double rate;
     private double possitiveFeedback;
     private double possitiveFeedbackOthers;
@@ -39,12 +39,12 @@ public class BanditsMachine {
     } 
     */
     
-    public BanditsMachine(Map<String, Bandit> banditList, double rate) {
+    public BanditsMachine(Map<Integer, Bandit> banditList, double rate) {
         this.banditList = banditList;
         this.rate = rate;
     }
     
-    public BanditsMachine(Map<String, Bandit> banditList, Environment env) {
+    public BanditsMachine(Map<Integer, Bandit> banditList, Environment env) {
         this.banditList = banditList;
         this.rate = Double.parseDouble(env.getProperty("ensemble.machine.rate"));
         this.possitiveFeedback = Double.parseDouble(env.getProperty("ensemble.feedback.possitive.best"));
@@ -82,12 +82,12 @@ public class BanditsMachine {
     return banditList;
     }
      */
-    public Map<String, Bandit> getBanditList() {
+    public Map<Integer, Bandit> getBanditList() {
         return banditList;
     }       
     
-    public void updateTrials(Bandit banditToUpdate, double totalCountsToBoost) {
-        banditToUpdate.updateTrialStats(rate, totalCountsToBoost);                           
+    public void updateTrials(Bandit banditToUpdate, double totalTrialsCountsToBoost) {
+        banditToUpdate.updateTrialStats(rate, totalTrialsCountsToBoost);                           
     }    
 
     /*
@@ -109,20 +109,24 @@ public class BanditsMachine {
         
         switch (feedback) {
             case "possitive" :
-                makePositiveFeedback(banditToUpdate);
+                double banditSuccessesPossitiveRate = (double) 1 / (double) (banditList.size() - 1);        
+                double totalSuccesessCountsToBoost = recalculateSuccessessFrequencies(banditSuccessesPossitiveRate);                                       
+                makePositiveFeedback(banditToUpdate, totalSuccesessCountsToBoost);
                 break;
             case "negative" :
+                double banditSuccessesNegativeRate = (double) 1 / (double) (banditList.size() - 1);
+                recalculateSuccessessNegativeFrequencies(banditSuccessesNegativeRate, banditToUpdate);                                                       
                 makeNegativeFeedback(banditToUpdate);
                 break;
         }            
     }
 
-    private void makePositiveFeedback(Bandit banditToUpdate) {
+    private void makePositiveFeedback(Bandit banditToUpdate, double totalSuccesessCountsToBoost) {
         //tomu, ktery dal dobre doporuceni, pricteme pozitivni zpetnou vazbu
         banditToUpdate.updateRoundStatsExtended(possitiveFeedback, rate);
-
+        banditToUpdate.setNormalizedSuccessFrequencyInTime(banditToUpdate.getNormalizedSuccessFrequencyInTime() + totalSuccesessCountsToBoost);
         //vsem ostatnim v nejakem pomeru snizime
-        for (Map.Entry<String, Bandit> b : banditList.entrySet()) {
+        for (Map.Entry<Integer, Bandit> b : banditList.entrySet()) {
             if (!b.getValue().equals(banditToUpdate)) {
                 b.getValue().updateNegativeRoundStatsExtended(possitiveFeedbackOthers, rate);
             }
@@ -139,18 +143,40 @@ public class BanditsMachine {
 
     public void addBanditToMachine(Bandit b) {
         //banditList.add(b);
-        banditList.put(b.getName(), b);
+        banditList.put(b.getId(), b);
     }
 
-    double recalculateProbabilities(double banditTrialsProbabilityRate) {
+    double recalculateTrialsFrequencies(double banditTrialsProbabilityRate) {
         double totalPartialyProbabilities = 0.0;
-        for (Map.Entry<String, Bandit> b : banditList.entrySet()) {
-            double result = b.getValue().getProbability() * banditTrialsProbabilityRate;
+        for (Map.Entry<Integer, Bandit> b : banditList.entrySet()) {
+            double result = b.getValue().getNormalizedTrialsFrequencyInTime() * banditTrialsProbabilityRate;
             totalPartialyProbabilities += result;
-            b.getValue().setProbability(b.getValue().getProbability() - result);
+            b.getValue().setNormalizedTrialsFrequencyInTime(b.getValue().getNormalizedTrialsFrequencyInTime() - result);
         }
         return totalPartialyProbabilities;
     }
+    
+    double recalculateSuccessessFrequencies(double banditSuccessesProbabilityRate) {
+        double totalPartialyProbabilities = 0.0;
+        for (Map.Entry<Integer, Bandit> b : banditList.entrySet()) {
+            double result = b.getValue().getNormalizedSuccessFrequencyInTime()* banditSuccessesProbabilityRate;
+            totalPartialyProbabilities += result;
+            b.getValue().setNormalizedTrialsFrequencyInTime(b.getValue().getNormalizedSuccessFrequencyInTime() - result);
+        }
+        return totalPartialyProbabilities;
+    }  
+    
+    void recalculateSuccessessNegativeFrequencies(double banditSuccessesProbabilityRate, Bandit banditToUpdatee) {
+        double rateMinus = banditToUpdatee.getNormalizedSuccessFrequencyInTime() * banditSuccessesProbabilityRate;
+        double rateToOthers = rateMinus * banditSuccessesProbabilityRate;
+        for (Map.Entry<Integer, Bandit> b : banditList.entrySet()) {
+            if (!b.equals(banditToUpdatee)) {                
+                b.getValue().setNormalizedTrialsFrequencyInTime(b.getValue().getNormalizedSuccessFrequencyInTime() + rateToOthers);                
+            } else {
+                banditToUpdatee.setNormalizedSuccessFrequencyInTime(banditToUpdatee.getNormalizedSuccessFrequencyInTime() - rateMinus);
+            } 
+        }
+    }      
 
     Bandit getBanditByKey(String banditId) {
         return banditList.get(banditId);
