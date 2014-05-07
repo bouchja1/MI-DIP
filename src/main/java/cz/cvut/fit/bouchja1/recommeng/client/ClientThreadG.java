@@ -12,11 +12,11 @@ import cz.cvut.fit.bouchja1.client.api.Communication;
  */
 public class ClientThreadG extends Thread {
 
-    private String name;
+    private int id;
     private Communication communication;
 
-    public ClientThreadG(String name, Communication communication) {
-        this.name = name;
+    public ClientThreadG(int id, Communication communication) {
+        this.id = id;
         this.communication = communication;
     }
 

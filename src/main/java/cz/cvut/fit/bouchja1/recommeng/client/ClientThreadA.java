@@ -22,7 +22,7 @@ public class ClientThreadA extends Thread {
 
     public void run() {                
         //ALGORITHMS
-        communication.getRandomRecommendation();
+        //communication.getRandomRecommendation();
         //communication.getLatestRecommendation();
         //communication.getTopratedRecommendation();
         //communication.getCfUserRecommendation();

@@ -16,14 +16,14 @@ import org.glassfish.jersey.jsonp.JsonProcessingFeature;
  *
  * @author jan
  */
-public class EnsembleClientApi {
+public class EnsembleClient {
     private EnsembleRequest ensembleRequest;
     private RestfulRequest restfulRequest;
     private Client client;    
     private String ensembleLocation;
     private String restfulApiLocation;
 
-    public EnsembleClientApi(String ensembleLocation, String restfulApiLocation) {
+    public EnsembleClient(String ensembleLocation, String restfulApiLocation) {
         this.ensembleLocation = ensembleLocation;
         this.restfulApiLocation = restfulApiLocation;
         invokeAndRegisterClient();

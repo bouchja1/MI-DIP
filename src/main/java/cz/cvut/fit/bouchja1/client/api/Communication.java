@@ -5,6 +5,7 @@
 package cz.cvut.fit.bouchja1.client.api;
 
 import java.util.List;
+import java.util.Map;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
@@ -14,6 +15,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -22,143 +24,221 @@ import org.json.JSONObject;
  */
 public class Communication {
 
-    protected EnsembleClientApi clientApi;
+    protected EnsembleClient clientApi;
 
-    public Communication(EnsembleClientApi clientApi) {
+    public Communication(EnsembleClient clientApi) {
         this.clientApi = clientApi;
     }
     
-    public void getRandomRecommendation() {
+    public JSONObject getRandomRecommendation(Map<String, String> parameters) {
         Client client = clientApi.getClient();
 
+        int groupId = 0;
+        int limit = 0;
+        if (parameters.get("groupId") != null) {
+            groupId = Integer.parseInt(parameters.get("groupId"));
+        }
+        if (parameters.get("limit") != null) {
+            limit = Integer.parseInt(parameters.get("limit"));
+        }
+        
         Response response = client.target(clientApi.getRestfulApiLocation())
                 .path("recommeng/algorithm/articleCore/random")
-                .queryParam("groupId", 123)
-                .queryParam("limit", 12)
+                .queryParam("groupId", groupId)
+                .queryParam("limit", limit)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 //.header("some-header", "true")
                 .get();
-
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
+        JSONArray ja = new JSONArray(response.readEntity(String.class));
+        JSONObject mainObj = new JSONObject();
+        mainObj.put("articles", ja);        
+        
+        return mainObj;
     }
 
-    public void getLatestRecommendation() {
+    public JSONObject getLatestRecommendation(Map<String, String> parameters) {
         Client client = clientApi.getClient();
+        
+        int groupId = 0;
+        int limit = 0;
+        if (parameters.get("groupId") != null) {
+            groupId = Integer.parseInt(parameters.get("groupId"));
+        }
+        if (parameters.get("limit") != null) {
+            limit = Integer.parseInt(parameters.get("limit"));
+        }        
 
         Response response = client.target(clientApi.getRestfulApiLocation())
                 .path("recommeng/algorithm/articleCore/latest")
-                .queryParam("groupId", 123)
-                .queryParam("limit", 12)
+                .queryParam("groupId", groupId)
+                .queryParam("limit", limit)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 //.header("some-header", "true")
                 .get();
-
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
+        //JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
+        JSONArray ja = new JSONArray(response.readEntity(String.class));
+        JSONObject mainObj = new JSONObject();
+        mainObj.put("articles", ja);        
+        
+        return mainObj;
     }
 
-    public void getTopratedRecommendation() {
+    public JSONObject getTopratedRecommendation(Map<String, String> parameters) {
         Client client = clientApi.getClient();
 
+        int groupId = 0;
+        int limit = 0;
+        if (parameters.get("groupId") != null) {
+            groupId = Integer.parseInt(parameters.get("groupId"));
+        }
+        if (parameters.get("limit") != null) {
+            limit = Integer.parseInt(parameters.get("limit"));
+        }        
+        
         Response response = client.target(clientApi.getRestfulApiLocation())
                 .path("recommeng/algorithm/behavioralCore/toprate")
-                .queryParam("groupId", 0)
-                .queryParam("limit", 12)
+                .queryParam("groupId", groupId)
+                .queryParam("limit", limit)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 //.header("some-header", "true")
                 .get();
-
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
+        JSONArray ja = new JSONArray(response.readEntity(String.class));
+        JSONObject mainObj = new JSONObject();
+        mainObj.put("articles", ja);        
+        
+        return mainObj;
     }  
     
-    public void getCfUserRecommendation() {
+    public JSONObject getCfUserRecommendation(Map<String, String> parameters) {
         Client client = clientApi.getClient();
 
+        int groupId = 0;
+        int limit = 0;
+        int userId = 0;
+        if (parameters.get("groupId") != null) {
+            groupId = Integer.parseInt(parameters.get("groupId"));
+        }
+        if (parameters.get("limit") != null) {
+            limit = Integer.parseInt(parameters.get("limit"));
+        }        
+        if (parameters.get("userId") != null) {
+            userId = Integer.parseInt(parameters.get("userId"));
+        }                
+        
         Response response = client.target(clientApi.getRestfulApiLocation())
                 .path("recommeng/algorithm/behavioralCore/cfuser")
-                .queryParam("groupId", 0)
-                .queryParam("limit", 12)
-                .queryParam("userId", 2)
+                .queryParam("groupId", groupId)
+                .queryParam("limit", limit)
+                .queryParam("userId", userId)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 //.header("some-header", "true")
                 .get();
-
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
+        JSONArray ja = new JSONArray(response.readEntity(String.class));
+        JSONObject mainObj = new JSONObject();
+        mainObj.put("articles", ja);        
+        
+        return mainObj;
     }
 
-    public void getCfItemRecommendation() {
+    public JSONObject getCfItemRecommendation(Map<String, String> parameters) {
         Client client = clientApi.getClient();
 
+        int groupId = 0;
+        int limit = 0;
+        int userId = 0;
+        if (parameters.get("groupId") != null) {
+            groupId = Integer.parseInt(parameters.get("groupId"));
+        }
+        if (parameters.get("limit") != null) {
+            limit = Integer.parseInt(parameters.get("limit"));
+        }        
+        if (parameters.get("userId") != null) {
+            userId = Integer.parseInt(parameters.get("userId"));
+        }           
+        
         Response response = client.target(clientApi.getRestfulApiLocation())
                 .path("recommeng/algorithm/behavioralCore/cfitem")
-                .queryParam("groupId", 0)
-                .queryParam("limit", 12)
-                .queryParam("userId", 2)
+                .queryParam("groupId", groupId)
+                .queryParam("limit", limit)
+                .queryParam("userId", userId)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 //.header("some-header", "true")
                 .get();
-
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
+        JSONArray ja = new JSONArray(response.readEntity(String.class));
+        JSONObject mainObj = new JSONObject();
+        mainObj.put("articles", ja);        
+        
+        return mainObj;
     }
 
-    public void getMltRecommendation() {
+    public JSONObject getMltRecommendation(Map<String, String> parameters) {
         Client client = clientApi.getClient();
 
+        int groupId = 0;
+        int limit = 0;
+        String documentId = null;
+        if (parameters.get("groupId") != null) {
+            groupId = Integer.parseInt(parameters.get("groupId"));
+        }
+        if (parameters.get("limit") != null) {
+            limit = Integer.parseInt(parameters.get("limit"));
+        }        
+        if (documentId != null) {
+            documentId = parameters.get("documentId");
+        }           
+        
         Response response = client.target(clientApi.getRestfulApiLocation())
                 .path("recommeng/algorithm/articleCore/mlt")
-                .queryParam("groupId", 0)
-                .queryParam("limit", 12)
-                .queryParam("documentId", "http://pnjj5cr4f9 f500k9vld.org")
+                .queryParam("groupId", groupId)
+                .queryParam("limit", limit)
+                .queryParam("documentId", documentId)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 //.header("some-header", "true")
                 .get();
-
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
+        JSONArray ja = new JSONArray(response.readEntity(String.class));
+        JSONObject mainObj = new JSONObject();
+        mainObj.put("articles", ja);        
+        
+        return mainObj;
     }  
     
-    public void sendUserRatingItemFeedback() {
+    public Response sendUserRatingItemFeedback(String articleId, int userId, int rating) {
+        double doubleRat = (double) rating;
         JsonObject collection = Json.createObjectBuilder()
-                .add("articleId", "oavgofrsdxxcos5x1man")
-                .add("userId", 2)
-                .add("rating", 4.0)
+                .add("articleId", articleId)
+                .add("userId", userId)
+                .add("rating", doubleRat)
                 .build();
 
         Client client = clientApi.getClient();
 
         Response response = client.target(clientApi.getRestfulApiLocation())
-                .path("recommeng/core/behavioralCore/document")
+                .path("recommeng/articles/behavioralCore/document")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 //.header("some-header", "true")
                 .post(Entity.entity(collection, MediaType.APPLICATION_JSON_TYPE));
-
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
+        return response;
     }
 
-    public void deleteDocumentInCore() {
+    public JSONObject deleteDocumentInCore(String documentId) {
         Client client = clientApi.getClient();
 
         Response response = client.target(clientApi.getRestfulApiLocation())
-                .path("recommeng/core/articleCore/document")
-                .queryParam("documentId", "rwpuxn3yo0 ivjlyg 5h")
+                .path("recommeng/articles/articleCore/document")
+                .queryParam("documentId", documentId)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 //.header("some-header", "true")
                 .delete();
+        JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
 
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
+        return jsonObj;
     }  
     
     public void createArticlesInCore(List<JsonObject> collectionOfArticles) {
         Client client = clientApi.getClient();
         for (JsonObject o : collectionOfArticles) {
             Response response = client.target(clientApi.getRestfulApiLocation())
-                    .path("recommeng/core/articleCore/article")
+                    .path("recommeng/articles/articleCore/article")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     //.header("some-header", "true")
                     .post(Entity.entity(o, MediaType.APPLICATION_JSON_TYPE));
@@ -208,10 +288,7 @@ public class Communication {
                 //.header("some-header", "true")
                 .get();
 
-        System.out.println(response.getStatus());
-
         JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
-
         return jsonObj;
     }
 
@@ -338,12 +415,12 @@ public class Communication {
 
     }
 
-    public void sendFeedbackEnsembleOperation() {
+    public JSONObject sendFeedbackEnsembleOperation(int banditId, String feedbackType) {
         JsonObject collection = Json.createObjectBuilder()
-                .add("bandit", "random")
+                .add("bandit", banditId)
                 .add("operation", "feedback")
                 //.add("feedbackType", "possitive")
-                .add("feedbackType", "negative")
+                .add("feedbackType", feedbackType)
                 .build();
 
         /*
@@ -362,12 +439,12 @@ public class Communication {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 //.header("some-header", "true")
                 .put(Entity.entity(collection, MediaType.APPLICATION_JSON_TYPE));
+        JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
 
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
+        return jsonObj;
     }
 
-    public void sendSuperFeedbackEnsembleOperation() {
+    public JSONObject sendSuperFeedbackEnsembleOperation() {
         JsonObject collection = Json.createObjectBuilder()
                 .add("bandit", "random")
                 .add("operation", "feedback")
@@ -391,8 +468,31 @@ public class Communication {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 //.header("some-header", "true")
                 .put(Entity.entity(collection, MediaType.APPLICATION_JSON_TYPE));
+        JSONObject jsonObj = new JSONObject(response.readEntity(String.class));
 
-        System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
+        return jsonObj;
     }      
+
+    public JSONObject getRecommendation(String algorithmToUse, Map<String, String> parameters) {
+        switch (algorithmToUse) {
+            case "latest" :
+                return getLatestRecommendation(parameters);
+                /*
+            case "mlt" :
+                return getMltRecommendation(parameters);                
+                */
+            case "random" :
+                return getRandomRecommendation(parameters);                
+            case "cfuser" :
+                return getCfUserRecommendation(parameters);                
+            /*
+            case "cfitem" :
+                return getCfItemRecommendation(parameters);                                
+                */
+            case "toprate" :
+                return getTopratedRecommendation(parameters);                
+            default : 
+                return null;
+        }            
+    }
 }

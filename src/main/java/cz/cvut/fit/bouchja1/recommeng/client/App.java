@@ -1,7 +1,7 @@
 package cz.cvut.fit.bouchja1.recommeng.client;
 
 import cz.cvut.fit.bouchja1.client.api.Communication;
-import cz.cvut.fit.bouchja1.client.api.EnsembleClientApi;
+import cz.cvut.fit.bouchja1.client.api.EnsembleClient;
 import cz.cvut.fit.bouchja1.client.tools.EnvironmentBuilder;
 
 /**
@@ -16,15 +16,23 @@ public class App {
     private static final String ensembleLocation = "tcp://127.0.0.1:5555";
     private static final String restfulApiLocation = "http://localhost:8089/ensembleRestApi/";    
 
-    public static void main(String[] args) {        
-        EnsembleClientApi clientApi = new EnsembleClientApi(ensembleLocation, restfulApiLocation);                
+    public static void main(String[] args) throws InterruptedException {        
+        EnsembleClient clientApi = new EnsembleClient(ensembleLocation, restfulApiLocation);                
         /*
         EnvironmentBuilder environmentBuilder = new EnvironmentBuilder(new Communication(clientApi));
         environmentBuilder.build();          
         */
         
         //jeden porad v kuse uspesnej, ostatni nic - jak se to vyvine 
-        (new ClientThreadE("Jeden porad uspesnej", new Communication(clientApi))).start();        
+        //for (int i = 0; i < 50; i++) {
+        //for (int i = 0; i < 50; i++) {
+            (new ClientThreadE(1, new Communication(clientApi))).start();        
+            //(new ClientThreadD(2, new Communication(clientApi))).start();        
+            //(new ClientThreadF(3, new Communication(clientApi))).start();        
+            //(new ClientThreadG(4, new Communication(clientApi))).start();        
+            //Thread.sleep(1000);
+        //}
+        //}
         
         //(new ClientThreadA("Spokojený klient", new Communication(clientApi))).start();
         
