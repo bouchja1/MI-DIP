@@ -56,35 +56,35 @@ public class BayesianStrategy {
         this.roundInverseDistributions = new ArrayList<>();
     }    
 
-    public Bandit sampleBandits() {
-        //sample from the bandits's priors, and select the largest sample
-        for (Integer bandit : banditsMachine.getBanditList().keySet()) {
-            // the observed result X (a win or loss, encoded 1 and 0 respectfully) is Binomial,
-            //the posterior is a Beta(α=1+X,β=1+1−X) (see here for why to is true). 
-            BetaDistribution beta = new BetaDistribution(1 + banditsMachine.getBanditAtIndex(bandit).getSuccesses(), 1 + banditsMachine.getBanditAtIndex(bandit).getTrials() - banditsMachine.getBanditAtIndex(bandit).getSuccesses());
+public Bandit sampleBandits() {
+    //sample from the bandits's priors, and select the largest sample
+    for (Integer bandit : banditsMachine.getBanditList().keySet()) {
+        // the observed result X (a win or loss, encoded 1 and 0 respectfully) is Binomial,
+        //the posterior is a Beta(α=1+X,β=1+1−X) (see here for why to is true). 
+        BetaDistribution beta = new BetaDistribution(1 + banditsMachine.getBanditAtIndex(bandit).getSuccesses(), 1 + banditsMachine.getBanditAtIndex(bandit).getTrials() - banditsMachine.getBanditAtIndex(bandit).getSuccesses());
 
-            //tím se simuluje náhodný výběr s danou pravděpodobností                
-            //pomocí funkce spočítáš příslušnou hodnotu, pro kterou dostaneš tuhle pravděpodobnost
+        //tím se simuluje náhodný výběr s danou pravděpodobností                
+        //pomocí funkce spočítáš příslušnou hodnotu, pro kterou dostaneš tuhle pravděpodobnost
 
-            // Math.random = greater than or equal to 0.0 and less than 1.0
-            // to je to, kdyz strili na tu osu x v nacrtku rozdeleni
+        // Math.random = greater than or equal to 0.0 and less than 1.0
+        // to je to, kdyz strili na tu osu x v nacrtku rozdeleni
 
-            // misto math random - mersenne twister, XOR SHIFT nebo well-rng 512 ?
+        // misto math random - mersenne twister, XOR SHIFT nebo well-rng 512 ?
 
-            //Random gen = new MersenneTwisterRNG();
-            //http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math3/distribution/AbstractRealDistribution.html#inverseCumulativeProbability(double)
-            double inverseDistribution = beta.inverseCumulativeProbability(Math.random());
+        //Random gen = new MersenneTwisterRNG();
+        //http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math3/distribution/AbstractRealDistribution.html#inverseCumulativeProbability(double)
+        double inverseDistribution = beta.inverseCumulativeProbability(Math.random());
 
-            System.out.println("DISTRIBUCE bandity " + banditsMachine.getBanditAtIndex(bandit).getName() + ": " + inverseDistribution);
-            roundInverseDistributions.add(inverseDistribution);
-        }
-        
-        int banditIndexChoice = MathUtil.argmax(roundInverseDistributions);
-
-        roundInverseDistributions.clear();
-        
-        return banditsMachine.getBanditAtIndex(banditIndexChoice);
+        System.out.println("DISTRIBUCE bandity " + banditsMachine.getBanditAtIndex(bandit).getName() + ": " + inverseDistribution);
+        roundInverseDistributions.add(inverseDistribution);
     }
+
+    int banditIndexChoice = MathUtil.argmax(roundInverseDistributions);
+
+    roundInverseDistributions.clear();
+
+    return banditsMachine.getBanditAtIndex(banditIndexChoice);
+}
         
     public List<Bandit> sampleBanditsAll(String banditCollectionId) {
         for (Integer bandit : banditsMachine.getBanditList().keySet()) {
@@ -120,7 +120,7 @@ public class BayesianStrategy {
     
     public void calculateFeedback(String banditCollectionId, String banditId, String feedbackValue) {
         Bandit banditToUpdate = banditsMachine.getBanditAtIndex(Integer.parseInt(banditId));
-        banditsMachine.updateAllStatsInRound(banditToUpdate, feedbackValue);   
+        banditsMachine.updateFeedback(banditToUpdate, feedbackValue);   
     }    
 
     private void printRound() {

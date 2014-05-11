@@ -20,9 +20,9 @@ public class BanditsMachine {
     //private List<Bandit> banditList; // seznam banditu
     private Map<Integer, Bandit> banditList; // seznam banditu
     private double rate;
-    private double possitiveFeedback;
-    private double possitiveFeedbackOthers;
-    private double negativeFeedback;
+    private double winner;
+    private double losers;
+    private double stupid;
 
     /*
     public BanditsMachine(List<Bandit> banditList, double rate) {
@@ -33,9 +33,9 @@ public class BanditsMachine {
     public BanditsMachine(List<Bandit> banditList, Environment env) {
         this.banditList = banditList;
         this.rate = Double.parseDouble(env.getProperty("ensemble.machine.rate"));
-        this.possitiveFeedback = Double.parseDouble(env.getProperty("ensemble.feedback.possitive.best"));
-        this.possitiveFeedbackOthers = Double.parseDouble(env.getProperty("ensemble.feedback.possitive.others"));
-        this.negativeFeedback = Double.parseDouble(env.getProperty("ensemble.feedback.negative"));
+        this.winner = Double.parseDouble(env.getProperty("ensemble.feedback.possitive.best"));
+        this.losers = Double.parseDouble(env.getProperty("ensemble.feedback.possitive.others"));
+        this.stupid = Double.parseDouble(env.getProperty("ensemble.feedback.negative"));
     } 
     */
     
@@ -46,10 +46,10 @@ public class BanditsMachine {
     
     public BanditsMachine(Map<Integer, Bandit> banditList, Environment env) {
         this.banditList = banditList;
-        this.rate = Double.parseDouble(env.getProperty("ensemble.machine.rate"));
-        this.possitiveFeedback = Double.parseDouble(env.getProperty("ensemble.feedback.possitive.best"));
-        this.possitiveFeedbackOthers = Double.parseDouble(env.getProperty("ensemble.feedback.possitive.others"));
-        this.negativeFeedback = Double.parseDouble(env.getProperty("ensemble.feedback.negative"));
+    this.rate = Double.parseDouble(env.getProperty("ensemble.machine.rate"));
+    this.winner = Double.parseDouble(env.getProperty("ensemble.feedback.possitive.winner"));
+    this.losers = Double.parseDouble(env.getProperty("ensemble.feedback.possitive.losers"));
+    this.stupid = Double.parseDouble(env.getProperty("ensemble.feedback.negative.stupid"));
     }     
 
     /*
@@ -99,7 +99,7 @@ public class BanditsMachine {
      *      - jemu se trochu odecte (preci jen byl povazovat do te doby za nejlepsiho)
      *      - ostatni zustanou stejne (at maji sanci stat se tako v budoucnu doporucovanymi)
      */
-    public void updateAllStatsInRound(Bandit banditToUpdate, String feedback) {
+    public void updateFeedback(Bandit banditToUpdate, String feedback) {
         //banditToUpdate.updateRoundStats(result);        
         
         /*
@@ -109,33 +109,33 @@ public class BanditsMachine {
         
         switch (feedback) {
             case "possitive" :
-                double banditSuccessesPossitiveRate = (double) 1 / (double) (banditList.size() - 1);        
-                double totalSuccesessCountsToBoost = recalculateSuccessessFrequencies(banditSuccessesPossitiveRate);                                       
-                makePositiveFeedback(banditToUpdate, totalSuccesessCountsToBoost);
+                //double banditSuccessesPossitiveRate = (double) 1 / (double) (banditList.size() - 1);        
+                //double totalSuccesessCountsToBoost = recalculateSuccessessFrequencies(banditSuccessesPossitiveRate);                                       
+                makePositiveFeedback(banditToUpdate);
                 break;
             case "negative" :
-                double banditSuccessesNegativeRate = (double) 1 / (double) (banditList.size() - 1);
-                recalculateSuccessessNegativeFrequencies(banditSuccessesNegativeRate, banditToUpdate);                                                       
+                //double banditSuccessesNegativeRate = (double) 1 / (double) (banditList.size() - 1);
+                //recalculateSuccessessNegativeFrequencies(banditSuccessesNegativeRate, banditToUpdate);                                                       
                 makeNegativeFeedback(banditToUpdate);
                 break;
         }            
     }
 
-    private void makePositiveFeedback(Bandit banditToUpdate, double totalSuccesessCountsToBoost) {
+    private void makePositiveFeedback(Bandit banditToUpdate) {
         //tomu, ktery dal dobre doporuceni, pricteme pozitivni zpetnou vazbu
-        banditToUpdate.updateRoundStatsExtended(possitiveFeedback, rate);
-        banditToUpdate.setNormalizedSuccessFrequencyInTime(banditToUpdate.getNormalizedSuccessFrequencyInTime() + totalSuccesessCountsToBoost);
+        banditToUpdate.updateRoundStatsExtended(winner, rate);
+        //banditToUpdate.setNormalizedSuccessFrequencyInTime(banditToUpdate.getNormalizedSuccessFrequencyInTime() + totalSuccesessCountsToBoost);
         //vsem ostatnim v nejakem pomeru snizime
         for (Map.Entry<Integer, Bandit> b : banditList.entrySet()) {
             if (!b.getValue().equals(banditToUpdate)) {
-                b.getValue().updateNegativeRoundStatsExtended(possitiveFeedbackOthers, rate);
+                b.getValue().updateNegativeRoundStatsExtended(losers, rate);
             }
         }        
     }
 
     private void makeNegativeFeedback(Bandit banditToUpdate) {
-        if (banditToUpdate.getSuccesses() > negativeFeedback) {
-            banditToUpdate.updateRoundStatsExtended(-negativeFeedback, rate);
+        if (banditToUpdate.getSuccesses() > (stupid*rate)) {
+            banditToUpdate.updateRoundStatsExtendedStupid(stupid, rate);
         } else {
             banditToUpdate.updateRoundStatsExtended(rate);
         }

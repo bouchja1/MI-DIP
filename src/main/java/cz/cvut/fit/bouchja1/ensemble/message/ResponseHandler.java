@@ -15,7 +15,8 @@ import java.util.List;
  */
 public interface ResponseHandler {
     public void createSuccessReply(String message);    
-    public void createSuccessReplyDetection(String message, int banditId, int collectionId);    
+    public void createSuccessReply(String message, int collectionId);  
+    public void createSuccessReplyDetection(String message, int banditId, String banditIdent, int collectionId);    
     public void createSuccessReplyCollections(String message, List<ContextCollection> contextCollections);    
     public void createSuccessReplySupercollections(String message, List<Supercollection> superCollections);    
     public void createInternalErrorReply(String message);

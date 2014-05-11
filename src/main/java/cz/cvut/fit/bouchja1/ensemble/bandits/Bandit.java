@@ -42,48 +42,57 @@ public class Bandit {
         this.successes = successes;
         this.name = name;
         this.id = id;
-    }    
+    } 
     
+    public Bandit(String name, int id, double trials, double successes) {
+        this.trials = trials;
+        this.successes = successes;
+        this.name = name;
+        this.id = id;
+    }     
+    
+    /*
+     * zpetna vazba pro nacitani pokusu
+     */
     public void updateTrialStats(double rate, double totalTrialsCountsToBoost) {
         double newTrials = rate * trials;
         trials = newTrials + 1;
         normalizedTrialsFrequencyInTime += totalTrialsCountsToBoost;
     }    
 
-    public void updateRoundStats(int result) {
-        /*
-         * prepociavat pravdepodobnsoti zpetnou vazbou
-         */
-        successes += result;
-        trials++;
-    }
-
-    public void updateRoundStatsExtended(double result, double rate) {
-        /*
-         * rozsirene prepociavat pravdepodobnsoti zpetnou vazbou
-         * kvuli rychlejsimu vyvoji situace
-         */
+    /*
+     * zpetna vazba pro pricitani uspechu zvoleneho algoritmu
+     */
+    public void updateRoundStatsExtended(double winner, double rate) {
         double newSuccesses = rate * successes;
-        successes = newSuccesses + result;
-        /*
-        double newTrials = rate * trials;
-        trials = newTrials + 1;
-        */
+        successes = newSuccesses + winner;
     }
     
+    /*
+     * odebirani v pomeru jako penalizace za spatne doporuceni
+     */
+    public void updateRoundStatsExtendedStupid(double stupid, double rate) {
+        successes = successes - (stupid*rate);
+        double newSuccesses = rate * successes;
+        successes = newSuccesses;
+    }    
+    
+    /*
+     * v pripade, ze pri udelovani negativni zpetne vazby neni co odebirat. Tak se jen prepocte rate
+     */
     public void updateRoundStatsExtended(double rate) {
         double newSuccesses = rate * successes;
         successes = newSuccesses;
-        /*
-        double newTrials = rate * trials;
-        trials = newTrials + 1;
-        */
     }    
 
-    public void updateNegativeRoundStatsExtended(double result, double rate) {
-        if (successes > result) {
+    /*
+     * odecteni v pomeru ostatnim algoritmum, ktere nebyly pro doporuceni vybrany
+     */
+    public void updateNegativeRoundStatsExtended(double losers, double rate) {
+        if (successes > (losers*rate)) {
+            successes = successes - (losers*rate);
             double newSuccesses = rate * successes;
-            successes = newSuccesses - result;
+            successes = newSuccesses;
         } else {
             double newSuccesses = rate * successes;
             successes = newSuccesses;            

@@ -97,12 +97,22 @@ public class SuperBayesianStrategy {
         }       
 
         int bestBandit = selectBestByGamingStrategy(bestBandits);
-        return banditsCombination.get(bestBandit-1);
+        Bandit bestBanditObject = null;
+        for (Bandit b : banditsCombination) {
+            if (b.getId() == bestBandit) {
+                bestBanditObject = b;
+                break;
+            }
+        }
+        return bestBanditObject;
+        //return banditsCombination.get(bestBandit);
     }
 
     private Integer selectBestByGamingStrategy(List<Integer> bestBandits) {
         Random randomizer = new Random();
-        return bestBandits.get(randomizer.nextInt(bestBandits.size()));
+        if (bestBandits.size() > 1) {
+            return bestBandits.get(randomizer.nextInt(bestBandits.size() - 1));
+        } else return bestBandits.get(0);
     }    
     
     public int getId() {

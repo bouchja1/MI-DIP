@@ -62,7 +62,7 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
                 storage.createBanditSet(strategyId, banditCollectionName, banditIds);
                 BayesianStrategy newStrategy = new BayesianStrategy(strategyId, banditCollectionName, machineForStrategy);
                 strategies.put(strategyId, newStrategy);
-                responseHandler.createSuccessReply("Collection with name " + banditCollectionName + " was created successfully.");
+                responseHandler.createSuccessReply("Collection with name " + banditCollectionName + " was created successfully.", strategyId);
                 reply = responseHandler.returnReply();
             } else {
                 responseHandler.createErrorReply("You can create only bandits with IDs allowed by system: " + allowedBanditsValues.toString() + ".");
@@ -100,34 +100,34 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
             SuperBayesianStrategy superStrategy = new SuperBayesianStrategy(superstrategyId, banditSuperCollectionName, existingContextCollections);
             storage.createBanditSuperSet(superstrategyId, banditSuperCollectionName, existingContextCollectionsId);
             superStrategies.put(superstrategyId, superStrategy);
-            responseHandler.createSuccessReply("Super collection with name: " + banditSuperCollectionName + " was created successfully.");
+            responseHandler.createSuccessReply("Super collection with name: " + banditSuperCollectionName + " was created successfully.", superstrategyId);
             reply = responseHandler.returnReply();
         }
         return reply;
     }
 
-    @Override
-    public Reply detectBestBandit(String banditCollectionId, String filter) {
-        ResponseHandler responseHandler = new ResponseHandlerJson();
-        Reply reply = null;
+@Override
+public Reply detectBestBandit(String banditCollectionId, String filter) {
+    ResponseHandler responseHandler = new ResponseHandlerJson();
+    Reply reply = null;
 
-        if (existBanditSetId(banditCollectionId)) {
-            BayesianStrategy strategyToUse = getStrategyByCollectionId(banditCollectionId);
-            if ("best".equals(filter)) {
-                Bandit banditToChoose = strategyToUse.sampleBandits();
-                //responseHandler.createSuccessReply("You should choose bandit with name " + banditToChoose.getName() + " now. He is the best for this context.");
-                responseHandler.createSuccessReplyDetection("You should choose bandit with name " + banditToChoose.getName() + " now. He is the best for this context.", banditToChoose.getId(), strategyToUse.getId());
-            } else {
-                List<Bandit> banditsByOrder = strategyToUse.sampleBanditsAll(banditCollectionId);
-                responseHandler.createSuccessReply("Bandit IDs by order: " + banditsByOrder.toString());
-            }
-            reply = responseHandler.returnReply();
+    if (existBanditSetId(banditCollectionId)) {
+        BayesianStrategy strategyToUse = getStrategyByCollectionId(banditCollectionId);
+        if ("best".equals(filter)) {
+            Bandit banditToChoose = strategyToUse.sampleBandits();
+            //responseHandler.createSuccessReply("You should choose bandit with name " + banditToChoose.getName() + " now. He is the best for this context.");
+            responseHandler.createSuccessReplyDetection("You should choose bandit with name " + banditToChoose.getName() + " now. He is the best for this context.", banditToChoose.getId(), banditToChoose.getName(), strategyToUse.getId());
         } else {
-            responseHandler.createNotFoundReply("There is no collection with ID " + banditCollectionId + " in application.");
-            reply = responseHandler.returnReply();
+            List<Bandit> banditsByOrder = strategyToUse.sampleBanditsAll(banditCollectionId);
+            responseHandler.createSuccessReply("Bandit IDs by order: " + banditsByOrder.toString());
         }
-        return reply;
+        reply = responseHandler.returnReply();
+    } else {
+        responseHandler.createNotFoundReply("There is no collection with ID " + banditCollectionId + " in application.");
+        reply = responseHandler.returnReply();
     }
+    return reply;
+}
 
     @Override
     public Reply detectBestSuperBandit(String banditCollectionId, String filter) {
@@ -140,7 +140,7 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
                 Bandit banditToChoose = superStrategyToUse.chooseBestFromSuperStrategy();
                 if (banditToChoose != null) {
                     //responseHandler.createSuccessReply("You should choose bandit with ID " + banditToChoose + " now. He is the best.");
-                    responseHandler.createSuccessReplyDetection("You should choose bandit with name " + banditToChoose.getName() + " from supercollection " + superStrategyToUse.getId() + " now. He is the best for this context.", banditToChoose.getId(), superStrategyToUse.getId());
+                    responseHandler.createSuccessReplyDetection("You should choose bandit with name " + banditToChoose.getName() + " from supercollection " + superStrategyToUse.getId() + " now. He is the best for this context.", banditToChoose.getId(), banditToChoose.getName(), superStrategyToUse.getId());
                 } else {
                     responseHandler.createInternalErrorReply("Internal error occured during your request for best bandit from super collection.");
                 }

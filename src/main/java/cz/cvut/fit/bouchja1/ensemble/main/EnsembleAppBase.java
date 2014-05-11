@@ -24,7 +24,7 @@ public abstract class EnsembleAppBase {
     private ApplicationBean applicationBean;
     private EnsembleApiFacade api;
 
-    public void loadConsoleApplication() {
+    public void loadEnsembleApplication() {
         try {
             logger.info("Start with loading application.");
             initializeApplication();            
@@ -34,6 +34,7 @@ public abstract class EnsembleAppBase {
             logger.info("Application was loaded successfully.");
         } catch (Exception ex) {
             handleStartupException("error initialzing application", ex);   
+            ex.printStackTrace();
         }
     }
 

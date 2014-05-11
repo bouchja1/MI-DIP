@@ -37,10 +37,13 @@ public class ResponseHandlerJson implements ResponseHandler {
                 .add("message", reply.getMessage());
         if (reply.getBestBandit() != -1) {
             builder.add("bestBandit", reply.getBestBandit());
-        }
+        }        
         if (reply.getCollection() != -1) {
             builder.add("collection", reply.getCollection());
         }        
+        if (reply.getBestBanditIdent() != null) {
+            builder.add("banditId", reply.getBestBanditIdent());
+        }           
         if (!reply.getContextCollection().isEmpty()) {
             JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
             for (ContextCollection coll : reply.getContextCollection()) {
@@ -69,8 +72,13 @@ public class ResponseHandlerJson implements ResponseHandler {
     }
     
     @Override
-    public void createSuccessReplyDetection(String message, int bestBandit, int collection) {
-        reply = new Reply(SUCCESS_REPLY, message, bestBandit, collection);
+    public void createSuccessReply(String message, int collectionId) {
+        reply = new Reply(SUCCESS_REPLY, message, collectionId);
+    }    
+    
+    @Override
+    public void createSuccessReplyDetection(String message, int bestBandit, String banditIdent, int collection) {
+        reply = new Reply(SUCCESS_REPLY, message, bestBandit, banditIdent, collection);
     }       
 
     @Override

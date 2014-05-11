@@ -13,6 +13,6 @@ public class EnsembleApp extends EnsembleAppBase {
     @SuppressWarnings("resource")
     public static void main(String[] args) {
         EnsembleApp ensembleApp = new EnsembleApp();
-        ensembleApp.loadConsoleApplication();
+        ensembleApp.loadEnsembleApplication();
     }
 }

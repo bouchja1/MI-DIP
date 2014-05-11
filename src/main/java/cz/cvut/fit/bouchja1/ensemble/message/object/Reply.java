@@ -17,13 +17,15 @@ public class Reply {
     private int status;
     private String message;
     private int bestBandit = -1;
+    private String bestBanditIdent;
     private int collection = -1;
     private List<ContextCollection> contextCollection = new ArrayList<>();
     private List<Supercollection> supercollection = new ArrayList<>();
 
-    public Reply(int status, String message, int bestBandit, int collection) {
+    public Reply(int status, String message, int bestBandit, String bestBanditIdent, int collection) {
         this.status = status;
         this.message = message;
+        this.bestBanditIdent = bestBanditIdent;
         this.bestBandit = bestBandit;
         this.collection = collection;
     }
@@ -32,6 +34,12 @@ public class Reply {
         this.status = status;
         this.message = message;
     }    
+    
+    public Reply(int status, String message, int collectionId) {
+        this.status = status;
+        this.message = message;
+        this.collection = collectionId;
+    }     
     
     public int getStatus() {
         return status;
@@ -53,6 +61,14 @@ public class Reply {
         return contextCollection;
     }
 
+    public String getBestBanditIdent() {
+        return bestBanditIdent;
+    }
+
+    public void setBestBanditIdent(String bestBanditIdent) {
+        this.bestBanditIdent = bestBanditIdent;
+    }    
+    
     public void setContextCollection(List<ContextCollection> contextCollection) {
         this.contextCollection = contextCollection;
     }

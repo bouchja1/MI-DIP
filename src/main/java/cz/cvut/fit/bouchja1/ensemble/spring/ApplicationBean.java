@@ -78,7 +78,7 @@ public class ApplicationBean {
      * Pokud zadna takova nebo ani defaultni neexistuje, nenacte se nic a bude to muset byt osetrene
      */
     private LastEnsembleConfiguration getLastBanditConfiguration() {        
-        return storage.loadLastConfiguration(env);
+         return storage.loadLastConfiguration(env);
     }    
 
     public List<String> getAllowedBanditValues() {

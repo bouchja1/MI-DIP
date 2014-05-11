@@ -104,8 +104,8 @@ public class CassandraStorage implements IStorage {
                 + "algorithm_id int,"
                 + "algorithm_name text,"                
                 + "event_time timestamp,"
-                + "trials_in_time double,"
-                + "success_in_time double,"
+                //+ "trials_in_time double,"
+                //+ "success_in_time double,"
                 + "trials_rate double,"
                 + "successes_rate double,"
                 + "PRIMARY KEY ((collection_id, algorithm_id), event_time)"
@@ -149,8 +149,9 @@ public class CassandraStorage implements IStorage {
     private void createBanditsInCollection(int banditSetId, Set<String> banditIds) {
         PreparedStatement statement = session.prepare(
                 "INSERT INTO " + keyspace + ".algorithm "
-                + "(collection_id, algorithm_id, algorithm_name, event_time, trials_in_time, success_in_time, trials_rate, successes_rate) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+                //+ "(collection_id, algorithm_id, algorithm_name, event_time, trials_in_time, success_in_time, trials_rate, successes_rate) "
+                + "(collection_id, algorithm_id, algorithm_name, event_time, trials_rate, successes_rate) "
+                + "VALUES (?, ?, ?, ?, ?, ?);");
 
         Date actualDate = Calendar.getInstance().getTime();
 
@@ -169,8 +170,8 @@ public class CassandraStorage implements IStorage {
                     id++,
                     banditId,
                     actualDate,
-                    initialTrialsFreqRate,
-                    initialSuccessesFreqRate,
+                    //initialTrialsFreqRate,
+                    //initialSuccessesFreqRate,
                     0.0,
                     0.0));
             logger.info("Creating bandit with ID " + id + " and name " + banditId + " for collection : " + banditSetId);
@@ -205,7 +206,8 @@ public class CassandraStorage implements IStorage {
                     ResultSet resultsAlg = session.execute("SELECT * FROM " + keyspace + ".algorithm WHERE collection_id=" + row.getInt("collection_id") + " AND algorithm_id=" + setElement + " LIMIT 1;");
 
                     for (Row r : resultsAlg) {
-                        Bandit b = new Bandit(r.getDouble("trials_in_time"), r.getDouble("success_in_time"), r.getString("algorithm_name"), r.getInt("algorithm_id"), r.getDouble("trials_rate"), r.getDouble("successes_rate"));
+                        //Bandit b = new Bandit(r.getDouble("trials_in_time"), r.getDouble("success_in_time"), r.getString("algorithm_name"), r.getInt("algorithm_id"), r.getDouble("trials_rate"), r.getDouble("successes_rate"));
+                        Bandit b = new Bandit(r.getString("algorithm_name"), r.getInt("algorithm_id"), r.getDouble("trials_rate"), r.getDouble("successes_rate"));
                         machine.addBanditToMachine(b);
                     }
                 }
@@ -242,42 +244,50 @@ public class CassandraStorage implements IStorage {
         return lastConfiguration;
     }
 
-    @Override
-    public void saveCurrentState(LastEnsembleConfiguration strategies) {
-        if (strategies != null) {
-            for (BayesianStrategy strategy : strategies.getStrategies().values()) {
-                //List<Bandit> bandits = strategy.getBanditsMachine().getBanditList();
-                Map<Integer, Bandit> bandits = strategy.getBanditsMachine().getBanditList();
-                if (bandits.size() > 0) {
-                    PreparedStatement statement = session.prepare(
-                            "INSERT INTO " + keyspace + ".algorithm "
-                            + "(collection_id, algorithm_id, algorithm_name, event_time, trials_in_time, success_in_time, trials_rate, successes_rate) "
-                            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+@Override
+public void saveCurrentState(LastEnsembleConfiguration strategies) {
+    if (strategies != null) {
+        for (BayesianStrategy strategy : strategies.getStrategies().values()) {
+            //List<Bandit> bandits = strategy.getBanditsMachine().getBanditList();
+            Map<Integer, Bandit> bandits = strategy.getBanditsMachine().getBanditList();
+            if (bandits.size() > 0) {
+                /*
+                PreparedStatement statement = session.prepare(
+                        "INSERT INTO " + keyspace + ".algorithm "
+                        + "(collection_id, algorithm_id, algorithm_name, event_time, trials_in_time, success_in_time, trials_rate, successes_rate) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
 
-                    Date actualDate = Calendar.getInstance().getTime();
+                */
 
-                    for (Map.Entry<Integer, Bandit> entry : bandits.entrySet()) {
-                        BoundStatement boundStatement = new BoundStatement(statement);
-                        session.execute(boundStatement.bind(
-                                strategy.getId(),
-                                entry.getValue().getId(),
-                                entry.getValue().getName(),
-                                actualDate,
-                                entry.getValue().getNormalizedTrialsFrequencyInTime(),
-                                entry.getValue().getNormalizedSuccessFrequencyInTime(),
-                                entry.getValue().getTrials(),
-                                entry.getValue().getSuccesses()));
-                        logger.info("Time: " + actualDate + "Saving bandit with ID " + entry.getValue().getName() + " into collection : " + strategy.getCollectionId());
-                    }
+                PreparedStatement statement = session.prepare(
+                        "INSERT INTO " + keyspace + ".algorithm "
+                        + "(collection_id, algorithm_id, algorithm_name, event_time, trials_rate, successes_rate) "
+                        + "VALUES (?, ?, ?, ?, ?, ?);");
 
-                } else {
-                    logger.info("Cannot persist bandits because there is no bandit in collection with ID: " + strategy.getCollectionId());
+                Date actualDate = Calendar.getInstance().getTime();
+
+                for (Map.Entry<Integer, Bandit> entry : bandits.entrySet()) {
+                    BoundStatement boundStatement = new BoundStatement(statement);
+                    session.execute(boundStatement.bind(
+                            strategy.getId(),
+                            entry.getValue().getId(),
+                            entry.getValue().getName(),
+                            actualDate,
+                            //entry.getValue().getNormalizedTrialsFrequencyInTime(),
+                            //entry.getValue().getNormalizedSuccessFrequencyInTime(),
+                            entry.getValue().getTrials(),
+                            entry.getValue().getSuccesses()));
+                    logger.info("Time: " + actualDate + "Saving bandit with ID " + entry.getValue().getName() + " into collection : " + strategy.getCollectionId());
                 }
+
+            } else {
+                logger.info("Cannot persist bandits because there is no bandit in collection with ID: " + strategy.getCollectionId());
             }
-        } else {
-            logger.info("Nothing to persist because there are no strategies in database.");
         }
+    } else {
+        logger.info("Nothing to persist because there are no strategies in database.");
     }
+}
 
     private BayesianStrategy findStrategy(Integer strategyId, Map<Integer, BayesianStrategy> strategies) {
         for (BayesianStrategy strategy : strategies.values()) {
