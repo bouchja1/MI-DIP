@@ -29,12 +29,12 @@ public class EnsembleClient {
         invokeAndRegisterClient();
     }      
     
-    private void invokeAndRegisterClient() {
-        ClientConfig clientConfig = new ClientConfig()
-                .register(JsonProcessingFeature.class)
-                .property(JsonGenerator.PRETTY_PRINTING, true);
-        client = ClientBuilder.newClient(clientConfig);        
-    }    
+private void invokeAndRegisterClient() {
+    ClientConfig clientConfig = new ClientConfig()
+            .register(JsonProcessingFeature.class)
+            .property(JsonGenerator.PRETTY_PRINTING, true);
+    client = ClientBuilder.newClient(clientConfig);        
+}    
 
     public Client getClient() {
         return client;

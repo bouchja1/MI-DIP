@@ -6,6 +6,7 @@ package cz.cvut.fit.bouchja1.client.crate;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -15,6 +16,8 @@ public class Article {
     private String id;
     private String text;
     private int groupId;
+    private double rating;
+    private Set<Integer> users;    
     private Date time;
 
     public String getId() {
@@ -47,6 +50,22 @@ public class Article {
 
     public void setTime(Date time) {
         this.time = time;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
+    public Set<Integer> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<Integer> users) {
+        this.users = users;
     }
     
     

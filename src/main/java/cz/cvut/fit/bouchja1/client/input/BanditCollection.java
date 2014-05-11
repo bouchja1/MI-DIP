@@ -1,4 +1,4 @@
-package cz.cvut.fit.bouchja1.recommeng.client.input;
+package cz.cvut.fit.bouchja1.client.input;
 
 import java.util.Set;
 
