@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
@@ -75,7 +76,7 @@ public class AlgorithmRandom implements IAlgorithm {
     }
     
     private List<OutputDocument> getRecommendationByRandom(String coreId, String groupId, int limit, SolrService solrService) throws SolrServerException {
-        HttpSolrServer server = solrService.getServerFromPool(coreId);
+        ConcurrentUpdateSolrServer server = solrService.getServerFromPool(coreId);
         List<OutputDocument> docs = new ArrayList<OutputDocument>();
         int random = generator.nextInt(Integer.MAX_VALUE) + 1; // values are between 1 and Integer.MAX_VALUE
         String sortOrder = "random_" + random;

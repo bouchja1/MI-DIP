@@ -16,7 +16,7 @@ public interface EndpointHelper {
 
     public Response getOkResponse();
 
-    public Response getOkResponse(Object o);
+    public Response getOkResponse(String message);
     
     public Response getBadRequestResponse(String message);
     

@@ -10,7 +10,7 @@ import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.BanditCollection;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.BanditSuperCollection;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.BanditId;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.EnsembleOperation;
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.zeromq.SmileRequest;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.zeromq.EnsembleRequest;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.zeromq.SmileResponse;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.CommonEndpointHelper;
 import java.io.IOException;
@@ -89,10 +89,10 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         Response resp = null;
         ZContext ctx = new ZContext();
 
-        SmileRequest req = new SmileRequest();
-        req.setMethod("POST");
-        req.setPath("/ensemble/services/collection");
-        req.setBody("collectionId=" + banditCollection.getName() + "&bandits=" + formatBanditIds(banditCollection.getBanditIds()));
+EnsembleRequest req = new EnsembleRequest();
+req.setMethod("POST");
+req.setPath("/ensemble/services/collection");
+req.setBody("collectionId=" + banditCollection.getName() + "&bandits=" + formatBanditIds(banditCollection.getBanditIds()));
 
         try {
             String json = new ObjectMapper().writeValueAsString(req);
@@ -103,11 +103,11 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             ExecutorService executor = Executors.newSingleThreadExecutor();
             Future<String> result = executor.submit(new ClientTask(json));
 
-            try {
-                resp = buildResponse(result.get());
-            } catch (Exception ex) {
-                resp = getServerError(ex.getMessage());
-            }
+try {
+    resp = buildResponse(result.get());
+} catch (Exception ex) {
+    resp = getServerError(ex.getMessage());
+}
 
         } catch (JsonProcessingException ex) {
             resp = getBadRequestResponse(ex.getMessage());
@@ -122,7 +122,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         Response resp = null;
         ZContext ctx = new ZContext();
 
-        SmileRequest req = new SmileRequest();
+        EnsembleRequest req = new EnsembleRequest();
         req.setMethod("POST");
         req.setPath("/ensemble/services/supercollection");
         req.setBody("supercollectionId=" + banditSuperCollection.getName() + "&collections=" + formatCollectionsId(banditSuperCollection.getContextCollections()));
@@ -157,7 +157,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         Response resp = null;
         ZContext ctx = new ZContext();
 
-        SmileRequest req = new SmileRequest();
+        EnsembleRequest req = new EnsembleRequest();
         req.setMethod("GET");
 
         if (filter == null) {
@@ -196,7 +196,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         Response resp = null;
         ZContext ctx = new ZContext();
 
-        SmileRequest req = new SmileRequest();
+        EnsembleRequest req = new EnsembleRequest();
         req.setMethod("GET");
 
         req.setPath("/ensemble/services/supercollection");
@@ -229,7 +229,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         Response resp = null;
         ZContext ctx = new ZContext();
 
-        SmileRequest req = new SmileRequest();
+        EnsembleRequest req = new EnsembleRequest();
         req.setMethod("GET");
 
         req.setPath("/ensemble/services/collection");
@@ -262,7 +262,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         Response resp = null;
         ZContext ctx = new ZContext();
 
-        SmileRequest req = new SmileRequest();
+        EnsembleRequest req = new EnsembleRequest();
         req.setMethod("GET");
 
         if (filter == null) {
@@ -301,7 +301,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         Response resp = null;
         ZContext ctx = new ZContext();
 
-        SmileRequest req = new SmileRequest();
+        EnsembleRequest req = new EnsembleRequest();
         req.setMethod("PUT");
 
         //kontrola pritomnosti operace a rozhodnuti o ni
@@ -354,7 +354,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         Response resp = null;
         ZContext ctx = new ZContext();
 
-        SmileRequest req = new SmileRequest();
+        EnsembleRequest req = new EnsembleRequest();
         req.setMethod("PUT");
 
         //kontrola pritomnosti operace a rozhodnuti o ni
@@ -419,10 +419,10 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         return builder.toString();
     }
 
-    private String formatCollectionsId(Set<String> banditContextIds) {
+    private String formatCollectionsId(Set<Integer> banditContextIds) {
         StringBuilder builder = new StringBuilder();
         int banditIdsSize = banditContextIds.size();
-        Iterator<String> bi = banditContextIds.iterator();
+        Iterator<Integer> bi = banditContextIds.iterator();
 
         int counter = 1;
         while (bi.hasNext()) {

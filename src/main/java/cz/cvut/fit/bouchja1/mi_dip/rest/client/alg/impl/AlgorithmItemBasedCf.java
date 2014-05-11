@@ -30,6 +30,7 @@ import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -45,7 +46,7 @@ public class AlgorithmItemBasedCf implements IAlgorithm {
     private String id;
     
     private final Log logger = LogFactory.getLog(getClass());
-    private HttpSolrServer server;
+    private ConcurrentUpdateSolrServer server;
     private String coreId;
     private String groupId;
     private String articleId;

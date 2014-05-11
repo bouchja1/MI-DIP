@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
@@ -70,7 +71,7 @@ public class AlgorithmLatest implements IAlgorithm {
     }
     
     private List<OutputDocument> getRecommendationByLatest(String coreId, String groupId, int limitToQuery, SolrService solrService) throws SolrServerException {
-        HttpSolrServer server = solrService.getServerFromPool(coreId);
+        ConcurrentUpdateSolrServer server = solrService.getServerFromPool(coreId);
         List<OutputDocument> docs = new ArrayList<OutputDocument>();
 
         String sortOrder = "time";

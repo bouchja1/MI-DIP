@@ -56,6 +56,10 @@ public class AlgorithmEndpointHelper extends CommonEndpointHelper {
         return algorithm.recommend(solrService, this);
     }
     
+    public Response createAlgorithmBadRequest() {
+        return getBadRequestResponse("You need to specify coreId in query param.");
+    }       
+    
     public Response createAlgorithmNotFound() {
         return getNotFoundResponse("The algorithm you request for does not exist (it is not supported algorithm or you entered bad name).");
     }    

@@ -8,7 +8,7 @@ package cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.zeromq;
  *
  * @author jan
  */
-public class SmileRequest {
+public class EnsembleRequest {
     private String method;
     private String path;
     private String body;

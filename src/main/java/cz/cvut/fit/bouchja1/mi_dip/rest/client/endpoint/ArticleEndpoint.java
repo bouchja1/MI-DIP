@@ -14,8 +14,8 @@ import javax.ws.rs.core.Response;
  * @author jan
  */
 public interface ArticleEndpoint {
+    public Response getSupportedCores();    
     public Response updateBehavioralToArticle(String coreId, UserArticleDocument userArticle);  
-    public Response postArticle(String coreId, ArticleDocument article);
-    public Response postArticles(String coreId, List<ArticleDocument> articles);
+    public Response postArticles(String coreId, ArticleDocument articles);
     public Response deleteDocument(String coreId, String documentId);      
 }

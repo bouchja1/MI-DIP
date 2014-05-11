@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -82,7 +83,7 @@ public class AlgorithmMlt implements IAlgorithm {
      * Vyznamy jednotlivych parametru zde: https://wiki.apache.org/solr/MoreLikeThis
      */
     private List<OutputDocument> getRecommendationByMltId(String coreId, SolrDocument document, int limitToQuery, SolrService solrService) throws SolrServerException {
-        HttpSolrServer server = solrService.getServerFromPool(coreId);
+        ConcurrentUpdateSolrServer server = solrService.getServerFromPool(coreId);
         List<OutputDocument> docs = new ArrayList<OutputDocument>();
 
         SolrQuery query = new SolrQuery();
@@ -95,13 +96,13 @@ public class AlgorithmMlt implements IAlgorithm {
         query.set(MoreLikeThisParams.SIMILARITY_FIELDS, "articleText");
         query.set(MoreLikeThisParams.MAX_QUERY_TERMS, 1000);
         query.setRows(limitToQuery);
-        query.setQuery("articleId:" + document.getFieldValue("articleId"));
+        query.setQuery("articleId:\"" + document.getFieldValue("articleId") + "\"");
         query.setFilterQueries("group:" + document.getFieldValue("group"));
 
         QueryResponse response = server.query(query);
         SolrDocumentList results = response.getResults();
 
-        System.out.println(results.getNumFound() + " documents found by more like this.");
+        //System.out.println(results.getNumFound() + " documents found by more like this.");
         for (int i = 0; i < results.size(); ++i) {
             System.out.println(results.get(i).get("id") + "," + results.get(i).get("articleText"));
             OutputDocument output = Util.fillOutputDocument(results.get(i));

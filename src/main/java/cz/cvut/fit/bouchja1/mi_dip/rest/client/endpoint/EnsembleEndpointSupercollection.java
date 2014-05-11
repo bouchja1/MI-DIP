@@ -13,13 +13,9 @@ import javax.ws.rs.core.Response;
  *
  * @author jan
  */
-public interface EnsembleEndpoint {
-    public Response createBanditCollection(BanditCollection banditCollection); 
+public interface EnsembleEndpointSupercollection {       
     public Response createBanditSuperCollection(BanditSuperCollection banditSuperCollection);
-    public Response getBanditCollections();
     public Response getBanditSuperCollections();
-    public Response getBestBanditCollection(String collectionId, String filter);
     public Response getBestBanditSuperCollection(String supercollectionId, String filter);
-    public Response sendEnsembleOperationToSuperCollection(String collectionId, EnsembleOperation ensembleOperation);    
-    public Response sendEnsembleOperationToCollection(String supercollectionId, EnsembleOperation ensembleOperation);    
+    public Response sendEnsembleOperationToSuperCollection(String collectionId, EnsembleOperation ensembleOperation);      
 }

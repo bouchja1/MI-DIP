@@ -31,6 +31,7 @@ import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -45,7 +46,7 @@ public class AlgorithmUserBasedCf implements IAlgorithm {
     private final Log logger = LogFactory.getLog(getClass());
     private static final String ALGORITHM_NAME = "usercf";
     private String id;
-    private HttpSolrServer server;
+    private ConcurrentUpdateSolrServer server;
     private String coreId;
     private String groupId;
     private String userId;

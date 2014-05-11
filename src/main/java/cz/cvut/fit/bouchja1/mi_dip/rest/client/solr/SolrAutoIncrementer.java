@@ -6,6 +6,7 @@ package cz.cvut.fit.bouchja1.mi_dip.rest.client.solr;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -16,7 +17,7 @@ import org.apache.solr.common.SolrDocument;
  */
 public class SolrAutoIncrementer {
 
-    public static long getLastIdToUse(HttpSolrServer server) throws SolrServerException {
+    public static long getLastIdToUse(ConcurrentUpdateSolrServer server) throws SolrServerException {
         //Query to check how many documents are in index
         long lastAutoincrementId;
         SolrQuery aiQuery = new SolrQuery();

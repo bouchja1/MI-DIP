@@ -17,6 +17,7 @@ import javax.annotation.PostConstruct;
 import javax.ws.rs.WebApplicationException;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
@@ -38,7 +39,7 @@ import org.springframework.stereotype.Component;
 public class SolrService {
 
     private String serverUrl;
-    private Map<String, HttpSolrServer> validServers = new HashMap<String, HttpSolrServer>();
+    private Map<String, ConcurrentUpdateSolrServer> validServers = new HashMap<String, ConcurrentUpdateSolrServer>();
     private Set<String> validSolrCores;
     private static final String DOC_ID = "id";
     private static final String ARTICLE_ID = "articleId";
@@ -55,11 +56,11 @@ public class SolrService {
         Iterator<String> validCores = validSolrCores.iterator();
         while (validCores.hasNext()) {
             String core = validCores.next();
-            validServers.put(core, new HttpSolrServer(serverUrl + core));
+            validServers.put(core, new ConcurrentUpdateSolrServer(serverUrl + core, 200, 4));
         }
     }
 
-    public HttpSolrServer getServerFromPool(String coreId) {
+    public ConcurrentUpdateSolrServer getServerFromPool(String coreId) {
         return validServers.get(coreId);
     }
 
@@ -83,7 +84,7 @@ public class SolrService {
     }
 
     public SolrDocument isDocumentInIndex(String coreId, String documentId) throws SolrServerException {
-        HttpSolrServer server = getServerFromPool(coreId);
+        ConcurrentUpdateSolrServer server = getServerFromPool(coreId);
         SolrQuery query = new SolrQuery();
         query.setQuery("articleId:\"" + documentId + "\"");
         query.setRows(1);
@@ -97,7 +98,7 @@ public class SolrService {
     }
 
     public void deleteDocument(String coreId, String documentId) throws SolrServerException, WebApplicationException, IOException {
-        HttpSolrServer server = getServerFromPool(coreId);        
+        ConcurrentUpdateSolrServer server = getServerFromPool(coreId);        
         SolrQuery query = new SolrQuery();
         query.setQuery("articleId:\"" + documentId + "\"");
         query.setRows(1);
@@ -112,7 +113,7 @@ public class SolrService {
     }
 
     public void putUserArticle(String coreId, UserArticleDocument userArticle) throws SolrServerException, IOException {
-        HttpSolrServer server = getServerFromPool(coreId);
+        ConcurrentUpdateSolrServer server = getServerFromPool(coreId);
         //zjisteni, jestli tam tohle document ID existuje
         SolrQuery query = new SolrQuery();
         query.setQuery("articleId:\"" + userArticle.getArticleId() + "\"");
@@ -130,7 +131,7 @@ public class SolrService {
     }
 
     public void postArticle(String coreId, ArticleDocument article) throws SolrServerException, IOException {
-        HttpSolrServer server = getServerFromPool(coreId);
+        ConcurrentUpdateSolrServer server = getServerFromPool(coreId);
         //zjisteni, jestli tam tohle document ID existuje
         SolrQuery query = new SolrQuery();
         query.setQuery("articleId:\"" + article.getId() + "\"");
@@ -147,7 +148,7 @@ public class SolrService {
         }
     }
 
-    private void createSolrDocument(HttpSolrServer server, UserArticleDocument userArticle) throws SolrServerException, IOException {
+    private void createSolrDocument(ConcurrentUpdateSolrServer server, UserArticleDocument userArticle) throws SolrServerException, IOException {
         SolrInputDocument doc = new SolrInputDocument();
         doc.addField(DOC_ID, SolrAutoIncrementer.getLastIdToUse(server));
         doc.addField(ARTICLE_ID, userArticle.getArticleId());
@@ -161,7 +162,7 @@ public class SolrService {
         NamedList<Object> response = commit.getResponse();
     }
 
-    private SolrInputDocument createArticle(HttpSolrServer server, ArticleDocument article) throws SolrServerException, IOException {
+    private SolrInputDocument createArticle(ConcurrentUpdateSolrServer server, ArticleDocument article) throws SolrServerException, IOException {
         SolrInputDocument doc = new SolrInputDocument();
         doc.addField(DOC_ID, SolrAutoIncrementer.getLastIdToUse(server));
         doc.addField(ARTICLE_ID, article.getId());
@@ -172,11 +173,12 @@ public class SolrService {
         return doc;
     }
 
-    private void updateSolrDocument(HttpSolrServer server, SolrDocumentList docsList, UserArticleDocument userArticle) throws SolrServerException, IOException {
+    private void updateSolrDocument(ConcurrentUpdateSolrServer server, SolrDocumentList docsList, UserArticleDocument userArticle) throws SolrServerException, IOException {
         SolrDocument exisingDoc = docsList.get(0);
         Collection<Object> users = exisingDoc.getFieldValues("userId");
         exisingDoc.removeFields("userId");
         exisingDoc.removeFields("weightedRating");
+        long version = (long) exisingDoc.getFieldValue("_version_");
         Set<Integer> newUsers = new HashSet<Integer>();
         boolean addFlag = false;
 
@@ -199,14 +201,15 @@ public class SolrService {
         
         //preocitat hodnoceni, poslat tam pocet uzivatelu a jejich hodnoceni                    
         double weightedRating = recalculateWeightedRating(sid);
-        exisingDoc.addField("weightedRating", weightedRating);
-
+        sid.setField("weightedRating", weightedRating);
+        //exisingDoc.addField("weightedRating", weightedRating);
+        sid.setField("_version_", version);
         server.add(sid);
         UpdateResponse commit = server.commit();
         NamedList<Object> response = commit.getResponse();
     }
 
-    private void deleteDocument(HttpSolrServer server, SolrDocumentList docsList) throws SolrServerException, IOException {
+    private void deleteDocument(ConcurrentUpdateSolrServer server, SolrDocumentList docsList) throws SolrServerException, IOException {
         SolrDocument exisingDoc = docsList.get(0);        
         server.deleteById(String.valueOf(exisingDoc.get("id")));
         server.commit();       
@@ -214,7 +217,7 @@ public class SolrService {
 
     public void incrementImpression(String coreId, SolrDocumentList results) {
         try {
-            HttpSolrServer server = getServerFromPool(coreId);
+            ConcurrentUpdateSolrServer server = getServerFromPool(coreId);
             for (SolrDocument solrDocument : results) {
                 int impression = (int) solrDocument.getFieldValue("impressions");
                 impression++;
@@ -233,7 +236,7 @@ public class SolrService {
 
     public void postArticles(String coreId, List<ArticleDocument> articles) throws SolrServerException, IOException {
         Collection<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
-        HttpSolrServer server = getServerFromPool(coreId);
+        ConcurrentUpdateSolrServer server = getServerFromPool(coreId);
         //zjisteni, jestli tam tohle document ID existuje
         SolrQuery query = new SolrQuery();
 
@@ -272,9 +275,8 @@ C = the mean vote across the whole report (currently 6.9)
         }
         double ratingSum = 0.0;
         for (int j = 0; j < userIds.size(); j++) {
-            float f = (float) sid.getFieldValue(userIds.get(j) + "_rating");
-            double d = f;
-            ratingSum = ratingSum + d; 
+            double o  = (double) sid.getFieldValue(userIds.get(j) + "_rating");
+            ratingSum = ratingSum + o; 
         }
         
         int minimumVotesrequired = 50;
@@ -283,4 +285,10 @@ C = the mean vote across the whole report (currently 6.9)
         double weightedRate = (((ratingSum / (double) userIds.size()) * (double) userIds.size()) + (double)minimumVotesrequired*meanVoteAcrossWhole) / ((double) userIds.size() + (double)minimumVotesrequired);
         return weightedRate;
     }
+
+    public Set<String> getValidSolrCores() {
+        return validSolrCores;
+    }
+    
+    
 }

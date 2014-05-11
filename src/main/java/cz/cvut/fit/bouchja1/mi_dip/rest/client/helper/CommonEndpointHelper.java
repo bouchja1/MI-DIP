@@ -20,8 +20,8 @@ public abstract class CommonEndpointHelper implements EndpointHelper {
     }
 
     @Override
-    public Response getOkResponse(Object o) {
-        return build(Response.ok(o));
+    public Response getOkResponse(String message) {
+        return build(Response.status(Response.Status.OK), message);
     }
     
     @Override

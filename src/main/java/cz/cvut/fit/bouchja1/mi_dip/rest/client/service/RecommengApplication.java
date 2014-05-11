@@ -6,7 +6,8 @@ package cz.cvut.fit.bouchja1.mi_dip.rest.client.service;
 
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.AlgorithmEndpointImpl;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.ArticleEndpointImpl;
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.EnsembleEndpointImpl;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.EnsembleEndpointCollectionImpl;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.EnsembleEndpointSupercollectionImpl;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
@@ -26,7 +27,8 @@ public RecommengApplication(){
     register(RequestContextFilter.class);
     register(AlgorithmEndpointImpl.class);
     register(ArticleEndpointImpl.class);
-    register(EnsembleEndpointImpl.class);
+    register(EnsembleEndpointCollectionImpl.class);
+    register(EnsembleEndpointSupercollectionImpl.class);
     register(JacksonFeature.class);        
 }
 }

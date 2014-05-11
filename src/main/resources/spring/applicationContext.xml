@@ -31,7 +31,8 @@ http://www.springframework.org/schema/context/spring-context.xsd">
         <property name="articleEndpointHelper" ref="articleEndpointHelper"/>
     </bean>        
     
-    <bean id="ensembleEndpoint" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.EnsembleEndpointImpl"/>   
+    <bean id="ensembleEndpointCollection" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.EnsembleEndpointCollectionImpl"/>   
+    <bean id="ensembleEndpointSupercollection" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.EnsembleEndpointSupercollectionImpl"/>    
     
     <bean id="solrService" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.SolrService">
         <property name="serverUrl" value="http://localhost:8089/solr/"/>

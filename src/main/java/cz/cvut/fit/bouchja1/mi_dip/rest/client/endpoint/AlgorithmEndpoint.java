@@ -11,11 +11,12 @@ import javax.ws.rs.core.Response;
  * @author jan
  */
 public interface AlgorithmEndpoint {
-    public Response recommend(String coreId,
-            String algorithmId,
+    public Response recommend(String algorithmId,
+            String coreId,
             int groupId,
             int userId,
             String documentId,
             String text,
             int limit);  
+    public Response getSupportedAlgorithms();
 }

@@ -32,31 +32,31 @@ public class ArticleEndpointHelper extends CommonEndpointHelper {
     private SolrService solrService;
     private final Log logger = LogFactory.getLog(getClass());
 
-    public Response updateBehavioralToArticle(String coreId, UserArticleDocument userArticle) {
-        Response resp = null;
-        if (solrService.isServerCoreFromPool(coreId)) {
-            String message = UserArticleValidator.validateUserArticle(userArticle);
-            if ("success".equals(message)) {
-                try {
-                    solrService.putUserArticle(coreId, userArticle);
-                    resp = getOkResponse("User-rating-item succesfully added into Solr core.");
-                } catch (SolrServerException ex) {
-                    logger.error(ex);
-                    resp = getServerError(ex.getMessage());
-                } catch (IOException ex) {
-                    logger.error(ex);
-                    resp = getServerError(ex.getMessage());
-                }
-            } else {
-                resp = getBadRequestResponse(message);
+public Response updateBehavioralToArticle(String coreId, UserArticleDocument userArticle) {
+    Response resp = null;
+    if (solrService.isServerCoreFromPool(coreId)) {
+        String message = UserArticleValidator.validateUserArticle(userArticle);
+        if ("success".equals(message)) {
+            try {
+                solrService.putUserArticle(coreId, userArticle);
+                resp = getOkResponse("User-rating-item succesfully added into Solr core.");
+            } catch (SolrServerException ex) {
+                logger.error(ex);
+                resp = getServerError(ex.getMessage());
+            } catch (IOException ex) {
+                logger.error(ex);
+                resp = getServerError(ex.getMessage());
             }
         } else {
-            //vratit odpoved, ze takovy core-id tam neexistuje
-            resp = getBadRequestResponse("You filled bad or non-existing {core-id}.");
+            resp = getBadRequestResponse(message);
         }
-
-        return resp;
+    } else {
+        //vratit odpoved, ze takovy core-id tam neexistuje
+        resp = getBadRequestResponse("You filled bad or non-existing {core-id}.");
     }
+
+    return resp;
+}
 
     public Response postArticle(String coreId, ArticleDocument article) {
         Response resp = null;
@@ -66,32 +66,6 @@ public class ArticleEndpointHelper extends CommonEndpointHelper {
                 try {
                     solrService.postArticle(coreId, article);
                     resp = getOkResponse("Article succesfully posted.");
-                } catch (SolrServerException ex) {
-                    logger.error(ex);
-                    resp = getServerError(ex.getMessage());
-                } catch (IOException ex) {
-                    logger.error(ex);
-                    resp = getServerError(ex.getMessage());
-                }
-            } else {
-                resp = getBadRequestResponse(message);
-            }
-        } else {
-            //vratit odpoved, ze takovy core-id tam neexistuje
-            resp = getBadRequestResponse("You filled bad or non-existing {core-id}.");
-        }
-
-        return resp;
-    }
-
-    public Response postArticles(String coreId, List<ArticleDocument> articles) {
-        Response resp = null;
-        if (solrService.isServerCoreFromPool(coreId)) {
-            String message = ArticleValidator.validateArticle(articles);
-            if ("success".equals(message)) {
-                try {
-                    solrService.postArticles(coreId, articles);
-                    resp = getOkResponse("Articles succesfully posted.");
                 } catch (SolrServerException ex) {
                     logger.error(ex);
                     resp = getServerError(ex.getMessage());
@@ -141,4 +115,10 @@ public class ArticleEndpointHelper extends CommonEndpointHelper {
     public void setSolrService(SolrService solrService) {
         this.solrService = solrService;
     }
+
+    public SolrService getSolrService() {
+        return solrService;
+    }
+    
+    
 }

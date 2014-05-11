@@ -4,16 +4,19 @@
  */
 package cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint;
 
+import com.google.common.collect.Lists;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.alg.AlgorithmFactory;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.alg.IAlgorithm;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.AlgorithmEndpointHelper;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +31,7 @@ import org.springframework.stereotype.Component;
 public class AlgorithmEndpointImpl implements AlgorithmEndpoint {
 
     public static final String ENDPOINT_PATH = "/algorithm";
-    public static final String ALGORITHM_PATH = "/{coreId}/{algorithmId}";
+    public static final String ALGORITHM_PATH = "/{algorithmId}";
     
     @Autowired
     private AlgorithmEndpointHelper algorithmEndpointHelper;
@@ -37,8 +40,8 @@ public class AlgorithmEndpointImpl implements AlgorithmEndpoint {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @GET
     @Override
-    public Response recommend(@PathParam("coreId") String coreId,
-            @PathParam("algorithmId") String algorithmId,
+    public Response recommend(@PathParam("algorithmId") String algorithmId,
+            @QueryParam(value = "coreId") String coreId,
             @QueryParam(value = "groupId") int groupId,
             @QueryParam(value = "userId") int userId,
             @QueryParam(value = "documentId") String documentId,
@@ -50,9 +53,19 @@ public class AlgorithmEndpointImpl implements AlgorithmEndpoint {
         
         if (algorithm == null) {
             return algorithmEndpointHelper.createAlgorithmNotFound();
-        }
-        else return algorithmEndpointHelper.getRecommendation(algorithm);
+        } else if (coreId == null) {
+            return algorithmEndpointHelper.createAlgorithmBadRequest();
+        } else return algorithmEndpointHelper.getRecommendation(algorithm);
     }
+    
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @GET
+    @Override
+    public Response getSupportedAlgorithms() {        
+        return Response.ok(
+                new GenericEntity<List<String>>(AlgorithmFactory.getSUPPORTED_ALGORITHM()) {
+        }).build();        
+    }    
 
     public void setAlgorithmEndpointHelper(AlgorithmEndpointHelper algorithmEndpointHelper) {
         this.algorithmEndpointHelper = algorithmEndpointHelper;
