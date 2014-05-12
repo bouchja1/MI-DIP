@@ -23,7 +23,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @ComponentScan(basePackages = {
     "cz.cvut.bouchja1.ensemble.spring"
 })
-@PropertySource("application.properties")
+@PropertySource({"classpath:log4j.properties", "classpath:application.properties"})
+//@PropertySource({"file:log4j.properties", "file:application.properties"})
 public class AppConfig {
 
     @Autowired
