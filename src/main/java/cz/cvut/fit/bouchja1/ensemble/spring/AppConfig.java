@@ -23,7 +23,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @ComponentScan(basePackages = {
     "cz.cvut.bouchja1.ensemble.spring"
 })
-@PropertySource("classpath:application.properties")
+@PropertySource("application.properties")
 public class AppConfig {
 
     @Autowired

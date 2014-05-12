@@ -23,6 +23,7 @@ public class ResponseHandlerJson implements ResponseHandler {
     private static final int ERROR_REPLY = 400;
     private static final int INTERNAL_ERROR = 500;
     private static final int SUCCESS_REPLY = 200;
+    private static final int CREATED_REPLY = 201;
     private static final int NOT_FOUND_REPLY = 404;
 
     @Override
@@ -40,7 +41,10 @@ public class ResponseHandlerJson implements ResponseHandler {
         }        
         if (reply.getCollection() != -1) {
             builder.add("collection", reply.getCollection());
-        }        
+        }     
+        if (reply.getSuperCollection()!= -1) {
+            builder.add("supercollection", reply.getSuperCollection());
+        }           
         if (reply.getBestBanditIdent() != null) {
             builder.add("banditId", reply.getBestBanditIdent());
         }           
@@ -75,6 +79,16 @@ public class ResponseHandlerJson implements ResponseHandler {
     public void createSuccessReply(String message, int collectionId) {
         reply = new Reply(SUCCESS_REPLY, message, collectionId);
     }    
+    
+    @Override
+    public void createCreatedCollectionReply(String message, int collectionId) {
+        reply = new Reply(CREATED_REPLY, message, collectionId, "collection");
+    }     
+    
+    @Override
+    public void createCreatedSupercollectionReply(String message, int collectionId) {
+        reply = new Reply(CREATED_REPLY, message, collectionId, "supercollection");
+    }     
     
     @Override
     public void createSuccessReplyDetection(String message, int bestBandit, String banditIdent, int collection) {

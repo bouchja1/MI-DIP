@@ -65,20 +65,20 @@ public class AsynchronousServer {
             ZContext ctx = new ZContext();
 
 //  Frontend socket talks to clients over TCP
-Socket frontend = ctx.createSocket(ZMQ.ROUTER);
-frontend.bind("tcp://" + host + ":" + port);
+            Socket frontend = ctx.createSocket(ZMQ.ROUTER);
+            frontend.bind("tcp://" + host + ":" + port);
 
 //  Backend socket talks to workers over inproc
-Socket backend = ctx.createSocket(ZMQ.DEALER);
-backend.bind("inproc://backend");
+            Socket backend = ctx.createSocket(ZMQ.DEALER);
+            backend.bind("inproc://backend");
 
 //  Launch pool of worker threads, precise number is not critical
-for (int threadNbr = 0; threadNbr < 5; threadNbr++) {
-    new Thread(new ServerWorker(threadNbr, ctx, api, new RequestHandlerJson(), new ResponseHandlerJson())).start();
-}
+            for (int threadNbr = 0; threadNbr < 5; threadNbr++) {
+                new Thread(new ServerWorker(threadNbr, ctx, api, new RequestHandlerJson(), new ResponseHandlerJson())).start();
+            }
 
 //  Connect backend to frontend via a proxy
-ZMQ.proxy(frontend, backend, null);
+            ZMQ.proxy(frontend, backend, null);
 
             ctx.destroy();
         }
@@ -129,39 +129,39 @@ ZMQ.proxy(frontend, backend, null);
                         + "]");
 
                 //  Do some 'work'
-try {
-    Operation op = requestHandler.handleMessage(request);
-    if (op.validateOperation()) {
-        try {
-            Reply reply = op.executeOperation(api);
-            responseHandler.setReply(reply);
-        } catch (Exception ex) {
-            responseHandler.createInternalErrorReply("Internal error.");
-        }
-    } else {
-        responseHandler.createErrorReply(op.getErrorMessage());
-    }
+                try {
+                    Operation op = requestHandler.handleMessage(request);
+                    if (op.validateOperation()) {
+                        try {
+                            Reply reply = op.executeOperation(api);
+                            responseHandler.setReply(reply);
+                        } catch (Exception ex) {
+                            responseHandler.createInternalErrorReply("Internal error.");
+                        }
+                    } else {
+                        responseHandler.createErrorReply(op.getErrorMessage());
+                    }
 
-    //  Sleep for some fraction of a second
-    try {
-        Thread.sleep(rand.nextInt(1000) + 1);
-    } catch (InterruptedException e) {
-    }
-} catch (MessageFormatException | IOException ex) {
-    responseHandler.createErrorReply(ex.getMessage());
-} catch (NullPointerException ex) {
-    responseHandler.createErrorReply("Unrecognized operation.");
-}
+                    //  Sleep for some fraction of a second
+                    try {
+                        Thread.sleep(rand.nextInt(1000) + 1);
+                    } catch (InterruptedException e) {
+                    }
+                } catch (MessageFormatException | IOException ex) {
+                    responseHandler.createErrorReply(ex.getMessage());
+                } catch (NullPointerException ex) {
+                    responseHandler.createErrorReply("Unrecognized operation.");
+                }
 
                 msg.destroy();
-                
+
                 /*
-                String reply = "";
-                reply = responseHandler.buildReply();
-                receiver.send(reply, 0);                
-                */
-                
-                address.send(worker, ZFrame.REUSE + ZFrame.MORE);                
+                 String reply = "";
+                 reply = responseHandler.buildReply();
+                 receiver.send(reply, 0);                
+                 */
+
+                address.send(worker, ZFrame.REUSE + ZFrame.MORE);
                 content.reset(responseHandler.buildReply());
                 content.send(worker, ZFrame.REUSE);
                 address.destroy();

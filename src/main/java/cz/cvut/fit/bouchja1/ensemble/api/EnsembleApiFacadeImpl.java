@@ -62,7 +62,7 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
                 storage.createBanditSet(strategyId, banditCollectionName, banditIds);
                 BayesianStrategy newStrategy = new BayesianStrategy(strategyId, banditCollectionName, machineForStrategy);
                 strategies.put(strategyId, newStrategy);
-                responseHandler.createSuccessReply("Collection with name " + banditCollectionName + " was created successfully.", strategyId);
+                responseHandler.createCreatedCollectionReply("Collection with name " + banditCollectionName + " was created successfully.", strategyId);
                 reply = responseHandler.returnReply();
             } else {
                 responseHandler.createErrorReply("You can create only bandits with IDs allowed by system: " + allowedBanditsValues.toString() + ".");
@@ -100,7 +100,7 @@ public class EnsembleApiFacadeImpl implements EnsembleApiFacade {
             SuperBayesianStrategy superStrategy = new SuperBayesianStrategy(superstrategyId, banditSuperCollectionName, existingContextCollections);
             storage.createBanditSuperSet(superstrategyId, banditSuperCollectionName, existingContextCollectionsId);
             superStrategies.put(superstrategyId, superStrategy);
-            responseHandler.createSuccessReply("Super collection with name: " + banditSuperCollectionName + " was created successfully.", superstrategyId);
+            responseHandler.createCreatedSupercollectionReply("Super collection with name: " + banditSuperCollectionName + " was created successfully.", superstrategyId);
             reply = responseHandler.returnReply();
         }
         return reply;

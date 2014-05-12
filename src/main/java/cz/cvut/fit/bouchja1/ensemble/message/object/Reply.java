@@ -19,6 +19,7 @@ public class Reply {
     private int bestBandit = -1;
     private String bestBanditIdent;
     private int collection = -1;
+    private int superCollection = -1;
     private List<ContextCollection> contextCollection = new ArrayList<>();
     private List<Supercollection> supercollection = new ArrayList<>();
 
@@ -40,6 +41,16 @@ public class Reply {
         this.message = message;
         this.collection = collectionId;
     }     
+    
+    public Reply(int status, String message, int collectionId, String collOrSuperColl) {
+        this.status = status;
+        this.message = message;
+        if ("collection".equals(collOrSuperColl)) {
+            this.collection = collectionId;
+        } else if ("supercollection".equals(collOrSuperColl)) {
+            this.superCollection = collectionId;
+        }        
+    }       
     
     public int getStatus() {
         return status;
@@ -95,6 +106,14 @@ public class Reply {
 
     public void setCollection(int collection) {
         this.collection = collection;
+    }
+
+    public int getSuperCollection() {
+        return superCollection;
+    }
+
+    public void setSuperCollection(int superCollection) {
+        this.superCollection = superCollection;
     }
 
 
