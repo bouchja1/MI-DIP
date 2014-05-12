@@ -41,22 +41,26 @@ import org.zeromq.ZMsg;
  */
 @Component
 public class EnsembleZeroMqHelper extends CommonEndpointHelper {
+    
+    private String ensembleLocation;
 
     private final Log logger = LogFactory.getLog(getClass());
 
     private static class ClientTask implements Callable<String> {
 
         private String json;
+        private String ensembleLocation;
 
-        public ClientTask(String json) {
+        public ClientTask(String json, String ensembleLocation) {
             this.json = json;
+            this.ensembleLocation = ensembleLocation;
         }
 
         @Override
         public String call() throws Exception {
             ZContext ctx = new ZContext();
             Socket client = ctx.createSocket(ZMQ.DEALER);
-            client.connect("tcp://localhost:5555");
+            client.connect(ensembleLocation);
             String replyString = "";
 
             client.send(json.getBytes(), 0);
@@ -101,7 +105,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             logger.info("");
 
             ExecutorService executor = Executors.newSingleThreadExecutor();
-            Future<String> result = executor.submit(new ClientTask(json));
+            Future<String> result = executor.submit(new ClientTask(json,ensembleLocation));
 
             try {
                 resp = buildResponse(result.get());
@@ -134,7 +138,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             logger.info("");
 
             ExecutorService executor = Executors.newSingleThreadExecutor();
-            Future<String> result = executor.submit(new ClientTask(json));
+            Future<String> result = executor.submit(new ClientTask(json,ensembleLocation));
 
             try {
                 resp = buildResponse(result.get());
@@ -175,7 +179,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             logger.info("");
 
             ExecutorService executor = Executors.newSingleThreadExecutor();
-            Future<String> result = executor.submit(new ClientTask(json));
+            Future<String> result = executor.submit(new ClientTask(json,ensembleLocation));
 
             try {
                 resp = buildResponse(result.get());
@@ -208,7 +212,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             logger.info("");
 
             ExecutorService executor = Executors.newSingleThreadExecutor();
-            Future<String> result = executor.submit(new ClientTask(json));
+            Future<String> result = executor.submit(new ClientTask(json,ensembleLocation));
 
             try {
                 resp = buildResponse(result.get());
@@ -241,7 +245,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             logger.info("");
 
             ExecutorService executor = Executors.newSingleThreadExecutor();
-            Future<String> result = executor.submit(new ClientTask(json));
+            Future<String> result = executor.submit(new ClientTask(json,ensembleLocation));
 
             try {
                 resp = buildResponse(result.get());
@@ -280,7 +284,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             logger.info("");
 
             ExecutorService executor = Executors.newSingleThreadExecutor();
-            Future<String> result = executor.submit(new ClientTask(json));
+            Future<String> result = executor.submit(new ClientTask(json,ensembleLocation));
 
             try {
                 resp = buildResponse(result.get());
@@ -333,7 +337,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             logger.info("");
 
             ExecutorService executor = Executors.newSingleThreadExecutor();
-            Future<String> result = executor.submit(new ClientTask(json));
+            Future<String> result = executor.submit(new ClientTask(json,ensembleLocation));
 
             try {
                 resp = buildResponse(result.get());
@@ -386,7 +390,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             logger.info("");
 
             ExecutorService executor = Executors.newSingleThreadExecutor();
-            Future<String> result = executor.submit(new ClientTask(json));
+            Future<String> result = executor.submit(new ClientTask(json,ensembleLocation));
 
             try {
                 resp = buildResponse(result.get());
@@ -472,4 +476,14 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         }
         return resp;
     }
+
+    public String getEnsembleLocation() {
+        return ensembleLocation;
+    }
+
+    public void setEnsembleLocation(String ensembleLocation) {
+        this.ensembleLocation = ensembleLocation;
+    }
+    
+    
 }

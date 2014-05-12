@@ -11,9 +11,12 @@ http://www.springframework.org/schema/context
 http://www.springframework.org/schema/context/spring-context.xsd">
  
     <context:component-scan base-package="cz.cvut.fit.bouchja1.mi_dip.rest.*" />
-    
+    <context:property-placeholder location="classpath:application.properties" />
+    <context:property-placeholder location="classpath:log4j.properties" />
    
-    <bean id="ensembleZeroMqHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.zeromq.EnsembleZeroMqHelper" />                     
+    <bean id="ensembleZeroMqHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.zeromq.EnsembleZeroMqHelper" >                     
+        <property name="ensembleLocation" value="${ensemble.url}"/>
+    </bean>          
     
     <bean id="algorithmEndpointHelper" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.AlgorithmEndpointHelper">
         <property name="solrService" ref="solrService"/>
@@ -35,12 +38,12 @@ http://www.springframework.org/schema/context/spring-context.xsd">
     <bean id="ensembleEndpointSupercollection" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint.EnsembleEndpointSupercollectionImpl"/>    
     
     <bean id="solrService" class="cz.cvut.fit.bouchja1.mi_dip.rest.client.solr.SolrService">
-        <property name="serverUrl" value="http://localhost:8089/solr/"/>
+        <property name="serverUrl" value="${solr.url}"/>
         <!-- java.util.Set -->
         <property name="validSolrCores">
             <set>
-                <value>articleCore</value>
-                <value>behavioralCore</value>
+                <value>${solr.core.articleCore}</value>
+                <value>${solr.core.behavioralCore}</value>
             </set>
         </property>        
     </bean>       
