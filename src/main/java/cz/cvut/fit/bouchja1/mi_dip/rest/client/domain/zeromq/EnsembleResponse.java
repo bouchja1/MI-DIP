@@ -8,7 +8,7 @@ package cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.zeromq;
  *
  * @author jan
  */
-public class SmileResponse {
+public class EnsembleResponse {
     private String status;
     private String body;
 

@@ -65,6 +65,7 @@ public Response updateBehavioralToArticle(String coreId, UserArticleDocument use
             if ("success".equals(message)) {
                 try {
                     solrService.postArticle(coreId, article);
+                    //resp = getOkResponse("Article succesfully posted.");
                     resp = getOkResponse("Article succesfully posted.");
                 } catch (SolrServerException ex) {
                     logger.error(ex);

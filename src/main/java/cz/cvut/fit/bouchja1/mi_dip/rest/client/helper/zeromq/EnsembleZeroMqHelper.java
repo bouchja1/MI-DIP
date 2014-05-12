@@ -11,7 +11,7 @@ import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.BanditSuperCollectio
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.BanditId;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.EnsembleOperation;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.zeromq.EnsembleRequest;
-import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.zeromq.SmileResponse;
+import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.zeromq.EnsembleResponse;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.CommonEndpointHelper;
 import java.io.IOException;
 import java.util.Iterator;
@@ -65,7 +65,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             ZFrame content = msg.pop();
 
             assert (content != null);
-            
+
             byte[] reply = content.getData();
             System.out.println("Received reply: ["
                     + new String(reply) //  Creates a String from request, minus the last byte
@@ -89,10 +89,10 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         Response resp = null;
         ZContext ctx = new ZContext();
 
-EnsembleRequest req = new EnsembleRequest();
-req.setMethod("POST");
-req.setPath("/ensemble/services/collection");
-req.setBody("collectionId=" + banditCollection.getName() + "&bandits=" + formatBanditIds(banditCollection.getBanditIds()));
+        EnsembleRequest req = new EnsembleRequest();
+        req.setMethod("POST");
+        req.setPath("/ensemble/services/collection");
+        req.setBody("collectionId=" + banditCollection.getName() + "&bandits=" + formatBanditIds(banditCollection.getBanditIds()));
 
         try {
             String json = new ObjectMapper().writeValueAsString(req);
@@ -103,11 +103,11 @@ req.setBody("collectionId=" + banditCollection.getName() + "&bandits=" + formatB
             ExecutorService executor = Executors.newSingleThreadExecutor();
             Future<String> result = executor.submit(new ClientTask(json));
 
-try {
-    resp = buildResponse(result.get());
-} catch (Exception ex) {
-    resp = getServerError(ex.getMessage());
-}
+            try {
+                resp = buildResponse(result.get());
+            } catch (Exception ex) {
+                resp = getServerError(ex.getMessage());
+            }
 
         } catch (JsonProcessingException ex) {
             resp = getBadRequestResponse(ex.getMessage());
@@ -444,6 +444,20 @@ try {
             case 200:
                 resp = getOkResponse(result);
                 break;
+            case 201:
+                boolean superColl = json.isNull("supercollection");
+                //boolean coll = json.isNull("collection");
+                String identifier;
+                int id;
+                if (superColl) {
+                    identifier = "collection";
+                    id = json.getInt("collection");
+                } else {
+                    identifier = "supercollection";
+                    id = json.getInt("supercollection");
+                }
+                resp = getCreatedResponse(identifier, id);
+                break;                
             case 400:
                 resp = getBadRequestResponse(result);
                 break;

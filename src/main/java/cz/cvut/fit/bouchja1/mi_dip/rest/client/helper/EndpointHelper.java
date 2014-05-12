@@ -22,7 +22,7 @@ public interface EndpointHelper {
     
     public Response getNotFoundResponse(String message);
 
-    public Response getCreatedResponse(URI uri);
+    public Response getCreatedResponse(String identifier, int id);
 
     public Response getSeeOtherResponse(URI uri);
     

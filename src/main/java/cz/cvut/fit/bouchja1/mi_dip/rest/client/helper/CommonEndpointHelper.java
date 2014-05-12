@@ -5,6 +5,9 @@
 package cz.cvut.fit.bouchja1.mi_dip.rest.client.helper;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
@@ -30,7 +33,13 @@ public abstract class CommonEndpointHelper implements EndpointHelper {
     }    
 
     @Override
-    public Response getCreatedResponse(URI uri) {
+    public Response getCreatedResponse(String identifier, int id) {
+        URI uri = null; 
+        try {
+            uri = new URI("/" + identifier + "/" + id);
+        } catch (URISyntaxException ex) {
+            ex.printStackTrace();
+        }
         return build(Response.created(uri));
     }
 

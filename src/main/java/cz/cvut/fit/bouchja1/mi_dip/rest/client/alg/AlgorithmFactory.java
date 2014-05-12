@@ -21,11 +21,13 @@ import java.util.Set;
 /**
  *
  * @author jan
+ * 
+ * Tovarna vyrabejici instance algoritmu dle zadaneho vstupu
  */
 public class AlgorithmFactory {
 
     /*
-     * TODO: pro ucely odevzdani je to takto prasacky.. dodelat pres HashMapu, klice a reflexi
+     * Prozatim takto nepekne. Do budoucna dodelat pres HashMapu, klice a reflexi
      * Class.getDeclaredConstructor(Class class).newInstance(argumenty oddelene carkou);
      */    
     public static final String[] SET_VALUES = new String[]{"random", "latest", "mlt", "toprate", "cfuser", "cfitem"};
