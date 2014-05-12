@@ -69,7 +69,7 @@ public class ClientCreator extends Thread {
         Response createContextCollectionResp = communication.createContextCollectionRest(collection);
         JSONObject createContextCollectionRespJson = new JSONObject(createContextCollectionResp.readEntity(String.class));
         System.out.println(createContextCollectionRespJson.toString());
-        if (createContextCollectionResp.getStatus() == 200) {
+        if (createContextCollectionResp.getStatus() == 201) {
             createdCollections.add(createContextCollectionRespJson.getInt("collection"));
         }
         
@@ -85,7 +85,7 @@ public class ClientCreator extends Thread {
         Response createContextCollectionResp2 = communication.createContextCollectionRest(collection2);
         JSONObject createContextCollectionResp2Json = new JSONObject(createContextCollectionResp2.readEntity(String.class));
         System.out.println(createContextCollectionResp2Json.toString()); 
-        if (createContextCollectionResp2.getStatus() == 200) {
+        if (createContextCollectionResp2.getStatus() == 201) {
             createdCollections.add(createContextCollectionResp2Json.getInt("collection"));
         }
         return createdCollections;

@@ -313,27 +313,18 @@ public class Communication {
         return response;
     }
 
-    public Response sendSuperFeedbackEnsembleOperation() {
+    public Response sendSuperFeedbackEnsembleOperation(int collectionId, int banditId, String feedbackType) {
         JsonObject collection = Json.createObjectBuilder()
-                .add("bandit", "random")
+                .add("bandit", banditId)
                 .add("operation", "feedback")
                 //.add("feedbackType", "possitive")
-                .add("feedbackType", "possitive")
+                .add("feedbackType", feedbackType)
                 .build();
-
-        /*
-         * TODO testovat na to, co se stane kdyz se tam hodi blba kolekce, kdyz se tam hodi blbej nazev operace a tak
-         JsonObject collection = Json.createObjectBuilder()
-         .add("bandit", "random")
-         .add("operation", "feedback")
-         .add("feedbackType", "negative")
-         .build();
-         */
 
         Client client = clientApi.getClient();
 
         Response response = client.target(clientApi.getRestfulApiLocation())
-                .path("supercollection/1")
+                .path("supercollection/" + collectionId)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 //.header("some-header", "true")
                 .put(Entity.entity(collection, MediaType.APPLICATION_JSON_TYPE));
