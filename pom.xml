@@ -10,7 +10,8 @@
     <name>Ensemble</name>
     <url>http://maven.apache.org</url>
     <build>
-        <plugins>            
+        <plugins>    
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -51,7 +52,7 @@
                     </archive>
                 </configuration>
             </plugin>  
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>

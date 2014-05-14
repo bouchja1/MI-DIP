@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.cvut.fit.bouchja1.ensemble.bandits;
 
 import java.util.ArrayList;
@@ -23,11 +19,6 @@ public class SuperBanditArrayBuilder extends ArrayList<Bandit> {
 
     public int getDifferentNamesAmount() {
         return this.differentBanditsMap.size();
-    }
-
-    public int getNameAmount(String name) {
-        Integer integer = this.differentBanditsMap.get(name);
-        return (integer != null) ? integer : 0;
     }
 
     /**

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.cvut.fit.bouchja1.ensemble.storage;
 
 import com.datastax.driver.core.BoundStatement;
@@ -19,14 +15,12 @@ import cz.cvut.fit.bouchja1.ensemble.bandits.BayesianStrategy;
 import cz.cvut.fit.bouchja1.ensemble.bandits.SuperBayesianStrategy;
 import cz.cvut.fit.bouchja1.ensemble.bandits.util.MathUtil;
 import cz.cvut.fit.bouchja1.ensemble.operation.object.LastEnsembleConfiguration;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.logging.Log;

@@ -1,13 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.cvut.fit.bouchja1.ensemble.bandits;
 
 import cz.cvut.fit.bouchja1.ensemble.bandits.util.MathUtil;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -74,7 +68,6 @@ public class SuperBayesianStrategy {
     }
 
     private Bandit bestBanditFromCombination(List<Bandit> banditsCombination) {
-        //String bestBandit = null;
         List<Integer> bestBandits = new ArrayList<>();
         SuperBanditArrayBuilder banditCombiner = new SuperBanditArrayBuilder(banditsCombination);
         //nyni mam vytvoreny nastroj pro pocitani unikatnich vyskytu banditu a jednotlivcu

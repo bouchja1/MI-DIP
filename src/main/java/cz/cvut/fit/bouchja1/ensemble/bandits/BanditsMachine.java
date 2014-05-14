@@ -1,11 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.cvut.fit.bouchja1.ensemble.bandits;
 
-import cz.cvut.fit.bouchja1.ensemble.bandits.util.MathUtil;
-import java.util.List;
 import java.util.Map;
 import org.springframework.core.env.Environment;
 
@@ -23,21 +17,6 @@ public class BanditsMachine {
     private double winner;
     private double losers;
     private double stupid;
-
-    /*
-    public BanditsMachine(List<Bandit> banditList, double rate) {
-        this.banditList = banditList;
-        this.rate = rate;
-    }
-    
-    public BanditsMachine(List<Bandit> banditList, Environment env) {
-        this.banditList = banditList;
-        this.rate = Double.parseDouble(env.getProperty("ensemble.machine.rate"));
-        this.winner = Double.parseDouble(env.getProperty("ensemble.feedback.possitive.best"));
-        this.losers = Double.parseDouble(env.getProperty("ensemble.feedback.possitive.others"));
-        this.stupid = Double.parseDouble(env.getProperty("ensemble.feedback.negative"));
-    } 
-    */
     
     public BanditsMachine(Map<Integer, Bandit> banditList, double rate) {
         this.banditList = banditList;
@@ -90,22 +69,7 @@ public class BanditsMachine {
         banditToUpdate.updateTrialStats(rate, totalTrialsCountsToBoost);                           
     }    
 
-    /*
-     * zpetna vazba
-     * - pokud je DOBRE doporuceni
-     *      - tomu, ktery byl vybran, se pricte +1
-     *      - ostatni se neco malo v pomeru odecte
-     * - pokud je SPATNE doporuceni
-     *      - jemu se trochu odecte (preci jen byl povazovat do te doby za nejlepsiho)
-     *      - ostatni zustanou stejne (at maji sanci stat se tako v budoucnu doporucovanymi)
-     */
-    public void updateFeedback(Bandit banditToUpdate, String feedback) {
-        //banditToUpdate.updateRoundStats(result);        
-        
-        /*
-         * TODO rekalkulace feedbacku do tech intervalu
-         * - dle poctu hvezdicek pozitivni, neutralni nebo negativni
-         */
+    public void updateFeedback(Bandit banditToUpdate, String feedback) {        
         
         switch (feedback) {
             case "possitive" :
@@ -177,9 +141,5 @@ public class BanditsMachine {
             } 
         }
     }      
-
-    Bandit getBanditByKey(String banditId) {
-        return banditList.get(banditId);
-    }
 }
 

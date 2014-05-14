@@ -1,15 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.cvut.fit.bouchja1.ensemble.operation;
 
 import cz.cvut.fit.bouchja1.ensemble.api.EnsembleApiFacade;
 import cz.cvut.fit.bouchja1.ensemble.message.object.Reply;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.cvut.fit.bouchja1.ensemble.spring;
 
 import cz.cvut.fit.bouchja1.ensemble.storage.IStorage;
@@ -39,9 +35,6 @@ public class ApplicationBean {
     }    
     
     public void run(EnsembleApiFacade api) {
-        /*
-         * PRO SIMULACI - POKUSY ZDE?
-         */
         lastConfiguration = getLastBanditConfiguration();       
         api.setLastConfiguration(lastConfiguration); //muze by prazdne  
         api.setStorage(storage);
