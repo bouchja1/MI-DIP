@@ -44,7 +44,7 @@ import org.apache.solr.common.SolrDocumentList;
 public class AlgorithmUserBasedCf implements IAlgorithm {
 
     private final Log logger = LogFactory.getLog(getClass());
-    private static final String ALGORITHM_NAME = "usercf";
+    private static final String ALGORITHM_NAME = "cfuser";
     private String id;
     private ConcurrentUpdateSolrServer server;
     private String coreId;

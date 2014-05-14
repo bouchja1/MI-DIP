@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.cvut.fit.bouchja1.mi_dip.rest.client.alg.impl;
 
 import com.google.common.collect.Lists;
@@ -46,6 +42,7 @@ public class AlgorithmWeightedRating implements IAlgorithm {
         this.id = ALGORITHM_NAME;
     }        
 
+    //Based on sources:
     //http://stackoverflow.com/questions/2134504/what-is-the-best-algorithm-to-calculate-the-most-scored-item
     //http://www.imdb.com/chart/top
     //http://en.wikipedia.org/wiki/Internet_Movie_Database#User_ratings_of_films
