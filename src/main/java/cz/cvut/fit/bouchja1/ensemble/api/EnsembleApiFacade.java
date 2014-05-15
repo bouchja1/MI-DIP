@@ -4,9 +4,7 @@
  */
 package cz.cvut.fit.bouchja1.ensemble.api;
 
-import cz.cvut.fit.bouchja1.ensemble.storage.CassandraStorage;
 import cz.cvut.fit.bouchja1.ensemble.storage.IStorage;
-import cz.cvut.fit.bouchja1.ensemble.bandits.BayesianStrategy;
 import cz.cvut.fit.bouchja1.ensemble.bandits.SuperBayesianStrategy;
 import cz.cvut.fit.bouchja1.ensemble.message.object.Reply;
 import cz.cvut.fit.bouchja1.ensemble.operation.object.LastEnsembleConfiguration;

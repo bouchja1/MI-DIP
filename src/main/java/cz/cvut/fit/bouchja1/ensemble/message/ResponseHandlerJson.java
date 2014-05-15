@@ -35,10 +35,10 @@ public class ResponseHandlerJson implements ResponseHandler {
         if (reply.getBestBandit() != -1) {
             builder.add("bestBandit", reply.getBestBandit());
         }        
-        if (reply.getCollection() != -1) {
+        if (reply.getCollection() != null) {
             builder.add("collection", reply.getCollection());
         }     
-        if (reply.getSuperCollection()!= -1) {
+        if (reply.getSuperCollection()!= null) {
             builder.add("supercollection", reply.getSuperCollection());
         }           
         if (reply.getBestBanditIdent() != null) {
@@ -72,22 +72,22 @@ public class ResponseHandlerJson implements ResponseHandler {
     }
     
     @Override
-    public void createSuccessReply(String message, int collectionId) {
+    public void createSuccessReply(String message, String collectionId) {
         reply = new Reply(SUCCESS_REPLY, message, collectionId);
     }    
     
     @Override
-    public void createCreatedCollectionReply(String message, int collectionId) {
+    public void createCreatedCollectionReply(String message, String collectionId) {
         reply = new Reply(CREATED_REPLY, message, collectionId, "collection");
     }     
     
     @Override
-    public void createCreatedSupercollectionReply(String message, int collectionId) {
+    public void createCreatedSupercollectionReply(String message, String collectionId) {
         reply = new Reply(CREATED_REPLY, message, collectionId, "supercollection");
     }     
     
     @Override
-    public void createSuccessReplyDetection(String message, int bestBandit, String banditIdent, int collection) {
+    public void createSuccessReplyDetection(String message, int bestBandit, String banditIdent, String collection) {
         reply = new Reply(SUCCESS_REPLY, message, bestBandit, banditIdent, collection);
     }       
 

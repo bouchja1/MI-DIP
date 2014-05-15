@@ -18,12 +18,12 @@ public class Reply {
     private String message;
     private int bestBandit = -1;
     private String bestBanditIdent;
-    private int collection = -1;
-    private int superCollection = -1;
+    private String collection;
+    private String superCollection;
     private List<ContextCollection> contextCollection = new ArrayList<>();
     private List<Supercollection> supercollection = new ArrayList<>();
 
-    public Reply(int status, String message, int bestBandit, String bestBanditIdent, int collection) {
+    public Reply(int status, String message, int bestBandit, String bestBanditIdent, String collection) {
         this.status = status;
         this.message = message;
         this.bestBanditIdent = bestBanditIdent;
@@ -36,13 +36,13 @@ public class Reply {
         this.message = message;
     }    
     
-    public Reply(int status, String message, int collectionId) {
+    public Reply(int status, String message, String collectionId) {
         this.status = status;
         this.message = message;
         this.collection = collectionId;
     }     
     
-    public Reply(int status, String message, int collectionId, String collOrSuperColl) {
+    public Reply(int status, String message, String collectionId, String collOrSuperColl) {
         this.status = status;
         this.message = message;
         if ("collection".equals(collOrSuperColl)) {
@@ -100,21 +100,23 @@ public class Reply {
         this.bestBandit = bestBandit;
     }
 
-    public int getCollection() {
+    public String getCollection() {
         return collection;
     }
 
-    public void setCollection(int collection) {
+    public void setCollection(String collection) {
         this.collection = collection;
     }
 
-    public int getSuperCollection() {
+    public String getSuperCollection() {
         return superCollection;
     }
 
-    public void setSuperCollection(int superCollection) {
+    public void setSuperCollection(String superCollection) {
         this.superCollection = superCollection;
     }
+
+
 
 
     
