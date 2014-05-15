@@ -14,6 +14,7 @@ import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.zeromq.EnsembleRequest;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.zeromq.EnsembleResponse;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.CommonEndpointHelper;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
@@ -23,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
@@ -89,7 +91,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
     }
 
     //curl -X POST -H "Content-Type: application/json" -d '{"banditSetId":"1","banditIds": [ { "id":"1" }, { "id":"2" }, { "id":"3" }]}' 'http://localhost:8089/ensembleRestApi/recommeng/ensemble/collection'
-    public Response createBanditSet(BanditCollection banditCollection) {
+    public Response createBanditSet(BanditCollection banditCollection, UriInfo uriInfo) {
         Response resp = null;
         ZContext ctx = new ZContext();
 
@@ -108,7 +110,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             Future<String> result = executor.submit(new ClientTask(json,ensembleLocation));
 
             try {
-                resp = buildResponse(result.get());
+                resp = buildResponse(result.get(), uriInfo);
             } catch (Exception ex) {
                 resp = getServerError(ex.getMessage());
             }
@@ -122,7 +124,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         return resp;
     }
 
-    public Response createBanditSuperSet(BanditSuperCollection banditSuperCollection) {
+    public Response createBanditSuperSet(BanditSuperCollection banditSuperCollection, UriInfo uriInfo) {
         Response resp = null;
         ZContext ctx = new ZContext();
 
@@ -141,7 +143,7 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
             Future<String> result = executor.submit(new ClientTask(json,ensembleLocation));
 
             try {
-                resp = buildResponse(result.get());
+                resp = buildResponse(result.get(), uriInfo);
             } catch (Exception ex) {
                 resp = getServerError(ex.getMessage());
             }
@@ -439,6 +441,52 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
         return builder.toString();
     }
 
+    private Response buildResponse(String result, UriInfo uriInfo) {
+        Response resp;
+        //result = result.replaceAll("\"", "\\");
+        JSONObject json = new JSONObject(result);
+
+        switch ((int) json.get("status")) {
+            case 200:
+                resp = getOkResponseEnsemble(result);
+                break;
+            case 201:
+                boolean superColl = json.isNull("supercollection");
+                //boolean coll = json.isNull("collection");
+                String identifier;
+                String id;
+                if (superColl) {
+                    //identifier = "collection";
+                    identifier = "collection";
+                    id = json.getString("collection");
+                    json.remove("collection");
+                    URI uri = uriInfo.getBaseUriBuilder().path("/" + identifier + "/" + id).build(); 
+                    json.put("collection", uri.toString());
+                } else {
+                    identifier = "supercollection";
+                    id = json.getString("supercollection");
+                    json.remove("supercollection");
+                    URI uri = uriInfo.getBaseUriBuilder().path("/" + identifier + "/" + id).build(); 
+                    json.put("supercollection", uri.toString());                    
+                }
+                
+                resp = getCreatedResponseEnsemble(json.toString());
+                break;                
+            case 400:
+                resp = getBadRequestResponseEnsemble(result);
+                break;
+            case 404:
+                resp = getNotFoundResponseEnsemble(result);
+                break;
+            case 500:
+                resp = getServerErrorEnsemble(result);
+                break;
+            default:
+                resp = getServerErrorEnsemble("Unknown server error.");
+        }
+        return resp;
+    }
+    
     private Response buildResponse(String result) {
         Response resp;
         //result = result.replaceAll("\"", "\\");
@@ -446,36 +494,22 @@ public class EnsembleZeroMqHelper extends CommonEndpointHelper {
 
         switch ((int) json.get("status")) {
             case 200:
-                resp = getOkResponse(result);
-                break;
-            case 201:
-                boolean superColl = json.isNull("supercollection");
-                //boolean coll = json.isNull("collection");
-                String identifier;
-                int id;
-                if (superColl) {
-                    identifier = "collection";
-                    id = json.getInt("collection");
-                } else {
-                    identifier = "supercollection";
-                    id = json.getInt("supercollection");
-                }
-                resp = getCreatedResponse(identifier, id);
-                break;                
+                resp = getOkResponseEnsemble(result);
+                break;              
             case 400:
-                resp = getBadRequestResponse(result);
+                resp = getBadRequestResponseEnsemble(result);
                 break;
             case 404:
-                resp = getNotFoundResponse(result);
+                resp = getNotFoundResponseEnsemble(result);
                 break;
             case 500:
-                resp = getServerError(result);
+                resp = getServerErrorEnsemble(result);
                 break;
             default:
-                resp = getServerError("Unknown server error.");
+                resp = getServerErrorEnsemble("Unknown server error.");
         }
         return resp;
-    }
+    }    
 
     public String getEnsembleLocation() {
         return ensembleLocation;

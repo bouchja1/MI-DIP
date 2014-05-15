@@ -8,6 +8,7 @@ import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.BanditCollection;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.BanditSuperCollection;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.EnsembleOperation;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 /**
  *

@@ -7,6 +7,7 @@ package cz.cvut.fit.bouchja1.mi_dip.rest.client.endpoint;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.BanditCollection;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.domain.input.EnsembleOperation;
 import cz.cvut.fit.bouchja1.mi_dip.rest.client.helper.zeromq.EnsembleZeroMqHelper;
+import java.net.URI;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -15,8 +16,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +33,9 @@ public class EnsembleEndpointCollectionImpl implements EnsembleEndpointCollectio
     @Autowired
     private EnsembleZeroMqHelper ensembleZeroMqHelper;
     
+    @Context
+    UriInfo uriInfo;
+    
     public static final String COLLECTION_PATH = "/collection";
     public static final String COLLECTION_ID = "/{collectionId}";    
 
@@ -39,7 +45,8 @@ public class EnsembleEndpointCollectionImpl implements EnsembleEndpointCollectio
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Override
     public Response createBanditCollection(BanditCollection banditCollection) {
-        return ensembleZeroMqHelper.createBanditSet(banditCollection);
+        Response r = ensembleZeroMqHelper.createBanditSet(banditCollection, uriInfo);
+        return r; 
     }
     
     @GET   

@@ -61,7 +61,7 @@ public class AlgorithmMlt implements IAlgorithm {
                             new GenericEntity<List<OutputDocument>>(Lists.newArrayList(docs)) {
                     }).build();
                 } else {
-                    resp = helper.getBadRequestResponse("Document with id " + documentId + " was not found in index.");
+                    resp = helper.getBadRequestResponse("Document with id " + documentId + " was not found in index.");                 
                 }
             } catch (SolrServerException ex) {
                 logger.error(ex);
