@@ -21,12 +21,11 @@ public class ThesisExperiments extends AbstractTest {
     public static void main(String[] args) throws InterruptedException {
         EnsembleClient clientApi = new EnsembleClient(ensembleLocation, restfulApiLocation);
 
+        //NAPLNENI INDEXU NAHODNYMI DATY
         /*
-         * NAPLNENI INDEXU DATY
-         */
         EnvironmentBuilder environmentBuilder = new EnvironmentBuilder(new Communication(clientApi));       
         environmentBuilder.fillIndexWithTestData(serverLocation, articleCore, behavioralCore);   
-        
+        */
 
         /*
          * SPOUSTENI JEDNOTLIVYCH EXPERIMENTU

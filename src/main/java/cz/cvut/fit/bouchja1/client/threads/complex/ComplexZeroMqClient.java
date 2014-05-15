@@ -38,7 +38,7 @@ public class ComplexZeroMqClient extends Thread {
     public void run() {
         ZContext ctx = new ZContext();
         System.out.println("");
-        System.out.println("**** Vypis seznam vsech kontextovych kolekci ****");
+        //System.out.println("**** Vypis seznam vsech kontextovych kolekci ****");
         JSONObject allCollectionsJson = null;
 
         ZMQ.Socket client = ctx.createSocket(ZMQ.DEALER);
@@ -126,6 +126,7 @@ public class ComplexZeroMqClient extends Thread {
                         coreIdToUse = "articleCore";
                         break;
                     case "cfuser":
+                        case "cfitem":
                     case "toprate":
                         coreIdToUse = "behavioralCore";
                         break;

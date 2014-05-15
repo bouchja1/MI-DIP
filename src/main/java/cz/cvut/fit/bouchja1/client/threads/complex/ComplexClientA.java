@@ -108,6 +108,7 @@ public class ComplexClientA extends Thread {
                         coreIdToUse = "articleCore";
                         break;
                     case "cfuser":
+                        case "cfitem":
                     case "toprate":
                         coreIdToUse = "behavioralCore";
                         break;

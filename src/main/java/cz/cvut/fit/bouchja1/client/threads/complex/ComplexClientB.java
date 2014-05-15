@@ -61,7 +61,7 @@ public class ComplexClientB extends Thread {
 
         //Pro ucely experimentu vybiram vzdy z jedne kolekce (pokud existuje)
         int firstContextCollection = 0;
-        if (allCollectionsJson != null) {
+        if (allSuperCollectionsJson != null) {
             JSONArray contextCollectionsArray = allCollectionsJson.getJSONArray("collections");
             firstContextCollection = contextCollectionsArray.getInt(0);
         }
@@ -112,6 +112,7 @@ public class ComplexClientB extends Thread {
                         coreIdToUse = "articleCore";
                         break;
                     case "cfuser":
+                        case "cfitem":
                     case "toprate":
                         coreIdToUse = "behavioralCore";
                         break;

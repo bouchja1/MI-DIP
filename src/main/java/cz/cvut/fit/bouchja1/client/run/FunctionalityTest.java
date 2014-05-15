@@ -27,9 +27,13 @@ public class FunctionalityTest extends AbstractTest {
 
     public static void main(String[] args) throws InterruptedException {        
         EnsembleClient clientApi = new EnsembleClient(ensembleLocation, restfulApiLocation);                       
-        EnvironmentBuilder environmentBuilder = new EnvironmentBuilder(new Communication(clientApi));       
-        environmentBuilder.fillIndexWithTestData(serverLocation, articleCore, behavioralCore);   
         
-        (new ClientFunctionalityTest(9999, new Communication(clientApi))).start();                                       
+        //NAPLNENI INDEXU NAHODNYMI DATY
+        /*
+        EnvironmentBuilder environmentBuilder = new EnvironmentBuilder(new Communication(clientApi));       
+        environmentBuilder.fillIndexWithTestData(serverLocation, articleCore, behavioralCore);             
+          */
+        
+        (new ClientFunctionalityTest(10, new Communication(clientApi))).start();                                       
     }    
 }

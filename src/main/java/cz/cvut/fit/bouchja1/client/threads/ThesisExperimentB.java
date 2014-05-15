@@ -41,8 +41,8 @@ public class ThesisExperimentB extends Thread {
             Response allCollections = communication.getBanditCollections();
             if (allCollections.getStatus() != 200) {
                 System.out.println("Status: " + allCollections.getStatus());
-                //allCollectionsJson = new JSONObject(allCollections.readEntity(String.class));
-                //System.out.println(allCollectionsJson.toString());            
+                allCollectionsJson = new JSONObject(allCollections.readEntity(String.class));
+                System.out.println(allCollectionsJson.toString());            
             } else {
                 System.out.println("---- vsechny kontextove kolekce ----");
                 allCollectionsJson = new JSONObject(allCollections.readEntity(String.class));
@@ -55,7 +55,7 @@ public class ThesisExperimentB extends Thread {
             Response allSuperCollections = communication.getBanditSuperCollections();
             if (allSuperCollections.getStatus() != 200) {
                 System.out.println("Chyba pri vypisu kolekci banditu: " + allSuperCollections.getStatus());
-                allSuperCollectionsJson = new JSONObject(allCollections.readEntity(String.class));
+                allSuperCollectionsJson = new JSONObject(allSuperCollections.readEntity(String.class));
                 System.out.println(allSuperCollectionsJson.toString());
             } else {
                 System.out.println("---- vsechny kontextove SUPER kolekce ----");
@@ -77,8 +77,8 @@ public class ThesisExperimentB extends Thread {
                 Response bestColl = communication.getBestBanditContextCollectionFilter(firstContextCollection + "", "best");
                 if (bestColl.getStatus() != 200) {
                     System.out.println("Chyba pri vypisu kolekci banditu: " + bestColl.getStatus());
-                    //bestBanditCollectionJson = new JSONObject(bestColl.readEntity(String.class));
-                    //System.out.println(bestBanditCollectionJson.toString());            
+                    bestBanditCollectionJson = new JSONObject(bestColl.readEntity(String.class));
+                    System.out.println(bestBanditCollectionJson.toString());            
                 } else {
                     System.out.println("---- vyber nejlepsiho bandity z kontextove kolekce ----");
                     bestBanditCollectionJson = new JSONObject(bestColl.readEntity(String.class));
@@ -93,6 +93,8 @@ public class ThesisExperimentB extends Thread {
                     Response useEnsembleResponse = communication.sendUseEnsembleOperationCollection(collectionId, bestBandit);
                     if (useEnsembleResponse.getStatus() != 200) {
                         System.out.println("Chyba pri zasilani zpetne vazby o pouziti algoritmu.");
+                    JSONObject jo = new JSONObject(useEnsembleResponse.readEntity(String.class));
+                    System.out.println(jo.toString());                        
                     } else {
                         bestBanditCollectionJson = new JSONObject(useEnsembleResponse.readEntity(String.class));
                         System.out.println(bestBanditCollectionJson.toString());
@@ -112,6 +114,7 @@ public class ThesisExperimentB extends Thread {
                             coreIdToUse = "articleCore";
                             break;
                         case "cfuser":
+                        case "cfitem" :
                         case "toprate":
                             coreIdToUse = "behavioralCore";
                             break;
@@ -123,6 +126,8 @@ public class ThesisExperimentB extends Thread {
 
                     if (algorithmRecommendation.getStatus() != 200) {
                         System.out.println("Nastal nejaky problem pri doporucovani danym algoritmem: " + algorithmRecommendation.getStatus());
+                    JSONObject jo = new JSONObject(algorithmRecommendation.readEntity(String.class));
+                    System.out.println(jo.toString());                           
                     } else {
                         //bestBanditCollectionJson = new JSONObject(algorithmRecommendation.readEntity(String.class));
                         //System.out.println(bestBanditCollectionJson.toString());                    
@@ -149,6 +154,8 @@ public class ThesisExperimentB extends Thread {
 
                         if (userRatingFeedbackResp.getStatus() != 200) {
                             System.out.println("Stala se chyba pri zasilani zpeten vazby hodncoeni clanku: " + userRatingFeedbackResp.getStatus());
+                    JSONObject jo = new JSONObject(userRatingFeedbackResp.readEntity(String.class));
+                    System.out.println(jo.toString());                               
                         } else {
                             //bestBanditCollectionJson = new JSONObject(userRatingFeedbackResp.readEntity(String.class));
                             //System.out.println(bestBanditCollectionJson.toString());
@@ -176,6 +183,8 @@ public class ThesisExperimentB extends Thread {
 
                             if (userEnsembleFeedback.getStatus() != 200) {
                                 System.out.println("Nastala chyba pri zasilani zpetne vazby na ensemble");
+                    JSONObject jo = new JSONObject(userEnsembleFeedback.readEntity(String.class));
+                    System.out.println(jo.toString());                                   
                             } else {
                                 bestBanditCollectionJson = new JSONObject(userEnsembleFeedback.readEntity(String.class));
                                 System.out.println(bestBanditCollectionJson.toString());

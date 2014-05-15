@@ -24,9 +24,9 @@ import org.fluttercode.datafactory.impl.DataFactory;
 public class ArticleGenerator {
 
     private List<Article> articles = new ArrayList<>();
-    private static final int NUMBER_OF_DOCUMENTS = 1000;
+    private static final int NUMBER_OF_DOCUMENTS = 5000;
     private static final String characters = "abcdefghijklmnopqrstuvwxyz0123456789";
-    private static final int ARTICLE_ID_LENGTH = 400;
+    private static final int ARTICLE_ID_LENGTH = 50;
     private static final int ARTICLE_TEXT_LENGTH = 800;
     private static final int maxNumberOfUsersToArticle = 100;
     private int[] groupIds = new int[]{123, 345, 567, 789};

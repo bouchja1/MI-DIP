@@ -38,31 +38,23 @@ public class ClientCreator extends Thread {
         if (allCollections.getStatus() != 200) {
             System.out.println("Client creator - stala se chyba pri vraceni seznamu koleci: " + allCollections.getStatus());
         } else {
-            /*
-            allCollectionsJson = new JSONObject(allCollections.readEntity(String.class));
-            if (!allCollectionsJson.isNull("collections")) {
-                JSONArray collectionsArray = allCollectionsJson.getJSONArray("collections");
-                
-            } else {
-                //vytvor kolekce
-                createMorningAndEurope();
-            }
-            */
-            List<Integer> createdCollections = createMorningAndEurope();
+            System.out.println(allCollections.toString());
+            List<String> createdCollections = createMorningAndEurope();
             if (!createdCollections.isEmpty()) {
                 createSuperCollectionMorningInEurope(createdCollections);
             }
         }                       
     }
 
-    private List<Integer> createMorningAndEurope() {
-        List<Integer> createdCollections = new ArrayList<>();
+    private List<String> createMorningAndEurope() {
+        List<String> createdCollections = new ArrayList<>();
         //vytvoreni kontextovych kolekci
         JsonObject collection = Json.createObjectBuilder()
         .add("name", "morning")
         .add("banditIds", Json.createArrayBuilder()
         .add("latest")
         .add("cfuser")
+        .add("cfitem")                
         .add("toprate")
         .add("random"))
         .build();
@@ -70,7 +62,7 @@ public class ClientCreator extends Thread {
         JSONObject createContextCollectionRespJson = new JSONObject(createContextCollectionResp.readEntity(String.class));
         System.out.println(createContextCollectionRespJson.toString());
         if (createContextCollectionResp.getStatus() == 201) {
-            createdCollections.add(createContextCollectionRespJson.getInt("collection"));
+            createdCollections.add(createContextCollectionRespJson.getString("collection"));
         }
         
         JsonObject collection2 = Json.createObjectBuilder()
@@ -78,6 +70,7 @@ public class ClientCreator extends Thread {
                 .add("banditIds", Json.createArrayBuilder()
                 .add("latest")
                 .add("cfuser")
+                .add("cfitem")                                
                 .add("toprate")
                 .add("random"))
                 .build();
@@ -86,15 +79,16 @@ public class ClientCreator extends Thread {
         JSONObject createContextCollectionResp2Json = new JSONObject(createContextCollectionResp2.readEntity(String.class));
         System.out.println(createContextCollectionResp2Json.toString()); 
         if (createContextCollectionResp2.getStatus() == 201) {
-            createdCollections.add(createContextCollectionResp2Json.getInt("collection"));
+            createdCollections.add(createContextCollectionResp2Json.getString("collection"));
         }
         return createdCollections;
     }
 
-    private void createSuperCollectionMorningInEurope(List<Integer> createdCollections) {
+    private void createSuperCollectionMorningInEurope(List<String> createdCollections) {
         JsonArrayBuilder contextCollections = Json.createArrayBuilder();
-        for (Integer collId : createdCollections) {
-            contextCollections.add(collId);
+        for (String collId : createdCollections) {
+            String[] collarray = collId.split("/");
+            contextCollections.add(Integer.valueOf(collarray[collarray.length-1]));
         }
         
         JsonObject superCollection = Json.createObjectBuilder()

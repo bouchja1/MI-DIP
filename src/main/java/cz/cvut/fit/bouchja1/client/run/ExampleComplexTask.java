@@ -43,12 +43,17 @@ public class ExampleComplexTask extends AbstractTest {
 
     public static void main(String[] args) throws InterruptedException {
         EnsembleClient clientApi = new EnsembleClient(ensembleLocation, restfulApiLocation);
+        
+        //NAPLNENI INDEXU NAHODNYMI DATY
+        /*
         EnvironmentBuilder environmentBuilder = new EnvironmentBuilder(new Communication(clientApi));
         environmentBuilder.fillIndexWithTestData(serverLocation, articleCore, behavioralCore);
-
+        */
+        
         (new ClientCreator(9999, new Communication(clientApi))).start();
-        Thread.sleep(10000);
+        Thread.sleep(20000);
 
+        
         for (int i = 0; i < ROUNDS; i++) {
             (new ComplexClientA(1, new Communication(clientApi))).start();
             Thread.sleep(3000);
@@ -59,5 +64,6 @@ public class ExampleComplexTask extends AbstractTest {
             (new ComplexZeroMqClient(4, new Communication(clientApi))).start();
             Thread.sleep(3000);
         }
+        
     }
 }
